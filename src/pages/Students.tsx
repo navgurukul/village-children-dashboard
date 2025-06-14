@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ const Students = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#90f6d7] p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <Card className="bg-[#263849] border-[#41506b]">

@@ -39,7 +39,7 @@ const App = () => {
         {!isAuthenticated ? (
           <Login onLogin={handleLogin} error={loginError} />
         ) : (
-          <div className="min-h-screen bg-[#90f6d7]">
+          <div className="min-h-screen bg-white">
             {/* Navigation Header */}
             <div className="bg-[#263849] shadow-sm border-b border-[#41506b] px-6 py-3">
               <div className="flex justify-between items-center">

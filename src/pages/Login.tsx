@@ -18,7 +18,7 @@ const Login = ({ onLogin, error }: LoginProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#90f6d7] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-[#263849] border-[#41506b]">
         <CardHeader>
           <CardTitle className="text-2xl text-center text-white">
