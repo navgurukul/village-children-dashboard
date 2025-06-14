@@ -1,115 +1,75 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface LoginProps {
   onLogin: (credentials: { username: string; password: string }) => void;
-  error?: string;
+  error: string;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+const Login = ({ onLogin, error }: LoginProps) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      onLogin(credentials);
-      setLoading(false);
-    }, 1000);
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setCredentials(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    onLogin({ username, password });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <GraduationCap className="h-12 w-12 text-blue-600" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">
+    <div className="min-h-screen bg-[#90f6d7] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-[#263849] border-[#41506b]">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center text-white">
             Student Data Dashboard
           </CardTitle>
-          <p className="text-gray-600">Sign in to access the dashboard</p>
+          <p className="text-center text-gray-300 text-sm">
+            Please sign in to access the dashboard
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-white mb-2">
+                Username
+              </label>
+              <input
                 id="username"
                 type="text"
-                placeholder="Enter your username"
-                value={credentials.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 border border-[#41506b] rounded-md focus:outline-none focus:ring-2 focus:ring-[#35bcbf] bg-white text-[#263849]"
                 required
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={credentials.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-[#41506b] rounded-md focus:outline-none focus:ring-2 focus:ring-[#35bcbf] bg-white text-[#263849]"
+                required
+              />
             </div>
-
             {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+              <div className="text-red-400 text-sm">
+                {error}
+              </div>
             )}
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading || !credentials.username || !credentials.password}
+            <Button 
+              type="submit" 
+              className="w-full bg-[#35bcbf] hover:bg-[#41506b] text-white"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              Sign In
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-sm text-gray-500">Username: admin</p>
-            <p className="text-sm text-gray-500">Password: password</p>
+          <div className="mt-4 text-center text-sm text-gray-300">
+            Demo credentials: admin / password
           </div>
         </CardContent>
       </Card>

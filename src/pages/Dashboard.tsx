@@ -1,19 +1,13 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Download, Filter, Users, GraduationCap, UserX, MapPin } from 'lucide-react';
-import { mockStudentData, type StudentData, type FilterOptions } from '@/data/mockData';
-import { downloadCSV, downloadPDF } from '@/utils/exportUtils';
+import React, { useState, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { mockStudentData, type FilterOptions } from '../data/mockData';
+import { exportToCSV, exportToPDF } from '../utils/exportUtils';
+import { Download, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 
 const Dashboard = () => {
-  const [data, setData] = useState<StudentData[]>(mockStudentData);
-  const [filteredData, setFilteredData] = useState<StudentData[]>(mockStudentData);
   const [filters, setFilters] = useState<FilterOptions>({
     block: 'all',
     cluster: 'all',
@@ -23,293 +17,274 @@ const Dashboard = () => {
     schoolStatus: 'all'
   });
 
-  useEffect(() => {
-    applyFilters();
-  }, [filters, data]);
-
-  const applyFilters = () => {
-    let filtered = data;
-
-    if (filters.block && filters.block !== 'all') {
-      filtered = filtered.filter(student => student.block === filters.block);
-    }
-    if (filters.cluster && filters.cluster !== 'all') {
-      filtered = filtered.filter(student => student.cluster === filters.cluster);
-    }
-    if (filters.village && filters.village !== 'all') {
-      filtered = filtered.filter(student => student.village === filters.village);
-    }
-    if (filters.panchayat && filters.panchayat !== 'all') {
-      filtered = filtered.filter(student => student.panchayat === filters.panchayat);
-    }
-    if (filters.gender && filters.gender !== 'all') {
-      filtered = filtered.filter(student => student.gender === filters.gender);
-    }
-    if (filters.schoolStatus && filters.schoolStatus !== 'all') {
-      filtered = filtered.filter(student => student.schoolStatus === filters.schoolStatus);
-    }
-
-    setFilteredData(filtered);
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      block: 'all',
-      cluster: 'all',
-      village: 'all',
-      panchayat: 'all',
-      gender: 'all',
-      schoolStatus: 'all'
-    });
-  };
-
-  // Get unique values for filter dropdowns
-  const getUniqueValues = (field: keyof StudentData) => {
-    return [...new Set(data.map(student => student[field]))].sort();
-  };
-
-  // Calculate statistics
-  const totalStudents = filteredData.length;
-  const maleCount = filteredData.filter(s => s.gender === 'Male').length;
-  const femaleCount = filteredData.filter(s => s.gender === 'Female').length;
-  const enrolledCount = filteredData.filter(s => s.schoolStatus === 'Enrolled').length;
-  const dropoutCount = filteredData.filter(s => s.schoolStatus === 'Dropout').length;
-  const neverEnrolledCount = filteredData.filter(s => s.schoolStatus === 'Never Enrolled').length;
-
-  // Data for charts
-  const genderData = [
-    { name: 'Male', value: maleCount, color: '#3b82f6' },
-    { name: 'Female', value: femaleCount, color: '#ec4899' }
-  ];
-
-  const schoolStatusData = [
-    { name: 'Enrolled', value: enrolledCount, color: '#10b981' },
-    { name: 'Dropout', value: dropoutCount, color: '#f59e0b' },
-    { name: 'Never Enrolled', value: neverEnrolledCount, color: '#ef4444' }
-  ];
-
-  const blockWiseData = getUniqueValues('block').map(block => {
-    const blockStudents = filteredData.filter(s => s.block === block);
+  const filterOptions = useMemo(() => {
     return {
-      block,
-      total: blockStudents.length,
-      male: blockStudents.filter(s => s.gender === 'Male').length,
-      female: blockStudents.filter(s => s.gender === 'Female').length,
-      enrolled: blockStudents.filter(s => s.schoolStatus === 'Enrolled').length,
-      dropout: blockStudents.filter(s => s.schoolStatus === 'Dropout').length
+      blocks: [...new Set(mockStudentData.map(student => student.block))],
+      clusters: [...new Set(mockStudentData.map(student => student.cluster))],
+      villages: [...new Set(mockStudentData.map(student => student.village))],
+      panchayats: [...new Set(mockStudentData.map(student => student.panchayat))],
+      genders: ['Male', 'Female'],
+      schoolStatuses: ['Enrolled', 'Dropout', 'Never Enrolled']
     };
-  });
+  }, []);
+
+  const filteredData = useMemo(() => {
+    return mockStudentData.filter(student => {
+      return (
+        (filters.block === 'all' || student.block === filters.block) &&
+        (filters.cluster === 'all' || student.cluster === filters.cluster) &&
+        (filters.village === 'all' || student.village === filters.village) &&
+        (filters.panchayat === 'all' || student.panchayat === filters.panchayat) &&
+        (filters.gender === 'all' || student.gender === filters.gender) &&
+        (filters.schoolStatus === 'all' || student.schoolStatus === filters.schoolStatus)
+      );
+    });
+  }, [filters]);
+
+  const stats = useMemo(() => {
+    const total = filteredData.length;
+    const male = filteredData.filter(s => s.gender === 'Male').length;
+    const female = filteredData.filter(s => s.gender === 'Female').length;
+    const enrolled = filteredData.filter(s => s.schoolStatus === 'Enrolled').length;
+    const dropout = filteredData.filter(s => s.schoolStatus === 'Dropout').length;
+    const neverEnrolled = filteredData.filter(s => s.schoolStatus === 'Never Enrolled').length;
+
+    return {
+      total,
+      male,
+      female,
+      enrolled,
+      dropout,
+      neverEnrolled
+    };
+  }, [filteredData]);
+
+  const genderChartData = [
+    { name: 'Male', value: stats.male, color: '#35bcbf' },
+    { name: 'Female', value: stats.female, color: '#41506b' }
+  ];
+
+  const schoolStatusChartData = [
+    { name: 'Enrolled', value: stats.enrolled, color: '#90f6d7' },
+    { name: 'Dropout', value: stats.dropout, color: '#35bcbf' },
+    { name: 'Never Enrolled', value: stats.neverEnrolled, color: '#263849' }
+  ];
+
+  const blockWiseData = useMemo(() => {
+    const blockStats = filterOptions.blocks.map(block => {
+      const blockStudents = filteredData.filter(s => s.block === block);
+      return {
+        block,
+        male: blockStudents.filter(s => s.gender === 'Male').length,
+        female: blockStudents.filter(s => s.gender === 'Female').length,
+        enrolled: blockStudents.filter(s => s.schoolStatus === 'Enrolled').length,
+        dropout: blockStudents.filter(s => s.schoolStatus === 'Dropout').length,
+        neverEnrolled: blockStudents.filter(s => s.schoolStatus === 'Never Enrolled').length
+      };
+    });
+    return blockStats;
+  }, [filteredData, filterOptions.blocks]);
+
+  const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
 
   const handleExportCSV = () => {
-    downloadCSV(filteredData, 'student-data');
+    exportToCSV(filteredData, 'dashboard-data.csv');
   };
 
   const handleExportPDF = () => {
-    const stats = {
-      totalStudents,
-      maleCount,
-      femaleCount,
-      enrolledCount,
-      dropoutCount,
-      neverEnrolledCount
-    };
-    downloadPDF(filteredData, stats, 'student-report');
+    exportToPDF(filteredData);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-[#90f6d7] p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Student Data Dashboard</h1>
-          <p className="text-gray-600">Track student enrollment and demographics across blocks, clusters, villages, and panchayats</p>
-        </div>
-
         {/* Filters */}
-        <Card>
+        <Card className="bg-[#35bcbf] border-[#41506b]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Filters
-            </CardTitle>
+            <CardTitle className="text-white">Filters</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div>
-                <Label htmlFor="block">Block</Label>
-                <Select value={filters.block} onValueChange={(value) => setFilters({...filters, block: value})}>
-                  <SelectTrigger>
+                <label className="text-white text-sm font-medium mb-2 block">Block</label>
+                <Select value={filters.block} onValueChange={(value) => handleFilterChange('block', value)}>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Block" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Blocks</SelectItem>
-                    {getUniqueValues('block').map(block => (
-                      <SelectItem key={block} value={String(block)}>{String(block)}</SelectItem>
+                    {filterOptions.blocks.map(block => (
+                      <SelectItem key={block} value={block}>{block}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="cluster">Cluster</Label>
-                <Select value={filters.cluster} onValueChange={(value) => setFilters({...filters, cluster: value})}>
-                  <SelectTrigger>
+                <label className="text-white text-sm font-medium mb-2 block">Cluster</label>
+                <Select value={filters.cluster} onValueChange={(value) => handleFilterChange('cluster', value)}>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Cluster" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Clusters</SelectItem>
-                    {getUniqueValues('cluster').map(cluster => (
-                      <SelectItem key={cluster} value={String(cluster)}>{String(cluster)}</SelectItem>
+                    {filterOptions.clusters.map(cluster => (
+                      <SelectItem key={cluster} value={cluster}>{cluster}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="village">Village</Label>
-                <Select value={filters.village} onValueChange={(value) => setFilters({...filters, village: value})}>
-                  <SelectTrigger>
+                <label className="text-white text-sm font-medium mb-2 block">Village</label>
+                <Select value={filters.village} onValueChange={(value) => handleFilterChange('village', value)}>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Village" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Villages</SelectItem>
-                    {getUniqueValues('village').map(village => (
-                      <SelectItem key={village} value={String(village)}>{String(village)}</SelectItem>
+                    {filterOptions.villages.map(village => (
+                      <SelectItem key={village} value={village}>{village}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="panchayat">Panchayat</Label>
-                <Select value={filters.panchayat} onValueChange={(value) => setFilters({...filters, panchayat: value})}>
-                  <SelectTrigger>
+                <label className="text-white text-sm font-medium mb-2 block">Panchayat</label>
+                <Select value={filters.panchayat} onValueChange={(value) => handleFilterChange('panchayat', value)}>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Panchayat" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Panchayats</SelectItem>
-                    {getUniqueValues('panchayat').map(panchayat => (
-                      <SelectItem key={panchayat} value={String(panchayat)}>{String(panchayat)}</SelectItem>
+                    {filterOptions.panchayats.map(panchayat => (
+                      <SelectItem key={panchayat} value={panchayat}>{panchayat}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="gender">Gender</Label>
-                <Select value={filters.gender} onValueChange={(value) => setFilters({...filters, gender: value})}>
-                  <SelectTrigger>
+                <label className="text-white text-sm font-medium mb-2 block">Gender</label>
+                <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Gender" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Genders</SelectItem>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
+                    {filterOptions.genders.map(gender => (
+                      <SelectItem key={gender} value={gender}>{gender}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="schoolStatus">School Status</Label>
-                <Select value={filters.schoolStatus} onValueChange={(value) => setFilters({...filters, schoolStatus: value})}>
-                  <SelectTrigger>
+                <label className="text-white text-sm font-medium mb-2 block">School Status</label>
+                <Select value={filters.schoolStatus} onValueChange={(value) => handleFilterChange('schoolStatus', value)}>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="Enrolled">Enrolled</SelectItem>
-                    <SelectItem value="Dropout">Dropout</SelectItem>
-                    <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    {filterOptions.schoolStatuses.map(status => (
+                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="flex gap-2 mt-4">
-              <Button variant="outline" onClick={clearFilters}>Clear Filters</Button>
-              <Button onClick={handleExportCSV} className="ml-auto">
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
-              </Button>
-              <Button onClick={handleExportPDF}>
-                <Download className="h-4 w-4 mr-2" />
-                Export PDF
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-white border-[#41506b]">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Students</p>
-                  <p className="text-3xl font-bold text-gray-900">{totalStudents}</p>
+              <div className="flex items-center">
+                <Users className="h-8 w-8 text-[#35bcbf]" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-[#263849]">Total Students</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.total}</p>
                 </div>
-                <Users className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white border-[#41506b]">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Enrolled</p>
-                  <p className="text-3xl font-bold text-green-600">{enrolledCount}</p>
+              <div className="flex items-center">
+                <GraduationCap className="h-8 w-8 text-[#35bcbf]" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-[#263849]">Enrolled</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.enrolled}</p>
                 </div>
-                <GraduationCap className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white border-[#41506b]">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Dropouts</p>
-                  <p className="text-3xl font-bold text-orange-600">{dropoutCount}</p>
+              <div className="flex items-center">
+                <AlertTriangle className="h-8 w-8 text-[#35bcbf]" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-[#263849]">Dropout</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.dropout}</p>
                 </div>
-                <UserX className="h-8 w-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-white border-[#41506b]">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Never Enrolled</p>
-                  <p className="text-3xl font-bold text-red-600">{neverEnrolledCount}</p>
+              <div className="flex items-center">
+                <Users className="h-8 w-8 text-[#35bcbf]" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-[#263849]">Never Enrolled</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.neverEnrolled}</p>
                 </div>
-                <MapPin className="h-8 w-8 text-red-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
+        {/* Export Buttons */}
+        <div className="flex justify-end gap-2">
+          <Button onClick={handleExportCSV} className="bg-[#41506b] hover:bg-[#263849] text-white">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button onClick={handleExportPDF} className="bg-[#41506b] hover:bg-[#263849] text-white">
+            <Download className="h-4 w-4 mr-2" />
+            Export PDF
+          </Button>
+        </div>
+
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Gender Distribution */}
-          <Card>
+          <Card className="bg-white border-[#41506b]">
             <CardHeader>
-              <CardTitle>Gender Distribution</CardTitle>
+              <CardTitle className="text-[#263849]">Gender Distribution</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={genderData}
+                    data={genderChartData}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
+                    label={({ name, value }) => `${name}: ${value}`}
                   >
-                    {genderData.map((entry, index) => (
+                    {genderChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -319,25 +294,23 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* School Status Distribution */}
-          <Card>
+          <Card className="bg-white border-[#41506b]">
             <CardHeader>
-              <CardTitle>School Status Distribution</CardTitle>
+              <CardTitle className="text-[#263849]">School Status Distribution</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={schoolStatusData}
+                    data={schoolStatusChartData}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
+                    label={({ name, value }) => `${name}: ${value}`}
                   >
-                    {schoolStatusData.map((entry, index) => (
+                    {schoolStatusChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -349,9 +322,9 @@ const Dashboard = () => {
         </div>
 
         {/* Block-wise Analysis */}
-        <Card>
+        <Card className="bg-white border-[#41506b]">
           <CardHeader>
-            <CardTitle>Block-wise Student Distribution</CardTitle>
+            <CardTitle className="text-[#263849]">Block-wise Gender Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={400}>
@@ -360,18 +333,16 @@ const Dashboard = () => {
                 <XAxis dataKey="block" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="male" fill="#3b82f6" name="Male" />
-                <Bar dataKey="female" fill="#ec4899" name="Female" />
+                <Bar dataKey="male" fill="#35bcbf" name="Male" />
+                <Bar dataKey="female" fill="#41506b" name="Female" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Enrollment Status by Block */}
-        <Card>
+        <Card className="bg-white border-[#41506b]">
           <CardHeader>
-            <CardTitle>Enrollment Status by Block</CardTitle>
+            <CardTitle className="text-[#263849]">Block-wise School Status</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={400}>
@@ -380,9 +351,9 @@ const Dashboard = () => {
                 <XAxis dataKey="block" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="enrolled" fill="#10b981" name="Enrolled" />
-                <Bar dataKey="dropout" fill="#f59e0b" name="Dropout" />
+                <Bar dataKey="enrolled" fill="#90f6d7" name="Enrolled" />
+                <Bar dataKey="dropout" fill="#35bcbf" name="Dropout" />
+                <Bar dataKey="neverEnrolled" fill="#263849" name="Never Enrolled" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
