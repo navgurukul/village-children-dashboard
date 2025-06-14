@@ -105,14 +105,14 @@ const Dashboard = () => {
     <div className="min-h-screen bg-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Filters */}
-        <Card className="bg-[#35bcbf] border-[#41506b]">
+        <Card className="bg-[#add2c9] border-[#5ea3a3]">
           <CardHeader>
-            <CardTitle className="text-white">Filters</CardTitle>
+            <CardTitle className="text-[#488b8f]">Filters</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Block</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Block</label>
                 <Select value={filters.block} onValueChange={(value) => handleFilterChange('block', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Block" />
@@ -127,7 +127,7 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Cluster</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Cluster</label>
                 <Select value={filters.cluster} onValueChange={(value) => handleFilterChange('cluster', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Cluster" />
@@ -142,7 +142,7 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Village</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Village</label>
                 <Select value={filters.village} onValueChange={(value) => handleFilterChange('village', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Village" />
@@ -157,7 +157,7 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Panchayat</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Panchayat</label>
                 <Select value={filters.panchayat} onValueChange={(value) => handleFilterChange('panchayat', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Panchayat" />
@@ -172,7 +172,7 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Gender</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Gender</label>
                 <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Gender" />
@@ -187,7 +187,7 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">School Status</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">School Status</label>
                 <Select value={filters.schoolStatus} onValueChange={(value) => handleFilterChange('schoolStatus', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Status" />
@@ -206,49 +206,49 @@ const Dashboard = () => {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-white border-[#41506b]">
+          <Card className="bg-white border-[#5ea3a3]">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Users className="h-8 w-8 text-[#35bcbf]" />
+                <Users className="h-8 w-8 text-[#add2c9]" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-[#263849]">Total Students</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.totalStudents}</p>
+                  <p className="text-sm font-medium text-[#488b8f]">Total Students</p>
+                  <p className="text-2xl font-bold text-[#488b8f]">{stats.totalStudents}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-[#41506b]">
+          <Card className="bg-white border-[#5ea3a3]">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <GraduationCap className="h-8 w-8 text-[#35bcbf]" />
+                <GraduationCap className="h-8 w-8 text-[#add2c9]" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-[#263849]">Enrolled</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.enrolledCount}</p>
+                  <p className="text-sm font-medium text-[#488b8f]">Enrolled</p>
+                  <p className="text-2xl font-bold text-[#488b8f]">{stats.enrolledCount}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-[#41506b]">
+          <Card className="bg-white border-[#5ea3a3]">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <AlertTriangle className="h-8 w-8 text-[#35bcbf]" />
+                <AlertTriangle className="h-8 w-8 text-[#add2c9]" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-[#263849]">Dropout</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.dropoutCount}</p>
+                  <p className="text-sm font-medium text-[#488b8f]">Dropout</p>
+                  <p className="text-2xl font-bold text-[#488b8f]">{stats.dropoutCount}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-[#41506b]">
+          <Card className="bg-white border-[#5ea3a3]">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Users className="h-8 w-8 text-[#35bcbf]" />
+                <Users className="h-8 w-8 text-[#add2c9]" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-[#263849]">Never Enrolled</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.neverEnrolledCount}</p>
+                  <p className="text-sm font-medium text-[#488b8f]">Never Enrolled</p>
+                  <p className="text-2xl font-bold text-[#488b8f]">{stats.neverEnrolledCount}</p>
                 </div>
               </div>
             </CardContent>
@@ -257,11 +257,11 @@ const Dashboard = () => {
 
         {/* Export Buttons */}
         <div className="flex justify-end gap-2">
-          <Button onClick={handleExportCSV} className="bg-[#41506b] hover:bg-[#263849] text-white">
+          <Button onClick={handleExportCSV} className="bg-[#5ea3a3] hover:bg-[#488b8f] text-white">
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
-          <Button onClick={handleExportPDF} className="bg-[#41506b] hover:bg-[#263849] text-white">
+          <Button onClick={handleExportPDF} className="bg-[#5ea3a3] hover:bg-[#488b8f] text-white">
             <Download className="h-4 w-4 mr-2" />
             Export PDF
           </Button>
@@ -269,9 +269,9 @@ const Dashboard = () => {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-white border-[#41506b]">
+          <Card className="bg-white border-[#5ea3a3]">
             <CardHeader>
-              <CardTitle className="text-[#263849]">Gender Distribution</CardTitle>
+              <CardTitle className="text-[#488b8f]">Gender Distribution</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -295,9 +295,9 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-[#41506b]">
+          <Card className="bg-white border-[#5ea3a3]">
             <CardHeader>
-              <CardTitle className="text-[#263849]">School Status Distribution</CardTitle>
+              <CardTitle className="text-[#488b8f]">School Status Distribution</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -323,9 +323,9 @@ const Dashboard = () => {
         </div>
 
         {/* Block-wise Analysis */}
-        <Card className="bg-white border-[#41506b]">
+        <Card className="bg-white border-[#5ea3a3]">
           <CardHeader>
-            <CardTitle className="text-[#263849]">Block-wise Gender Distribution</CardTitle>
+            <CardTitle className="text-[#488b8f]">Block-wise Gender Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={400}>
@@ -334,16 +334,16 @@ const Dashboard = () => {
                 <XAxis dataKey="block" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="male" fill="#35bcbf" name="Male" />
-                <Bar dataKey="female" fill="#41506b" name="Female" />
+                <Bar dataKey="male" fill="#add2c9" name="Male" />
+                <Bar dataKey="female" fill="#5ea3a3" name="Female" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-[#41506b]">
+        <Card className="bg-white border-[#5ea3a3]">
           <CardHeader>
-            <CardTitle className="text-[#263849]">Block-wise School Status</CardTitle>
+            <CardTitle className="text-[#488b8f]">Block-wise School Status</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={400}>
@@ -352,9 +352,9 @@ const Dashboard = () => {
                 <XAxis dataKey="block" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="enrolled" fill="#90f6d7" name="Enrolled" />
-                <Bar dataKey="dropout" fill="#35bcbf" name="Dropout" />
-                <Bar dataKey="neverEnrolled" fill="#263849" name="Never Enrolled" />
+                <Bar dataKey="enrolled" fill="#faf9f9" name="Enrolled" />
+                <Bar dataKey="dropout" fill="#add2c9" name="Dropout" />
+                <Bar dataKey="neverEnrolled" fill="#488b8f" name="Never Enrolled" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

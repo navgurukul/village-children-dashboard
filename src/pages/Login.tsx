@@ -19,7 +19,7 @@ const Login = ({ onLogin, error }: LoginProps) => {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-[#263849] border-[#41506b]">
+      <Card className="w-full max-w-md bg-[#488b8f] border-[#5ea3a3]">
         <CardHeader>
           <CardTitle className="text-2xl text-center text-white">
             Student Data Dashboard
@@ -39,7 +39,7 @@ const Login = ({ onLogin, error }: LoginProps) => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 border border-[#41506b] rounded-md focus:outline-none focus:ring-2 focus:ring-[#35bcbf] bg-white text-[#263849]"
+                className="w-full px-3 py-2 border border-[#5ea3a3] rounded-md focus:outline-none focus:ring-2 focus:ring-[#add2c9] bg-white text-[#488b8f]"
                 required
               />
             </div>
@@ -52,7 +52,7 @@ const Login = ({ onLogin, error }: LoginProps) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-[#41506b] rounded-md focus:outline-none focus:ring-2 focus:ring-[#35bcbf] bg-white text-[#263849]"
+                className="w-full px-3 py-2 border border-[#5ea3a3] rounded-md focus:outline-none focus:ring-2 focus:ring-[#add2c9] bg-white text-[#488b8f]"
                 required
               />
             </div>
@@ -63,7 +63,7 @@ const Login = ({ onLogin, error }: LoginProps) => {
             )}
             <Button 
               type="submit" 
-              className="w-full bg-[#35bcbf] hover:bg-[#41506b] text-white"
+              className="w-full bg-[#add2c9] hover:bg-[#5ea3a3] text-[#488b8f] hover:text-white"
             >
               Sign In
             </Button>

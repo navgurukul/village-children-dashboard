@@ -34,53 +34,55 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        {!isAuthenticated ? (
-          <Login onLogin={handleLogin} error={loginError} />
-        ) : (
-          <div className="min-h-screen bg-white">
-            {/* Navigation Header */}
-            <div className="bg-[#263849] shadow-sm border-b border-[#41506b] px-6 py-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-6">
-                  <h1 className="text-lg font-semibold text-white">Student Data Dashboard</h1>
-                  <nav className="flex gap-4">
-                    <button
-                      onClick={() => setCurrentPage('dashboard')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        currentPage === 'dashboard' 
-                          ? 'bg-[#35bcbf] text-white' 
-                          : 'text-gray-300 hover:text-white hover:bg-[#41506b]'
-                      }`}
-                    >
-                      Dashboard
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage('students')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        currentPage === 'students' 
-                          ? 'bg-[#35bcbf] text-white' 
-                          : 'text-gray-300 hover:text-white hover:bg-[#41506b]'
-                      }`}
-                    >
-                      Student Records
-                    </button>
-                  </nav>
+        <div className="font-poppins">
+          <Toaster />
+          <Sonner />
+          {!isAuthenticated ? (
+            <Login onLogin={handleLogin} error={loginError} />
+          ) : (
+            <div className="min-h-screen bg-white">
+              {/* Navigation Header */}
+              <div className="bg-[#488b8f] shadow-sm border-b border-[#5ea3a3] px-6 py-3">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-6">
+                    <h1 className="text-lg font-semibold text-white">Student Data Dashboard</h1>
+                    <nav className="flex gap-4">
+                      <button
+                        onClick={() => setCurrentPage('dashboard')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          currentPage === 'dashboard' 
+                            ? 'bg-[#add2c9] text-[#488b8f]' 
+                            : 'text-gray-300 hover:text-white hover:bg-[#5ea3a3]'
+                        }`}
+                      >
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage('students')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          currentPage === 'students' 
+                            ? 'bg-[#add2c9] text-[#488b8f]' 
+                            : 'text-gray-300 hover:text-white hover:bg-[#5ea3a3]'
+                        }`}
+                      >
+                        Student Records
+                      </button>
+                    </nav>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm text-gray-300 hover:text-white transition-colors"
+                  >
+                    Logout
+                  </button>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-gray-300 hover:text-white transition-colors"
-                >
-                  Logout
-                </button>
               </div>
-            </div>
 
-            {/* Page Content */}
-            {currentPage === 'dashboard' ? <Dashboard /> : <Students />}
-          </div>
-        )}
+              {/* Page Content */}
+              {currentPage === 'dashboard' ? <Dashboard /> : <Students />}
+            </div>
+          )}
+        </div>
       </TooltipProvider>
     </QueryClientProvider>
   );

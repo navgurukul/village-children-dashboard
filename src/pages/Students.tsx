@@ -83,16 +83,16 @@ const Students = () => {
     <div className="min-h-screen bg-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <Card className="bg-[#263849] border-[#41506b]">
+        <Card className="bg-[#488b8f] border-[#5ea3a3]">
           <CardHeader>
             <CardTitle className="text-white text-2xl">Student Records</CardTitle>
           </CardHeader>
         </Card>
 
         {/* Filters */}
-        <Card className="bg-[#35bcbf] border-[#41506b]">
+        <Card className="bg-[#add2c9] border-[#5ea3a3]">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-[#488b8f] flex items-center gap-2">
               <Filter className="h-5 w-5" />
               Filters
             </CardTitle>
@@ -100,7 +100,7 @@ const Students = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Block</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Block</label>
                 <Select value={filters.block} onValueChange={(value) => handleFilterChange('block', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Block" />
@@ -115,7 +115,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Cluster</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Cluster</label>
                 <Select value={filters.cluster} onValueChange={(value) => handleFilterChange('cluster', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Cluster" />
@@ -130,7 +130,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Village</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Village</label>
                 <Select value={filters.village} onValueChange={(value) => handleFilterChange('village', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Village" />
@@ -145,7 +145,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Panchayat</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Panchayat</label>
                 <Select value={filters.panchayat} onValueChange={(value) => handleFilterChange('panchayat', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Panchayat" />
@@ -160,7 +160,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">Gender</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Gender</label>
                 <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Gender" />
@@ -175,7 +175,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">School Status</label>
+                <label className="text-[#488b8f] text-sm font-medium mb-2 block">School Status</label>
                 <Select value={filters.schoolStatus} onValueChange={(value) => handleFilterChange('schoolStatus', value)}>
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select Status" />
@@ -194,15 +194,15 @@ const Students = () => {
 
         {/* Export Buttons and Stats */}
         <div className="flex justify-between items-center">
-          <div className="text-[#263849] font-medium">
+          <div className="text-[#488b8f] font-medium">
             Showing {paginatedData.length} of {filteredData.length} students
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleExportCSV} className="bg-[#41506b] hover:bg-[#263849] text-white">
+            <Button onClick={handleExportCSV} className="bg-[#5ea3a3] hover:bg-[#488b8f] text-white">
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
-            <Button onClick={handleExportPDF} className="bg-[#41506b] hover:bg-[#263849] text-white">
+            <Button onClick={handleExportPDF} className="bg-[#5ea3a3] hover:bg-[#488b8f] text-white">
               <Download className="h-4 w-4 mr-2" />
               Export PDF
             </Button>
@@ -210,12 +210,12 @@ const Students = () => {
         </div>
 
         {/* Table */}
-        <Card className="bg-white border-[#41506b]">
+        <Card className="bg-white border-[#5ea3a3]">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-[#41506b]">
+                  <TableRow className="bg-[#5ea3a3]">
                     <TableHead className="text-white">ID</TableHead>
                     <TableHead className="text-white">Name</TableHead>
                     <TableHead className="text-white">Age</TableHead>
@@ -231,16 +231,16 @@ const Students = () => {
                 </TableHeader>
                 <TableBody>
                   {paginatedData.map((student, index) => (
-                    <TableRow key={student.id} className={index % 2 === 0 ? "bg-[#90f6d7]/20" : "bg-white"}>
-                      <TableCell className="font-medium text-[#263849]">{student.id}</TableCell>
-                      <TableCell className="text-[#263849]">{student.name}</TableCell>
-                      <TableCell className="text-[#263849]">{student.age}</TableCell>
-                      <TableCell className="text-[#263849]">{student.gender}</TableCell>
-                      <TableCell className="text-[#263849]">{student.block}</TableCell>
-                      <TableCell className="text-[#263849]">{student.cluster}</TableCell>
-                      <TableCell className="text-[#263849]">{student.village}</TableCell>
-                      <TableCell className="text-[#263849]">{student.panchayat}</TableCell>
-                      <TableCell className="text-[#263849]">
+                    <TableRow key={student.id} className={index % 2 === 0 ? "bg-[#faf9f9]" : "bg-white"}>
+                      <TableCell className="font-medium text-[#488b8f]">{student.id}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.name}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.age}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.gender}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.block}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.cluster}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.village}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.panchayat}</TableCell>
+                      <TableCell className="text-[#488b8f]">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           student.schoolStatus === 'Enrolled' ? 'bg-green-100 text-green-800' :
                           student.schoolStatus === 'Dropout' ? 'bg-red-100 text-red-800' :
@@ -249,8 +249,8 @@ const Students = () => {
                           {student.schoolStatus}
                         </span>
                       </TableCell>
-                      <TableCell className="text-[#263849]">{student.class || '-'}</TableCell>
-                      <TableCell className="text-[#263849]">{student.school || '-'}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.class || '-'}</TableCell>
+                      <TableCell className="text-[#488b8f]">{student.school || '-'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -265,17 +265,17 @@ const Students = () => {
             <Button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="bg-[#41506b] hover:bg-[#263849] text-white"
+              className="bg-[#5ea3a3] hover:bg-[#488b8f] text-white"
             >
               Previous
             </Button>
-            <span className="text-[#263849] font-medium">
+            <span className="text-[#488b8f] font-medium">
               Page {currentPage} of {totalPages}
             </span>
             <Button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="bg-[#41506b] hover:bg-[#263849] text-white"
+              className="bg-[#5ea3a3] hover:bg-[#488b8f] text-white"
             >
               Next
             </Button>
