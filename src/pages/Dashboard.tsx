@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { mockStudentData, type FilterOptions } from '../data/mockData';
-import { exportToCSV, exportToPDF } from '../utils/exportUtils';
+import { downloadCSV, downloadPDF } from '../utils/exportUtils';
 import { Download, Users, GraduationCap, AlertTriangle } from 'lucide-react';
 
 const Dashboard = () => {
@@ -50,24 +50,24 @@ const Dashboard = () => {
     const neverEnrolled = filteredData.filter(s => s.schoolStatus === 'Never Enrolled').length;
 
     return {
-      total,
-      male,
-      female,
-      enrolled,
-      dropout,
-      neverEnrolled
+      totalStudents: total,
+      maleCount: male,
+      femaleCount: female,
+      enrolledCount: enrolled,
+      dropoutCount: dropout,
+      neverEnrolledCount: neverEnrolled
     };
   }, [filteredData]);
 
   const genderChartData = [
-    { name: 'Male', value: stats.male, color: '#35bcbf' },
-    { name: 'Female', value: stats.female, color: '#41506b' }
+    { name: 'Male', value: stats.maleCount, color: '#35bcbf' },
+    { name: 'Female', value: stats.femaleCount, color: '#41506b' }
   ];
 
   const schoolStatusChartData = [
-    { name: 'Enrolled', value: stats.enrolled, color: '#90f6d7' },
-    { name: 'Dropout', value: stats.dropout, color: '#35bcbf' },
-    { name: 'Never Enrolled', value: stats.neverEnrolled, color: '#263849' }
+    { name: 'Enrolled', value: stats.enrolledCount, color: '#90f6d7' },
+    { name: 'Dropout', value: stats.dropoutCount, color: '#35bcbf' },
+    { name: 'Never Enrolled', value: stats.neverEnrolledCount, color: '#263849' }
   ];
 
   const blockWiseData = useMemo(() => {
@@ -93,11 +93,11 @@ const Dashboard = () => {
   };
 
   const handleExportCSV = () => {
-    exportToCSV(filteredData, 'dashboard-data.csv');
+    downloadCSV(filteredData, 'dashboard-data');
   };
 
   const handleExportPDF = () => {
-    exportToPDF(filteredData);
+    downloadPDF(filteredData, stats, 'dashboard-report');
   };
 
   return (
@@ -211,7 +211,7 @@ const Dashboard = () => {
                 <Users className="h-8 w-8 text-[#35bcbf]" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-[#263849]">Total Students</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.total}</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.totalStudents}</p>
                 </div>
               </div>
             </CardContent>
@@ -223,7 +223,7 @@ const Dashboard = () => {
                 <GraduationCap className="h-8 w-8 text-[#35bcbf]" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-[#263849]">Enrolled</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.enrolled}</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.enrolledCount}</p>
                 </div>
               </div>
             </CardContent>
@@ -235,7 +235,7 @@ const Dashboard = () => {
                 <AlertTriangle className="h-8 w-8 text-[#35bcbf]" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-[#263849]">Dropout</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.dropout}</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.dropoutCount}</p>
                 </div>
               </div>
             </CardContent>
@@ -247,7 +247,7 @@ const Dashboard = () => {
                 <Users className="h-8 w-8 text-[#35bcbf]" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-[#263849]">Never Enrolled</p>
-                  <p className="text-2xl font-bold text-[#263849]">{stats.neverEnrolled}</p>
+                  <p className="text-2xl font-bold text-[#263849]">{stats.neverEnrolledCount}</p>
                 </div>
               </div>
             </CardContent>

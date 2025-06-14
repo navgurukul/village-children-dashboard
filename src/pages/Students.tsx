@@ -1,11 +1,10 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { mockStudentData, type StudentData, type FilterOptions } from '../data/mockData';
-import { exportToCSV, exportToPDF } from '../utils/exportUtils';
+import { downloadCSV, downloadPDF } from '../utils/exportUtils';
 import { Download, Filter } from 'lucide-react';
 
 const Students = () => {
@@ -64,11 +63,19 @@ const Students = () => {
   };
 
   const handleExportCSV = () => {
-    exportToCSV(filteredData, 'students-data.csv');
+    downloadCSV(filteredData, 'students-data');
   };
 
   const handleExportPDF = () => {
-    exportToPDF(filteredData);
+    const stats = {
+      totalStudents: filteredData.length,
+      enrolledCount: filteredData.filter(s => s.schoolStatus === 'Enrolled').length,
+      dropoutCount: filteredData.filter(s => s.schoolStatus === 'Dropout').length,
+      neverEnrolledCount: filteredData.filter(s => s.schoolStatus === 'Never Enrolled').length,
+      maleCount: filteredData.filter(s => s.gender === 'Male').length,
+      femaleCount: filteredData.filter(s => s.gender === 'Female').length
+    };
+    downloadPDF(filteredData, stats, 'students-report');
   };
 
   return (
