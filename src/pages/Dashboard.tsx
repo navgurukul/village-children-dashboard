@@ -15,12 +15,12 @@ const Dashboard = () => {
   const [data, setData] = useState<StudentData[]>(mockStudentData);
   const [filteredData, setFilteredData] = useState<StudentData[]>(mockStudentData);
   const [filters, setFilters] = useState<FilterOptions>({
-    block: '',
-    cluster: '',
-    village: '',
-    panchayat: '',
-    gender: '',
-    schoolStatus: ''
+    block: 'all',
+    cluster: 'all',
+    village: 'all',
+    panchayat: 'all',
+    gender: 'all',
+    schoolStatus: 'all'
   });
 
   useEffect(() => {
@@ -30,22 +30,22 @@ const Dashboard = () => {
   const applyFilters = () => {
     let filtered = data;
 
-    if (filters.block) {
+    if (filters.block && filters.block !== 'all') {
       filtered = filtered.filter(student => student.block === filters.block);
     }
-    if (filters.cluster) {
+    if (filters.cluster && filters.cluster !== 'all') {
       filtered = filtered.filter(student => student.cluster === filters.cluster);
     }
-    if (filters.village) {
+    if (filters.village && filters.village !== 'all') {
       filtered = filtered.filter(student => student.village === filters.village);
     }
-    if (filters.panchayat) {
+    if (filters.panchayat && filters.panchayat !== 'all') {
       filtered = filtered.filter(student => student.panchayat === filters.panchayat);
     }
-    if (filters.gender) {
+    if (filters.gender && filters.gender !== 'all') {
       filtered = filtered.filter(student => student.gender === filters.gender);
     }
-    if (filters.schoolStatus) {
+    if (filters.schoolStatus && filters.schoolStatus !== 'all') {
       filtered = filtered.filter(student => student.schoolStatus === filters.schoolStatus);
     }
 
@@ -54,12 +54,12 @@ const Dashboard = () => {
 
   const clearFilters = () => {
     setFilters({
-      block: '',
-      cluster: '',
-      village: '',
-      panchayat: '',
-      gender: '',
-      schoolStatus: ''
+      block: 'all',
+      cluster: 'all',
+      village: 'all',
+      panchayat: 'all',
+      gender: 'all',
+      schoolStatus: 'all'
     });
   };
 
@@ -142,9 +142,9 @@ const Dashboard = () => {
                     <SelectValue placeholder="Select Block" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Blocks</SelectItem>
+                    <SelectItem value="all">All Blocks</SelectItem>
                     {getUniqueValues('block').map(block => (
-                      <SelectItem key={block} value={block}>{block}</SelectItem>
+                      <SelectItem key={block} value={String(block)}>{String(block)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -157,9 +157,9 @@ const Dashboard = () => {
                     <SelectValue placeholder="Select Cluster" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Clusters</SelectItem>
+                    <SelectItem value="all">All Clusters</SelectItem>
                     {getUniqueValues('cluster').map(cluster => (
-                      <SelectItem key={cluster} value={cluster}>{cluster}</SelectItem>
+                      <SelectItem key={cluster} value={String(cluster)}>{String(cluster)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -172,9 +172,9 @@ const Dashboard = () => {
                     <SelectValue placeholder="Select Village" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Villages</SelectItem>
+                    <SelectItem value="all">All Villages</SelectItem>
                     {getUniqueValues('village').map(village => (
-                      <SelectItem key={village} value={village}>{village}</SelectItem>
+                      <SelectItem key={village} value={String(village)}>{String(village)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -187,9 +187,9 @@ const Dashboard = () => {
                     <SelectValue placeholder="Select Panchayat" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Panchayats</SelectItem>
+                    <SelectItem value="all">All Panchayats</SelectItem>
                     {getUniqueValues('panchayat').map(panchayat => (
-                      <SelectItem key={panchayat} value={panchayat}>{panchayat}</SelectItem>
+                      <SelectItem key={panchayat} value={String(panchayat)}>{String(panchayat)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -202,7 +202,7 @@ const Dashboard = () => {
                     <SelectValue placeholder="Select Gender" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Genders</SelectItem>
+                    <SelectItem value="all">All Genders</SelectItem>
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
                   </SelectContent>
@@ -216,7 +216,7 @@ const Dashboard = () => {
                     <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Status</SelectItem>
+                    <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="Enrolled">Enrolled</SelectItem>
                     <SelectItem value="Dropout">Dropout</SelectItem>
                     <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
