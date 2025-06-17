@@ -104,124 +104,127 @@ const Students = () => {
           </CardHeader>
         </Card>
 
-        {/* Search Bar */}
-        <Card className="bg-[#faf9f9] border-[#5ea3a3]">
-          <CardContent className="p-4">
-            <div className="relative">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#488b8f]" />
-              <Input
-                type="text"
-                placeholder="Search by name, Aadhar number, village, or block..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="pl-10 bg-white border-[#5ea3a3] focus:ring-[#488b8f] text-[#488b8f]"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Filters */}
-        <Card className="bg-[#add2c9] border-[#5ea3a3]">
-          <CardHeader>
-            <CardTitle className="text-[#488b8f] flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div>
-                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Block</label>
-                <Select value={filters.block} onValueChange={(value) => handleFilterChange('block', value)}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select Block" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Blocks</SelectItem>
-                    {filterOptions.blocks.map(block => (
-                      <SelectItem key={block} value={block}>{block}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        {/* Search and Filters Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Search Bar - Takes 1 column */}
+          <Card className="bg-[#faf9f9] border-[#5ea3a3]">
+            <CardContent className="p-4">
+              <div className="relative">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#488b8f]" />
+                <Input
+                  type="text"
+                  placeholder="Search by name, Aadhar number, village, or block..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="pl-10 bg-white border-[#5ea3a3] focus:ring-[#488b8f] text-[#488b8f]"
+                />
               </div>
+            </CardContent>
+          </Card>
 
-              <div>
-                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Cluster</label>
-                <Select value={filters.cluster} onValueChange={(value) => handleFilterChange('cluster', value)}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select Cluster" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Clusters</SelectItem>
-                    {filterOptions.clusters.map(cluster => (
-                      <SelectItem key={cluster} value={cluster}>{cluster}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          {/* Filters - Takes 2 columns */}
+          <Card className="lg:col-span-2 bg-[#add2c9] border-[#5ea3a3]">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-[#488b8f] flex items-center gap-2 text-lg">
+                <Filter className="h-5 w-5" />
+                Filters
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div>
+                  <label className="text-[#488b8f] text-sm font-medium mb-1 block">Block</label>
+                  <Select value={filters.block} onValueChange={(value) => handleFilterChange('block', value)}>
+                    <SelectTrigger className="bg-white h-9 text-sm">
+                      <SelectValue placeholder="Select Block" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Blocks</SelectItem>
+                      {filterOptions.blocks.map(block => (
+                        <SelectItem key={block} value={block}>{block}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div>
-                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Village</label>
-                <Select value={filters.village} onValueChange={(value) => handleFilterChange('village', value)}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select Village" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Villages</SelectItem>
-                    {filterOptions.villages.map(village => (
-                      <SelectItem key={village} value={village}>{village}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div>
+                  <label className="text-[#488b8f] text-sm font-medium mb-1 block">Cluster</label>
+                  <Select value={filters.cluster} onValueChange={(value) => handleFilterChange('cluster', value)}>
+                    <SelectTrigger className="bg-white h-9 text-sm">
+                      <SelectValue placeholder="Select Cluster" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Clusters</SelectItem>
+                      {filterOptions.clusters.map(cluster => (
+                        <SelectItem key={cluster} value={cluster}>{cluster}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div>
-                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Panchayat</label>
-                <Select value={filters.panchayat} onValueChange={(value) => handleFilterChange('panchayat', value)}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select Panchayat" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Panchayats</SelectItem>
-                    {filterOptions.panchayats.map(panchayat => (
-                      <SelectItem key={panchayat} value={panchayat}>{panchayat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div>
+                  <label className="text-[#488b8f] text-sm font-medium mb-1 block">Village</label>
+                  <Select value={filters.village} onValueChange={(value) => handleFilterChange('village', value)}>
+                    <SelectTrigger className="bg-white h-9 text-sm">
+                      <SelectValue placeholder="Select Village" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Villages</SelectItem>
+                      {filterOptions.villages.map(village => (
+                        <SelectItem key={village} value={village}>{village}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div>
-                <label className="text-[#488b8f] text-sm font-medium mb-2 block">Gender</label>
-                <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select Gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Genders</SelectItem>
-                    {filterOptions.genders.map(gender => (
-                      <SelectItem key={gender} value={gender}>{gender}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div>
+                  <label className="text-[#488b8f] text-sm font-medium mb-1 block">Panchayat</label>
+                  <Select value={filters.panchayat} onValueChange={(value) => handleFilterChange('panchayat', value)}>
+                    <SelectTrigger className="bg-white h-9 text-sm">
+                      <SelectValue placeholder="Select Panchayat" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Panchayats</SelectItem>
+                      {filterOptions.panchayats.map(panchayat => (
+                        <SelectItem key={panchayat} value={panchayat}>{panchayat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div>
-                <label className="text-[#488b8f] text-sm font-medium mb-2 block">School Status</label>
-                <Select value={filters.schoolStatus} onValueChange={(value) => handleFilterChange('schoolStatus', value)}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    {filterOptions.schoolStatuses.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div>
+                  <label className="text-[#488b8f] text-sm font-medium mb-1 block">Gender</label>
+                  <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
+                    <SelectTrigger className="bg-white h-9 text-sm">
+                      <SelectValue placeholder="Select Gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Genders</SelectItem>
+                      {filterOptions.genders.map(gender => (
+                        <SelectItem key={gender} value={gender}>{gender}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-[#488b8f] text-sm font-medium mb-1 block">School Status</label>
+                  <Select value={filters.schoolStatus} onValueChange={(value) => handleFilterChange('schoolStatus', value)}>
+                    <SelectTrigger className="bg-white h-9 text-sm">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      {filterOptions.schoolStatuses.map(status => (
+                        <SelectItem key={status} value={status}>{status}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Export Buttons and Stats */}
         <div className="flex justify-between items-center">

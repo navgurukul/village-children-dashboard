@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart3, Users, Home, Settings } from 'lucide-react';
+import { BarChart3, Users, Home, GraduationCap } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -33,32 +33,39 @@ const AppSidebar = ({ currentPage, onPageChange }: AppSidebarProps) => {
   ];
 
   return (
-    <Sidebar className="bg-[#488b8f] border-r border-[#5ea3a3]">
-      <SidebarHeader className="p-6">
-        <div className="flex items-center gap-2">
-          <Home className="h-6 w-6 text-white" />
-          <h2 className="text-lg font-semibold text-white">Student Portal</h2>
+    <Sidebar className="bg-gradient-to-b from-[#488b8f] to-[#5ea3a3] border-r border-[#add2c9] shadow-lg">
+      <SidebarHeader className="p-6 border-b border-[#add2c9]/30">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+            <GraduationCap className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Student Portal</h2>
+            <p className="text-xs text-[#add2c9]">Education Management</p>
+          </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[#add2c9] font-medium">
+          <SidebarGroupLabel className="text-[#add2c9] font-semibold text-sm mb-3 px-2">
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-2">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
                     onClick={() => onPageChange(item.key)}
-                    className={`w-full justify-start text-left ${
+                    className={`w-full justify-start text-left rounded-xl py-3 px-4 transition-all duration-200 ${
                       currentPage === item.key
-                        ? 'bg-[#add2c9] text-[#488b8f] font-medium'
-                        : 'text-gray-300 hover:text-white hover:bg-[#5ea3a3]'
+                        ? 'bg-white text-[#488b8f] font-semibold shadow-md transform scale-105'
+                        : 'text-white hover:text-white hover:bg-white/10 hover:shadow-md hover:transform hover:scale-102'
                     }`}
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <item.icon className={`h-5 w-5 mr-3 ${
+                      currentPage === item.key ? 'text-[#488b8f]' : 'text-white'
+                    }`} />
+                    <span className="text-sm font-medium">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
