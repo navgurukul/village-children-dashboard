@@ -2,11 +2,12 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { mockStudentData, type StudentData, type FilterOptions } from '../data/mockData';
 import { downloadCSV, downloadPDF } from '../utils/exportUtils';
-import { Download, Filter } from 'lucide-react';
+import { Download, Filter, Search } from 'lucide-react';
 
 const Students = () => {
   const [filters, setFilters] = useState<FilterOptions>({
@@ -18,6 +19,7 @@ const Students = () => {
     schoolStatus: 'all'
   });
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -33,10 +35,10 @@ const Students = () => {
     };
   }, []);
 
-  // Filter data based on current filters
+  // Filter and search data
   const filteredData = useMemo(() => {
     return mockStudentData.filter(student => {
-      return (
+      const matchesFilters = (
         (filters.block === 'all' || student.block === filters.block) &&
         (filters.cluster === 'all' || student.cluster === filters.cluster) &&
         (filters.village === 'all' || student.village === filters.village) &&
@@ -44,8 +46,16 @@ const Students = () => {
         (filters.gender === 'all' || student.gender === filters.gender) &&
         (filters.schoolStatus === 'all' || student.schoolStatus === filters.schoolStatus)
       );
+
+      const matchesSearch = searchTerm === '' || 
+        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.block.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesFilters && matchesSearch;
     });
-  }, [filters]);
+  }, [filters, searchTerm]);
 
   // Paginated data
   const paginatedData = useMemo(() => {
@@ -60,7 +70,12 @@ const Students = () => {
       ...prev,
       [key]: value
     }));
-    setCurrentPage(1); // Reset to first page when filtering
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleExportCSV = () => {
@@ -87,6 +102,22 @@ const Students = () => {
           <CardHeader>
             <CardTitle className="text-white text-2xl">Student Records</CardTitle>
           </CardHeader>
+        </Card>
+
+        {/* Search Bar */}
+        <Card className="bg-[#faf9f9] border-[#5ea3a3]">
+          <CardContent className="p-4">
+            <div className="relative">
+              <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#488b8f]" />
+              <Input
+                type="text"
+                placeholder="Search by name, Aadhar number, village, or block..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="pl-10 bg-white border-[#5ea3a3] focus:ring-[#488b8f] text-[#488b8f]"
+              />
+            </div>
+          </CardContent>
         </Card>
 
         {/* Filters */}
@@ -215,18 +246,18 @@ const Students = () => {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-[#5ea3a3]">
-                    <TableHead className="text-white">ID</TableHead>
-                    <TableHead className="text-white">Name</TableHead>
-                    <TableHead className="text-white">Age</TableHead>
-                    <TableHead className="text-white">Gender</TableHead>
-                    <TableHead className="text-white">Block</TableHead>
-                    <TableHead className="text-white">Cluster</TableHead>
-                    <TableHead className="text-white">Village</TableHead>
-                    <TableHead className="text-white">Panchayat</TableHead>
-                    <TableHead className="text-white">School Status</TableHead>
-                    <TableHead className="text-white">Class</TableHead>
-                    <TableHead className="text-white">School</TableHead>
+                  <TableRow className="bg-[#5ea3a3] hover:bg-[#5ea3a3]">
+                    <TableHead className="text-white font-semibold">Aadhar Number</TableHead>
+                    <TableHead className="text-white font-semibold">Name</TableHead>
+                    <TableHead className="text-white font-semibold">Age</TableHead>
+                    <TableHead className="text-white font-semibold">Gender</TableHead>
+                    <TableHead className="text-white font-semibold">Block</TableHead>
+                    <TableHead className="text-white font-semibold">Cluster</TableHead>
+                    <TableHead className="text-white font-semibold">Village</TableHead>
+                    <TableHead className="text-white font-semibold">Panchayat</TableHead>
+                    <TableHead className="text-white font-semibold">School Status</TableHead>
+                    <TableHead className="text-white font-semibold">Class</TableHead>
+                    <TableHead className="text-white font-semibold">School</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
