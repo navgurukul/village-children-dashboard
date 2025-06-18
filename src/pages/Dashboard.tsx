@@ -4,17 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Users, GraduationCap, AlertTriangle, UserX, FileText, TrendingUp, Calendar } from 'lucide-react';
+import { Users, GraduationCap, AlertTriangle, UserX, FileText, TrendingUp, Calendar, Clock } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const Dashboard = () => {
-  const [filters, setFilters] = useState({
+  const [locationFilters, setLocationFilters] = useState({
     block: 'all',
     cluster: 'all',
     panchayat: 'all',
-    village: 'all',
-    dateRange: '30days'
+    village: 'all'
   });
+
+  const [recentSurveyDateRange, setRecentSurveyDateRange] = useState('30days');
+  const [trendsDateRange, setTrendsDateRange] = useState('6months');
 
   // Mock data
   const kpiData = {
@@ -24,9 +26,15 @@ const Dashboard = () => {
     neverEnrolled: 235
   };
 
-  const recentStats = [
+  const recentSurveyFindings = [
     { type: 'New Dropouts', count: 15, breakdown: '9 Boys, 6 Girls' },
-    { type: 'New Enrollments', count: 23, breakdown: '12 Boys, 11 Girls' }
+    { type: 'New Enrollments', count: 23, breakdown: '12 Boys, 11 Girls' },
+    { type: 'Never Enrolled Found', count: 8, breakdown: '4 Boys, 4 Girls' }
+  ];
+
+  const longDropoutData = [
+    { period: '> 1 year', count: 156, breakdown: '92F/64M' },
+    { period: '6-12 months', count: 89, breakdown: '52F/37M' }
   ];
 
   const villagesOfConcern = [
@@ -46,8 +54,8 @@ const Dashboard = () => {
     { month: 'Jun', enrolled: 1876, dropout: 432, neverEnrolled: 235 }
   ];
 
-  const getDateRangeLabel = () => {
-    switch (filters.dateRange) {
+  const getDateRangeLabel = (range: string) => {
+    switch (range) {
       case '7days': return 'Last 7 days';
       case '30days': return 'Last 30 days';
       case '90days': return 'Last 90 days';
@@ -73,25 +81,25 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        {/* Filters - Without Card */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 bg-card rounded-lg border border-border">
+        {/* Location Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="text-sm font-medium mb-2 block">Block</label>
-            <Select value={filters.block} onValueChange={(value) => setFilters(prev => ({ ...prev, block: value }))}>
+            <Select value={locationFilters.block} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, block: value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Blocks</SelectItem>
                 <SelectItem value="block1">Block 1</SelectItem>
-                <SelectItem value="block2">Block 2</SelectItem>
+                <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
             <label className="text-sm font-medium mb-2 block">Cluster</label>
-            <Select value={filters.cluster} onValueChange={(value) => setFilters(prev => ({ ...prev, cluster: value }))}>
+            <Select value={locationFilters.cluster} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, cluster: value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Cluster" />
               </SelectTrigger>
@@ -105,7 +113,7 @@ const Dashboard = () => {
 
           <div>
             <label className="text-sm font-medium mb-2 block">Panchayat</label>
-            <Select value={filters.panchayat} onValueChange={(value) => setFilters(prev => ({ ...prev, panchayat: value }))}>
+            <Select value={locationFilters.panchayat} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, panchayat: value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Panchayat" />
               </SelectTrigger>
@@ -119,7 +127,7 @@ const Dashboard = () => {
 
           <div>
             <label className="text-sm font-medium mb-2 block">Village</label>
-            <Select value={filters.village} onValueChange={(value) => setFilters(prev => ({ ...prev, village: value }))}>
+            <Select value={locationFilters.village} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, village: value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Village" />
               </SelectTrigger>
@@ -130,34 +138,18 @@ const Dashboard = () => {
               </SelectContent>
             </Select>
           </div>
-
-          <div>
-            <label className="text-sm font-medium mb-2 block">Date Range</label>
-            <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7days">Last 7 days</SelectItem>
-                <SelectItem value="30days">Last 30 days</SelectItem>
-                <SelectItem value="90days">Last 90 days</SelectItem>
-                <SelectItem value="6months">Last 6 months</SelectItem>
-                <SelectItem value="1year">Last year</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
-        {/* KPI Cards */}
+        {/* Row 1: KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-primary/20">
+                <div className="p-3 rounded-lg bg-primary/10">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Children</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Children Surveyed</p>
                   <p className="text-3xl font-bold text-foreground">{kpiData.totalChildren.toLocaleString()}</p>
                 </div>
               </div>
@@ -167,7 +159,7 @@ const Dashboard = () => {
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-success/20">
+                <div className="p-3 rounded-lg bg-success/10">
                   <GraduationCap className="h-8 w-8 text-success" />
                 </div>
                 <div>
@@ -181,7 +173,7 @@ const Dashboard = () => {
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-destructive/20">
+                <div className="p-3 rounded-lg bg-destructive/10">
                   <AlertTriangle className="h-8 w-8 text-destructive" />
                 </div>
                 <div>
@@ -195,7 +187,7 @@ const Dashboard = () => {
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-warning/20">
+                <div className="p-3 rounded-lg bg-warning/10">
                   <UserX className="h-8 w-8 text-warning" />
                 </div>
                 <div>
@@ -207,30 +199,70 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Recent Stats and Villages of Concern Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Stats */}
+        {/* Row 2: Key Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Survey Findings */}
           <Card className="shadow-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Recent Stats
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">{getDateRangeLabel()}</p>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Recent Survey Findings
+                </CardTitle>
+                <Select value={recentSurveyDateRange} onValueChange={setRecentSurveyDateRange}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7days">7 days</SelectItem>
+                    <SelectItem value="30days">30 days</SelectItem>
+                    <SelectItem value="90days">90 days</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-sm text-muted-foreground">{getDateRangeLabel(recentSurveyDateRange)}</p>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentStats.map((activity, index) => (
+              <div className="space-y-3">
+                {recentSurveyFindings.map((finding, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
                   >
                     <div>
-                      <p className="font-medium">{activity.type}</p>
-                      <p className="text-sm text-muted-foreground">{activity.breakdown}</p>
+                      <p className="font-medium">{finding.type}</p>
+                      <p className="text-sm text-muted-foreground">{finding.breakdown}</p>
                     </div>
                     <Badge variant="secondary" className="text-lg font-semibold">
-                      {activity.count}
+                      {finding.count}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Children with Long Dropout Period */}
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Children with Long Dropout Period
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {longDropoutData.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                  >
+                    <div>
+                      <p className="font-medium">{item.period}</p>
+                      <p className="text-sm text-muted-foreground">({item.breakdown})</p>
+                    </div>
+                    <Badge variant="destructive">
+                      {item.count}
                     </Badge>
                   </div>
                 ))}
@@ -267,13 +299,25 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* School Status Trend Chart */}
+        {/* Row 3: Overall Trend Chart */}
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              School Status Trend
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Overall Trend Chart
+              </CardTitle>
+              <Select value={trendsDateRange} onValueChange={setTrendsDateRange}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3months">Last 3 months</SelectItem>
+                  <SelectItem value="6months">Last 6 months</SelectItem>
+                  <SelectItem value="1year">Last year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>

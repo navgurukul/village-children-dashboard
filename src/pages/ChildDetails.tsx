@@ -58,12 +58,11 @@ const ChildDetails = ({ childId, onBack }: ChildDetailsProps) => {
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="space-y-4">
           <Button 
             onClick={onBack} 
-            variant="outline" 
-            size="sm"
-            className="gap-2"
+            variant="link" 
+            className="gap-2 p-0 h-auto"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Records

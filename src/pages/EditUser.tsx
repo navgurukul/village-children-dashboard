@@ -6,26 +6,27 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
 
-interface AddNewUserProps {
+interface EditUserProps {
+  userId: number | null;
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
+const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    mobile: '',
-    role: '',
-    block: '',
-    cluster: '',
-    panchayat: '',
-    villages: [] as string[]
+    fullName: 'Priya Sharma',
+    email: 'priya@example.com',
+    mobile: '9876543210',
+    role: 'Bal Mitra',
+    block: 'rajgangpur',
+    cluster: 'cluster1',
+    panchayat: 'panchayat1',
+    villages: ['Haripur', 'Rampur', 'Lakshmipur']
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Creating user:', formData);
+    console.log('Updating user:', formData);
     onSuccess();
   };
 
@@ -40,6 +41,16 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
 
   const mockVillages = ['Haripur', 'Rampur', 'Lakshmipur', 'Govindpur', 'Shantipur', 'Village A', 'Village B'];
 
+  if (!userId) {
+    return (
+      <div className="p-6 bg-background min-h-screen">
+        <div className="max-w-2xl mx-auto">
+          <p className="text-muted-foreground">No user selected</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-2xl mx-auto space-y-6">
@@ -53,7 +64,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold text-foreground">Add New User</h1>
+          <h1 className="text-3xl font-bold text-foreground">Edit User</h1>
         </div>
 
         {/* Form */}
@@ -199,7 +210,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
           {/* Actions */}
           <div className="flex gap-4 pt-4">
             <Button type="submit">
-              Add User
+              Update User Details
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
@@ -211,4 +222,4 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
   );
 };
 
-export default AddNewUser;
+export default EditUser;

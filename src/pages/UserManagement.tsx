@@ -87,8 +87,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick }: UserManage
         {/* Header */}
         <h1 className="text-3xl font-bold text-foreground">User Management</h1>
 
-        {/* Control Bar - Without Card */}
-        <div className="flex flex-col md:flex-row gap-4 items-center p-6 bg-card rounded-lg border border-border">
+        {/* Control Bar */}
+        <div className="flex flex-col md:flex-row gap-4 items-center">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />

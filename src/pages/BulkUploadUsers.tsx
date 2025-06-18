@@ -222,23 +222,22 @@ const BulkUploadUsers = ({ onComplete }: BulkUploadUsersProps) => {
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="space-y-4">
           <Button 
             onClick={onComplete} 
-            variant="outline" 
-            size="sm"
-            className="gap-2"
+            variant="link" 
+            className="gap-2 p-0 h-auto"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold text-foreground">Bulk Upload Users</h1>
+          <h1 className="text-3xl font-bold text-foreground">Bulk Upload Bal Mitra's</h1>
         </div>
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center space-x-4 mb-8">
           {[1, 2, 3].map((step) => (
-            <div key={step} className="flex items-center">
+            <React.Fragment key={step}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 currentStep >= step 
                   ? 'bg-primary text-primary-foreground' 
@@ -247,11 +246,11 @@ const BulkUploadUsers = ({ onComplete }: BulkUploadUsersProps) => {
                 {step}
               </div>
               {step < 3 && (
-                <div className={`w-16 h-0.5 mx-2 ${
+                <div className={`w-16 h-0.5 ${
                   currentStep > step ? 'bg-primary' : 'bg-muted'
                 }`} />
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
 

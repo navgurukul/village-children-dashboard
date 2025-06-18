@@ -7,18 +7,21 @@ import UserManagement from '../pages/UserManagement';
 import AddNewUser from '../pages/AddNewUser';
 import BulkUploadUsers from '../pages/BulkUploadUsers';
 import ChildDetails from '../pages/ChildDetails';
+import EditChildDetails from '../pages/EditChildDetails';
 import BalMitraDetails from '../pages/BalMitraDetails';
+import EditUser from '../pages/EditUser';
 
 interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'users' | 'add-user' | 'bulk-upload' | 'child-details' | 'bal-mitra-details';
+type Page = 'dashboard' | 'children' | 'users' | 'add-user' | 'bulk-upload' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user';
 
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const navigationItems = [
     {
@@ -43,8 +46,14 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     if (page === 'child-details' && data?.childId) {
       setSelectedChildId(data.childId);
     }
+    if (page === 'edit-child-details' && data?.childId) {
+      setSelectedChildId(data.childId);
+    }
     if (page === 'bal-mitra-details' && data?.balMitraId) {
       setSelectedBalMitraId(data.balMitraId);
+    }
+    if (page === 'edit-user' && data?.userId) {
+      setSelectedUserId(data.userId);
     }
   };
 
@@ -66,8 +75,20 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <BulkUploadUsers onComplete={() => handleNavigation('users')} />;
       case 'child-details':
         return <ChildDetails childId={selectedChildId} onBack={() => handleNavigation('children')} />;
+      case 'edit-child-details':
+        return <EditChildDetails 
+          childId={selectedChildId} 
+          onBack={() => handleNavigation('child-details', { childId: selectedChildId })} 
+          onSuccess={() => handleNavigation('child-details', { childId: selectedChildId })} 
+        />;
       case 'bal-mitra-details':
         return <BalMitraDetails balMitraId={selectedBalMitraId} onBack={() => handleNavigation('users')} />;
+      case 'edit-user':
+        return <EditUser 
+          userId={selectedUserId} 
+          onCancel={() => handleNavigation('users')} 
+          onSuccess={() => handleNavigation('users')} 
+        />;
       default:
         return <Dashboard />;
     }

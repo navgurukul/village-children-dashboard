@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Download, FileText } from 'lucide-react';
+import { Search, Download, FileText, Edit, Trash2 } from 'lucide-react';
 import { mockStudentData } from '../data/mockData';
 
 interface ChildrenRecordsProps {
@@ -54,7 +54,10 @@ const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
       case 'Enrolled':
         return <Badge className="status-enrolled">{status}</Badge>;
       case 'Dropout':
-        return <Badge className="status-dropout">{status}</Badge>;
+        // Mock dropout period calculation
+        const dropoutPeriod = Math.floor(Math.random() * 18) + 1;
+        const displayText = dropoutPeriod > 12 ? 'Dropout > 1 year' : `Dropout for ${dropoutPeriod} months`;
+        return <Badge className="status-dropout">{displayText}</Badge>;
       case 'Never Enrolled':
         return <Badge className="status-never">{status}</Badge>;
       default:
@@ -70,14 +73,24 @@ const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
     console.log('Exporting PDF...');
   };
 
+  const handleEditChild = (childId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    console.log('Editing child:', childId);
+  };
+
+  const handleDeleteChild = (childId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    console.log('Deleting child:', childId);
+  };
+
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <h1 className="text-3xl font-bold text-foreground">Children Records</h1>
 
-        {/* Control Bar - Without Card */}
-        <div className="flex flex-col md:flex-row gap-4 items-center p-6 bg-card rounded-lg border border-border">
+        {/* Control Bar */}
+        <div className="flex flex-col md:flex-row gap-4 items-center">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -150,6 +163,7 @@ const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
                     <TableHead className="font-bold">Village</TableHead>
                     <TableHead className="font-bold">Status</TableHead>
                     <TableHead className="font-bold">School</TableHead>
+                    <TableHead className="font-bold">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -167,6 +181,26 @@ const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
                       <TableCell>{student.village}</TableCell>
                       <TableCell>{getStatusBadge(student.schoolStatus)}</TableCell>
                       <TableCell>{student.school || '-'}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => handleEditChild(student.id, e)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => handleDeleteChild(student.id, e)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
