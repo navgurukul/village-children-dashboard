@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,15 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Search, Plus, Upload, Edit, Trash2, Copy } from 'lucide-react';
 
 interface UserManagementProps {
   onAddUser: () => void;
   onBulkUpload: () => void;
   onBalMitraClick: (balMitraId: number) => void;
+  onEditUser?: (userId: number) => void;
 }
 
-const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick }: UserManagementProps) => {
+const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
@@ -62,7 +63,9 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick }: UserManage
   };
 
   const handleEditUser = (userId: number) => {
-    console.log('Editing user:', userId);
+    if (onEditUser) {
+      onEditUser(userId);
+    }
   };
 
   const handleUserClick = (user: any) => {
@@ -97,21 +100,24 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick }: UserManage
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-white"
             />
           </div>
 
           {/* Role Filter */}
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="Admin">Admin</SelectItem>
-              <SelectItem value="Bal Mitra">Bal Mitra</SelectItem>
-            </SelectContent>
-          </Select>
+          <div>
+            <label className="text-sm font-bold mb-1 block">Role</label>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger className="w-[150px] bg-white">
+                <SelectValue placeholder="Role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="Admin">Admin</SelectItem>
+                <SelectItem value="Bal Mitra">Bal Mitra</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2">
@@ -175,7 +181,22 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick }: UserManage
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{user.username}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span>{user.username}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyToClipboard(user.username);
+                            }}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-sm">••••••••</span>
@@ -206,17 +227,32 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick }: UserManage
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteUser(user.id);
-                            }}
-                            className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => e.stopPropagation()}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete {user.name}? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive text-destructive-foreground">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>

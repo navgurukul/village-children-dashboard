@@ -3,14 +3,15 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, User, School, Home, Heart } from 'lucide-react';
+import { ArrowLeft, User, School, Home, Heart, Edit } from 'lucide-react';
 
 interface ChildDetailsProps {
   childId: string | null;
   onBack: () => void;
+  onEdit?: (childId: string) => void;
 }
 
-const ChildDetails = ({ childId, onBack }: ChildDetailsProps) => {
+const ChildDetails = ({ childId, onBack, onEdit }: ChildDetailsProps) => {
   // Mock child data - in real app, fetch by childId
   const childData = {
     id: "1234567890123456",
@@ -67,7 +68,15 @@ const ChildDetails = ({ childId, onBack }: ChildDetailsProps) => {
             <ArrowLeft className="h-4 w-4" />
             Back to Records
           </Button>
-          <h1 className="text-3xl font-bold text-foreground">Child Details</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-foreground">Child Details</h1>
+            {onEdit && (
+              <Button onClick={() => onEdit(childId)} className="gap-2">
+                <Edit className="h-4 w-4" />
+                Edit Details
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Personal Details */}

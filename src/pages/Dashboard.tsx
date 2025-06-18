@@ -27,22 +27,22 @@ const Dashboard = () => {
   };
 
   const recentSurveyFindings = [
-    { type: 'New Dropouts', count: 15, breakdown: '9 Boys, 6 Girls' },
-    { type: 'New Enrollments', count: 23, breakdown: '12 Boys, 11 Girls' },
-    { type: 'Never Enrolled Found', count: 8, breakdown: '4 Boys, 4 Girls' }
+    { type: 'Dropouts', count: 15, breakdown: '9 Boys, 6 Girls' },
+    { type: 'Enrollments', count: 23, breakdown: '12 Boys, 11 Girls' },
+    { type: 'Never Enrolled', count: 8, breakdown: '4 Boys, 4 Girls' }
   ];
 
   const longDropoutData = [
-    { period: '> 1 year', count: 156, breakdown: '92F/64M' },
-    { period: '6-12 months', count: 89, breakdown: '52F/37M' }
+    { period: '> 1 year', count: 156, breakdown: '64 Boys, 92 Girls' },
+    { period: '6-12 months', count: 89, breakdown: '37 Boys, 52 Girls' }
   ];
 
   const villagesOfConcern = [
-    { village: 'Haripur', dropouts: 12, breakdown: '8F/4M' },
-    { village: 'Rampur', dropouts: 9, breakdown: '5F/4M' },
-    { village: 'Lakshmipur', dropouts: 8, breakdown: '6F/2M' },
-    { village: 'Govindpur', dropouts: 7, breakdown: '4F/3M' },
-    { village: 'Shantipur', dropouts: 6, breakdown: '3F/3M' }
+    { village: 'Haripur', dropouts: 12, breakdown: '4 Boys, 8 Girls' },
+    { village: 'Rampur', dropouts: 9, breakdown: '4 Boys, 5 Girls' },
+    { village: 'Lakshmipur', dropouts: 8, breakdown: '2 Boys, 6 Girls' },
+    { village: 'Govindpur', dropouts: 7, breakdown: '3 Boys, 4 Girls' },
+    { village: 'Shantipur', dropouts: 6, breakdown: '3 Boys, 3 Girls' }
   ];
 
   const trendsData = [
@@ -84,9 +84,9 @@ const Dashboard = () => {
         {/* Location Filters */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Block</label>
+            <label className="text-sm font-bold mb-2 block">Block</label>
             <Select value={locationFilters.block} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, block: value }))}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
               <SelectContent>
@@ -98,9 +98,9 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Cluster</label>
+            <label className="text-sm font-bold mb-2 block">Cluster</label>
             <Select value={locationFilters.cluster} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, cluster: value }))}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Cluster" />
               </SelectTrigger>
               <SelectContent>
@@ -112,9 +112,9 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Panchayat</label>
+            <label className="text-sm font-bold mb-2 block">Panchayat</label>
             <Select value={locationFilters.panchayat} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, panchayat: value }))}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Panchayat" />
               </SelectTrigger>
               <SelectContent>
@@ -126,9 +126,9 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Village</label>
+            <label className="text-sm font-bold mb-2 block">Village</label>
             <Select value={locationFilters.village} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, village: value }))}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Village" />
               </SelectTrigger>
               <SelectContent>
@@ -204,13 +204,13 @@ const Dashboard = () => {
           {/* Recent Survey Findings */}
           <Card className="shadow-card">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Recent Survey Findings
-                </CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Recent Survey Findings
+              </CardTitle>
+              <div className="flex items-center gap-2">
                 <Select value={recentSurveyDateRange} onValueChange={setRecentSurveyDateRange}>
-                  <SelectTrigger className="w-[120px]">
+                  <SelectTrigger className="w-[120px] bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -233,7 +233,13 @@ const Dashboard = () => {
                       <p className="font-medium">{finding.type}</p>
                       <p className="text-sm text-muted-foreground">{finding.breakdown}</p>
                     </div>
-                    <Badge variant="secondary" className="text-lg font-semibold">
+                    <Badge 
+                      variant="secondary" 
+                      className={`text-lg font-semibold ${
+                        finding.type === 'Dropouts' ? 'text-destructive' : 
+                        finding.type === 'Enrollments' ? 'text-success' : ''
+                      }`}
+                    >
                       {finding.count}
                     </Badge>
                   </div>
@@ -259,7 +265,7 @@ const Dashboard = () => {
                   >
                     <div>
                       <p className="font-medium">{item.period}</p>
-                      <p className="text-sm text-muted-foreground">({item.breakdown})</p>
+                      <p className="text-sm text-muted-foreground">{item.breakdown}</p>
                     </div>
                     <Badge variant="destructive">
                       {item.count}
@@ -287,7 +293,7 @@ const Dashboard = () => {
                   >
                     <div>
                       <p className="font-medium">{village.village}</p>
-                      <p className="text-sm text-muted-foreground">({village.breakdown})</p>
+                      <p className="text-sm text-muted-foreground">{village.breakdown}</p>
                     </div>
                     <Badge variant="destructive">
                       {village.dropouts} Dropouts
@@ -305,10 +311,10 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                Overall Trend Chart
+                School Status Trend
               </CardTitle>
               <Select value={trendsDateRange} onValueChange={setTrendsDateRange}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-[150px] bg-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

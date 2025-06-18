@@ -62,19 +62,27 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'dashboard':
         return <Dashboard />;
       case 'children':
-        return <ChildrenRecords onChildClick={(childId) => handleNavigation('child-details', { childId })} />;
+        return <ChildrenRecords 
+          onChildClick={(childId) => handleNavigation('child-details', { childId })}
+          onEditChild={(childId) => handleNavigation('edit-child-details', { childId })}
+        />;
       case 'users':
         return <UserManagement 
           onAddUser={() => handleNavigation('add-user')}
           onBulkUpload={() => handleNavigation('bulk-upload')}
           onBalMitraClick={(balMitraId) => handleNavigation('bal-mitra-details', { balMitraId })}
+          onEditUser={(userId) => handleNavigation('edit-user', { userId })}
         />;
       case 'add-user':
         return <AddNewUser onCancel={() => handleNavigation('users')} onSuccess={() => handleNavigation('users')} />;
       case 'bulk-upload':
         return <BulkUploadUsers onComplete={() => handleNavigation('users')} />;
       case 'child-details':
-        return <ChildDetails childId={selectedChildId} onBack={() => handleNavigation('children')} />;
+        return <ChildDetails 
+          childId={selectedChildId} 
+          onBack={() => handleNavigation('children')} 
+          onEdit={(childId) => handleNavigation('edit-child-details', { childId })}
+        />;
       case 'edit-child-details':
         return <EditChildDetails 
           childId={selectedChildId} 

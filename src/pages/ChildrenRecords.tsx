@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,14 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Search, Download, FileText, Edit, Trash2 } from 'lucide-react';
 import { mockStudentData } from '../data/mockData';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string) => void;
+  onEditChild?: (childId: string) => void;
 }
 
-const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
+const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [blockFilter, setBlockFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -75,11 +76,12 @@ const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
 
   const handleEditChild = (childId: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    console.log('Editing child:', childId);
+    if (onEditChild) {
+      onEditChild(childId);
+    }
   };
 
-  const handleDeleteChild = (childId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleDeleteChild = (childId: string) => {
     console.log('Deleting child:', childId);
   };
 
@@ -99,35 +101,41 @@ const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
               placeholder="Search by name, Aadhar number, village, or block..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-white"
             />
           </div>
 
           {/* Filters */}
           <div className="flex gap-2">
-            <Select value={blockFilter} onValueChange={setBlockFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Block" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Blocks</SelectItem>
-                {blocks.map(block => (
-                  <SelectItem key={block} value={block}>{block}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div>
+              <label className="text-sm font-bold mb-1 block">Block</label>
+              <Select value={blockFilter} onValueChange={setBlockFilter}>
+                <SelectTrigger className="w-[150px] bg-white">
+                  <SelectValue placeholder="Block" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Blocks</SelectItem>
+                  {blocks.map(block => (
+                    <SelectItem key={block} value={block}>{block}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Enrolled">Enrolled</SelectItem>
-                <SelectItem value="Dropout">Dropout</SelectItem>
-                <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
-              </SelectContent>
-            </Select>
+            <div>
+              <label className="text-sm font-bold mb-1 block">Status</label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[150px] bg-white">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Enrolled">Enrolled</SelectItem>
+                  <SelectItem value="Dropout">Dropout</SelectItem>
+                  <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Export Buttons */}
@@ -191,14 +199,32 @@ const ChildrenRecords = ({ onChildClick }: ChildrenRecordsProps) => {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => handleDeleteChild(student.id, e)}
-                            className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => e.stopPropagation()}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Child Record</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete the record for {student.name}? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteChild(student.id)} className="bg-destructive text-destructive-foreground">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
