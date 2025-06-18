@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Home, Users, FileText, LogOut } from 'lucide-react';
 import Dashboard from '../pages/Dashboard';
@@ -22,6 +21,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
 
   const navigationItems = [
     {
@@ -48,6 +48,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     }
     if (page === 'edit-child-details' && data?.childId) {
       setSelectedChildId(data.childId);
+      setEditChildFromDetails(data?.fromDetails || false);
     }
     if (page === 'bal-mitra-details' && data?.balMitraId) {
       setSelectedBalMitraId(data.balMitraId);
@@ -64,7 +65,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'children':
         return <ChildrenRecords 
           onChildClick={(childId) => handleNavigation('child-details', { childId })}
-          onEditChild={(childId) => handleNavigation('edit-child-details', { childId })}
+          onEditChild={(childId) => handleNavigation('edit-child-details', { childId, fromDetails: false })}
         />;
       case 'users':
         return <UserManagement 
@@ -81,13 +82,14 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <ChildDetails 
           childId={selectedChildId} 
           onBack={() => handleNavigation('children')} 
-          onEdit={(childId) => handleNavigation('edit-child-details', { childId })}
+          onEdit={(childId) => handleNavigation('edit-child-details', { childId, fromDetails: true })}
         />;
       case 'edit-child-details':
         return <EditChildDetails 
           childId={selectedChildId} 
-          onBack={() => handleNavigation('child-details', { childId: selectedChildId })} 
-          onSuccess={() => handleNavigation('child-details', { childId: selectedChildId })} 
+          fromChildDetails={editChildFromDetails}
+          onBack={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
+          onSuccess={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
         />;
       case 'bal-mitra-details':
         return <BalMitraDetails balMitraId={selectedBalMitraId} onBack={() => handleNavigation('users')} />;

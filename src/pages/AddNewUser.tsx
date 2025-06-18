@@ -68,6 +68,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                 value={formData.fullName}
                 onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
                 placeholder="Enter full name"
+                className="bg-white"
                 required
               />
             </div>
@@ -79,6 +80,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 placeholder="Enter email address"
+                className="bg-white"
                 required
               />
             </div>
@@ -92,6 +94,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
               value={formData.mobile}
               onChange={(e) => setFormData(prev => ({ ...prev, mobile: e.target.value }))}
               placeholder="Enter mobile number"
+              className="bg-white"
               required
             />
           </div>
@@ -132,9 +135,9 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="block">Block *</Label>
+                  <Label htmlFor="block" className="font-bold">Block *</Label>
                   <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select Block" />
                     </SelectTrigger>
                     <SelectContent>
@@ -146,9 +149,9 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cluster">Cluster *</Label>
+                  <Label htmlFor="cluster" className="font-bold">Cluster *</Label>
                   <Select value={formData.cluster} onValueChange={(value) => setFormData(prev => ({ ...prev, cluster: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select Cluster" />
                     </SelectTrigger>
                     <SelectContent>
@@ -159,9 +162,9 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="panchayat">Panchayat *</Label>
+                  <Label htmlFor="panchayat" className="font-bold">Panchayat *</Label>
                   <Select value={formData.panchayat} onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select Panchayat" />
                     </SelectTrigger>
                     <SelectContent>
@@ -173,8 +176,8 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label>Villages (Multi-select) *</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border border-border rounded-lg p-3">
+                <Label className="font-bold">Villages (Multi-select) *</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border border-border rounded-lg p-3 bg-white">
                   {mockVillages.map((village) => (
                     <label key={village} className="flex items-center gap-2 text-sm">
                       <input
@@ -197,12 +200,12 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
           )}
 
           {/* Actions */}
-          <div className="flex gap-4 pt-4">
-            <Button type="submit">
-              Add User
-            </Button>
+          <div className="flex justify-center gap-4 max-w-md mx-auto pt-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
+            </Button>
+            <Button type="submit">
+              Add User
             </Button>
           </div>
         </form>

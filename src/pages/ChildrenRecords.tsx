@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,7 +92,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         {/* Header */}
         <h1 className="text-3xl font-bold text-foreground">Children Records</h1>
 
-        {/* Control Bar */}
+        {/* Search and Export CTAs Row */}
         <div className="flex flex-col md:flex-row gap-4 items-center">
           {/* Search */}
           <div className="relative flex-1">
@@ -105,42 +106,9 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
             />
           </div>
 
-          {/* Filters */}
-          <div className="flex gap-2">
-            <div>
-              <label className="text-sm font-bold mb-1 block">Block</label>
-              <Select value={blockFilter} onValueChange={setBlockFilter}>
-                <SelectTrigger className="w-[150px] bg-white">
-                  <SelectValue placeholder="Block" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Blocks</SelectItem>
-                  {blocks.map(block => (
-                    <SelectItem key={block} value={block}>{block}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-bold mb-1 block">Status</label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px] bg-white">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Enrolled">Enrolled</SelectItem>
-                  <SelectItem value="Dropout">Dropout</SelectItem>
-                  <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           {/* Export Buttons */}
           <div className="flex gap-2">
-            <Button onClick={handleExportCSV} variant="outline" className="gap-2">
+            <Button onClick={handleExportCSV} variant="outline" className="gap-2 bg-white">
               <Download className="h-4 w-4" />
               Export CSV
             </Button>
@@ -148,6 +116,39 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
               <FileText className="h-4 w-4" />
               Export PDF
             </Button>
+          </div>
+        </div>
+
+        {/* Filters Row */}
+        <div className="flex gap-2">
+          <div>
+            <label className="text-sm font-bold mb-1 block">Block</label>
+            <Select value={blockFilter} onValueChange={setBlockFilter}>
+              <SelectTrigger className="w-[150px] bg-white">
+                <SelectValue placeholder="Block" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Blocks</SelectItem>
+                {blocks.map(block => (
+                  <SelectItem key={block} value={block}>{block}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="text-sm font-bold mb-1 block">Status</label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[150px] bg-white">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Enrolled">Enrolled</SelectItem>
+                <SelectItem value="Dropout">Dropout</SelectItem>
+                <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

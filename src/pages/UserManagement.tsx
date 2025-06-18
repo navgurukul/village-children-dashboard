@@ -1,8 +1,8 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -17,9 +17,8 @@ interface UserManagementProps {
 
 const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
 
-  // Mock user data
+  // Mock user data - sorted to show Admins first
   const users = [
     {
       id: 1,
@@ -51,7 +50,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
       createdOn: '2024-02-20',
       villages: ['Village A', 'Village B', 'Village C']
     }
-  ];
+  ].sort((a, b) => a.role === 'Admin' ? -1 : b.role === 'Admin' ? 1 : 0);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -79,9 +78,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.username.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    
-    return matchesSearch && matchesRole;
+    return matchesSearch;
   });
 
   return (
@@ -102,21 +99,6 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-white"
             />
-          </div>
-
-          {/* Role Filter */}
-          <div>
-            <label className="text-sm font-bold mb-1 block">Role</label>
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-[150px] bg-white">
-                <SelectValue placeholder="Role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="Admin">Admin</SelectItem>
-                <SelectItem value="Bal Mitra">Bal Mitra</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Action Buttons */}
