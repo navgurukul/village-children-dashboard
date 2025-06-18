@@ -1,0 +1,226 @@
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Search, Plus, Upload, Edit, Trash2, Copy } from 'lucide-react';
+
+const UserManagement = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+
+  // Mock user data
+  const users = [
+    {
+      id: 1,
+      name: 'Rajesh Kumar',
+      role: 'Admin',
+      assignedTo: 'All Districts',
+      username: 'rajesh.admin',
+      password: 'admin123!',
+      createdOn: '2024-01-15',
+      villages: []
+    },
+    {
+      id: 2,
+      name: 'Priya Sharma',
+      role: 'Bal Mitra',
+      assignedTo: '5 Villages',
+      username: 'priya.bm',
+      password: 'bm123!',
+      createdOn: '2024-02-10',
+      villages: ['Haripur', 'Rampur', 'Lakshmipur', 'Govindpur', 'Shantipur']
+    },
+    {
+      id: 3,
+      name: 'Amit Singh',
+      role: 'Bal Mitra',
+      assignedTo: '3 Villages',
+      username: 'amit.bm',
+      password: 'bm456!',
+      createdOn: '2024-02-20',
+      villages: ['Village A', 'Village B', 'Village C']
+    }
+  ];
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    // In a real app, you'd show a toast notification here
+    console.log('Copied to clipboard:', text);
+  };
+
+  const handleDeleteUser = (userId: number) => {
+    console.log('Deleting user:', userId);
+    // In a real app, this would delete the user
+  };
+
+  const handleEditUser = (userId: number) => {
+    console.log('Editing user:', userId);
+    // In a real app, this would open an edit form
+  };
+
+  const handleAddNewUser = () => {
+    console.log('Adding new user...');
+    // In a real app, this would open the add user form
+  };
+
+  const handleBulkUpload = () => {
+    console.log('Starting bulk upload...');
+    // In a real app, this would open the bulk upload flow
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = searchTerm === '' || 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    
+    return matchesSearch && matchesRole;
+  });
+
+  return (
+    <div className="p-6 bg-background min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <h1 className="text-3xl font-bold text-foreground">User Management</h1>
+
+        {/* Control Bar */}
+        <Card className="shadow-card">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Role Filter */}
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                  <SelectItem value="Bal Mitra">Bal Mitra</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button onClick={handleAddNewUser} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add New User
+                </Button>
+                <Button onClick={handleBulkUpload} variant="outline" className="gap-2">
+                  <Upload className="h-4 w-4" />
+                  Bulk Upload Users
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Users Table */}
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle>Users ({filteredUsers.length})</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Assigned To</TableHead>
+                    <TableHead>Username</TableHead>
+                    <TableHead>Password</TableHead>
+                    <TableHead>Created On</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user, index) => (
+                    <TableRow key={user.id} className={index % 2 === 0 ? "bg-muted/30" : ""}>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="relative group">
+                          <span className="cursor-pointer text-primary hover:underline">
+                            {user.assignedTo}
+                          </span>
+                          {user.villages.length > 0 && (
+                            <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-popover border border-border rounded-lg p-3 shadow-lg z-10 min-w-[200px]">
+                              <p className="text-sm font-medium mb-2">Assigned Villages:</p>
+                              <ul className="text-sm space-y-1">
+                                {user.villages.map((village, idx) => (
+                                  <li key={idx} className="text-muted-foreground">• {village}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.username}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-sm">••••••••</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => copyToClipboard(user.password)}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.createdOn}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditUser(user.id)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default UserManagement;

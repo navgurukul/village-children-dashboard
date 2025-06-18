@@ -1,94 +1,143 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Manrope font import */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+/* Village Children Register Design System - Regal Purple Theme */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    /* Base Colors */
+    --background: 240 5% 96%;
+    --foreground: 240 10% 3.9%;
+    
+    /* Card Colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 240 10% 3.9%;
+    
+    /* Popover Colors */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
+    --popover-foreground: 240 10% 3.9%;
+    
+    /* Primary Colors */
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 262.1 83.3% 62.8%;
+    --primary-light: 262.1 83.3% 72.8%;
+    --primary-dark: 262.1 83.3% 47.8%;
+    
+    /* Secondary Colors */
+    --secondary: 260 20% 94%;
+    --secondary-foreground: 260 10% 40%;
+    --secondary-hover: 260 20% 88%;
+    --secondary-light: 260 20% 96%;
+    --secondary-dark: 260 20% 84%;
+    
+    /* Muted Colors */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --muted-light: 240 4.8% 97.9%;
+    --muted-dark: 240 4.8% 89.9%;
+    
+    /* Accent Colors */
+    --accent: 260 20% 97%;
+    --accent-foreground: 260 10% 20%;
+    --accent-light: 260 20% 98%;
+    --accent-dark: 260 20% 92%;
+    --accent-hover: 260 20% 94%;
+    
+    /* Destructive Colors */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    --destructive-foreground: 0 0% 98%;
+    --destructive-hover: 0 84.2% 65.2%;
+    --destructive-light: 0 84.2% 70.2%;
+    --destructive-dark: 0 84.2% 50.2%;
+    
+    /* Success Colors */
+    --success: 142.1 76.2% 46.3%;
+    --success-foreground: 0 0% 98%;
+    --success-hover: 142.1 76.2% 51.3%;
+    --success-light: 142.1 76.2% 56.3%;
+    --success-dark: 142.1 76.2% 36.3%;
+    
+    /* Warning Colors */
+    --warning: 40 84.2% 60.2%;
+    --warning-foreground: 40 10% 10%;
+    --warning-hover: 40 84.2% 65.2%;
+    --warning-light: 40 84.2% 70.2%;
+    --warning-dark: 40 84.2% 50.2%;
+    
+    /* Border & Input */
+    --border: 240 5.9% 90%;
+    --border-light: 240 5.9% 94%;
+    --border-dark: 240 5.9% 84%;
+    --input: 240 5.9% 92%;
+    --input-light: 240 5.9% 96%;
+    --input-dark: 240 5.9% 86%;
+    --ring: 262.1 83.3% 57.8%;
+    
+    /* Border Radius */
     --radius: 0.5rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    
+    /* Status Colors */
+    --status-enrolled-bg: 142.1 70.6% 93.5%;
+    --status-enrolled-fg: 142.1 76.2% 26.3%;
+    --status-enrolled-border: 142.1 70.6% 85%;
+    
+    --status-dropout-bg: 0 84.2% 95%;
+    --status-dropout-fg: 0 84.2% 50.2%;
+    --status-dropout-border: 0 84.2% 87%;
+    
+    --status-never-bg: 40 84.2% 95%;
+    --status-never-fg: 40 84.2% 50.2%;
+    --status-never-border: 40 84.2% 87%;
+    
+    --status-pending-bg: 220 84.2% 95%;
+    --status-pending-fg: 220 84.2% 50.2%;
+    --status-pending-border: 220 84.2% 87%;
+    
+    --status-active-bg: 160 84.2% 95%;
+    --status-active-fg: 160 84.2% 40.2%;
+    --status-active-border: 160 84.2% 87%;
 
+    /* Legacy compatibility */
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 262.1 83.3% 57.8%;
   }
 }
 
@@ -98,6 +147,71 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-manrope;
+    font-size: 18px;
+    line-height: 1.6;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-manrope;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold;
+  }
+
+  h3 {
+    @apply text-xl font-medium;
+  }
+
+  h4 {
+    @apply text-lg font-medium;
+  }
+
+  .text-body {
+    font-size: 18px;
+  }
+
+  .text-small {
+    font-size: 14px;
+  }
+
+  .text-caption {
+    font-size: 12px;
+  }
+}
+
+/* Custom status badge styles */
+.status-enrolled {
+  background-color: hsl(var(--status-enrolled-bg));
+  color: hsl(var(--status-enrolled-fg));
+  border: 1px solid hsl(var(--status-enrolled-border));
+}
+
+.status-dropout {
+  background-color: hsl(var(--status-dropout-bg));
+  color: hsl(var(--status-dropout-fg));
+  border: 1px solid hsl(var(--status-dropout-border));
+}
+
+.status-never {
+  background-color: hsl(var(--status-never-bg));
+  color: hsl(var(--status-never-fg));
+  border: 1px solid hsl(var(--status-never-border));
+}
+
+.status-pending {
+  background-color: hsl(var(--status-pending-bg));
+  color: hsl(var(--status-pending-fg));
+  border: 1px solid hsl(var(--status-pending-border));
+}
+
+.status-active {
+  background-color: hsl(var(--status-active-bg));
+  color: hsl(var(--status-active-fg));
+  border: 1px solid hsl(var(--status-active-border));
 }
