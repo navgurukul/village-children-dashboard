@@ -4,15 +4,21 @@ import { Home, Users, FileText, LogOut } from 'lucide-react';
 import Dashboard from '../pages/Dashboard';
 import ChildrenRecords from '../pages/ChildrenRecords';
 import UserManagement from '../pages/UserManagement';
+import AddNewUser from '../pages/AddNewUser';
+import BulkUploadUsers from '../pages/BulkUploadUsers';
+import ChildDetails from '../pages/ChildDetails';
+import BalMitraDetails from '../pages/BalMitraDetails';
 
 interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'users';
+type Page = 'dashboard' | 'children' | 'users' | 'add-user' | 'bulk-upload' | 'child-details' | 'bal-mitra-details';
 
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
 
   const navigationItems = [
     {
@@ -32,71 +38,100 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     },
   ];
 
+  const handleNavigation = (page: Page, data?: any) => {
+    setCurrentPage(page);
+    if (page === 'child-details' && data?.childId) {
+      setSelectedChildId(data.childId);
+    }
+    if (page === 'bal-mitra-details' && data?.balMitraId) {
+      setSelectedBalMitraId(data.balMitraId);
+    }
+  };
+
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard />;
       case 'children':
-        return <ChildrenRecords />;
+        return <ChildrenRecords onChildClick={(childId) => handleNavigation('child-details', { childId })} />;
       case 'users':
-        return <UserManagement />;
+        return <UserManagement 
+          onAddUser={() => handleNavigation('add-user')}
+          onBulkUpload={() => handleNavigation('bulk-upload')}
+          onBalMitraClick={(balMitraId) => handleNavigation('bal-mitra-details', { balMitraId })}
+        />;
+      case 'add-user':
+        return <AddNewUser onCancel={() => handleNavigation('users')} onSuccess={() => handleNavigation('users')} />;
+      case 'bulk-upload':
+        return <BulkUploadUsers onComplete={() => handleNavigation('users')} />;
+      case 'child-details':
+        return <ChildDetails childId={selectedChildId} onBack={() => handleNavigation('children')} />;
+      case 'bal-mitra-details':
+        return <BalMitraDetails balMitraId={selectedBalMitraId} onBack={() => handleNavigation('users')} />;
       default:
         return <Dashboard />;
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* Sidebar */}
-      <div className="w-64 bg-card border-r border-border shadow-card flex flex-col">
-        {/* Logo/Header */}
-        <div className="p-6 border-b border-border">
-          <h1 className="text-xl font-bold text-primary">VCR Portal</h1>
-          <p className="text-sm text-muted-foreground">Village Children Register</p>
-        </div>
+    <div className="min-h-screen bg-background">
+      {/* Top Header with Glassmorphism */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left side - Logo and Navigation */}
+            <div className="flex items-center gap-8">
+              {/* Logo */}
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">V</span>
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-foreground">VCR Portal</h1>
+                  <p className="text-xs text-muted-foreground">Village Children Register</p>
+                </div>
+              </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentPage === item.id;
-              
-              return (
-                <li key={item.id}>
-                  <button
-                    onClick={() => setCurrentPage(item.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                      isActive
-                        ? 'bg-accent text-accent-foreground font-medium'
-                        : 'text-foreground hover:bg-accent-hover'
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+              {/* Navigation */}
+              <nav className="flex items-center gap-1">
+                {navigationItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = currentPage === item.id;
+                  
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavigation(item.id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-border">
-          <button
-            onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-destructive hover:bg-destructive-light hover:text-destructive-foreground"
-          >
-            <LogOut className="h-5 w-5" />
-            <span>Logout</span>
-          </button>
+            {/* Right side - Logout */}
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="flex-1">
+      <main className="pt-20">
         {renderContent()}
-      </div>
+      </main>
     </div>
   );
 };

@@ -8,7 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Upload, Edit, Trash2, Copy } from 'lucide-react';
 
-const UserManagement = () => {
+interface UserManagementProps {
+  onAddUser: () => void;
+  onBulkUpload: () => void;
+  onBalMitraClick: (balMitraId: number) => void;
+}
+
+const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
@@ -48,28 +54,21 @@ const UserManagement = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    // In a real app, you'd show a toast notification here
     console.log('Copied to clipboard:', text);
   };
 
   const handleDeleteUser = (userId: number) => {
     console.log('Deleting user:', userId);
-    // In a real app, this would delete the user
   };
 
   const handleEditUser = (userId: number) => {
     console.log('Editing user:', userId);
-    // In a real app, this would open an edit form
   };
 
-  const handleAddNewUser = () => {
-    console.log('Adding new user...');
-    // In a real app, this would open the add user form
-  };
-
-  const handleBulkUpload = () => {
-    console.log('Starting bulk upload...');
-    // In a real app, this would open the bulk upload flow
+  const handleUserClick = (user: any) => {
+    if (user.role === 'Bal Mitra') {
+      onBalMitraClick(user.id);
+    }
   };
 
   const filteredUsers = users.filter(user => {
@@ -88,48 +87,44 @@ const UserManagement = () => {
         {/* Header */}
         <h1 className="text-3xl font-bold text-foreground">User Management</h1>
 
-        {/* Control Bar */}
-        <Card className="shadow-card">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-              {/* Search */}
-              <div className="relative flex-1">
-                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+        {/* Control Bar - Without Card */}
+        <div className="flex flex-col md:flex-row gap-4 items-center p-6 bg-card rounded-lg border border-border">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-              {/* Role Filter */}
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Bal Mitra">Bal Mitra</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Role Filter */}
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="Admin">Admin</SelectItem>
+              <SelectItem value="Bal Mitra">Bal Mitra</SelectItem>
+            </SelectContent>
+          </Select>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button onClick={handleAddNewUser} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add New User
-                </Button>
-                <Button onClick={handleBulkUpload} variant="outline" className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Bulk Upload Users
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button onClick={onAddUser} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add New User
+            </Button>
+            <Button onClick={onBulkUpload} variant="outline" className="gap-2">
+              <Upload className="h-4 w-4" />
+              Bulk Upload Users
+            </Button>
+          </div>
+        </div>
 
         {/* Users Table */}
         <Card className="shadow-card">
@@ -141,18 +136,22 @@ const UserManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Password</TableHead>
-                    <TableHead>Created On</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="font-bold">Name</TableHead>
+                    <TableHead className="font-bold">Role</TableHead>
+                    <TableHead className="font-bold">Assigned To</TableHead>
+                    <TableHead className="font-bold">Username</TableHead>
+                    <TableHead className="font-bold">Password</TableHead>
+                    <TableHead className="font-bold">Created On</TableHead>
+                    <TableHead className="font-bold">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.map((user, index) => (
-                    <TableRow key={user.id} className={index % 2 === 0 ? "bg-muted/30" : ""}>
+                    <TableRow 
+                      key={user.id} 
+                      className={`${index % 2 === 0 ? "bg-muted/30" : ""} ${user.role === 'Bal Mitra' ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                      onClick={() => handleUserClick(user)}
+                    >
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>
                         <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
@@ -161,7 +160,7 @@ const UserManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="relative group">
-                          <span className="cursor-pointer text-primary hover:underline">
+                          <span className="text-primary">
                             {user.assignedTo}
                           </span>
                           {user.villages.length > 0 && (
@@ -183,7 +182,10 @@ const UserManagement = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => copyToClipboard(user.password)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyToClipboard(user.password);
+                            }}
                             className="h-6 w-6 p-0"
                           >
                             <Copy className="h-3 w-3" />
@@ -196,7 +198,10 @@ const UserManagement = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleEditUser(user.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditUser(user.id);
+                            }}
                             className="h-8 w-8 p-0"
                           >
                             <Edit className="h-4 w-4" />
@@ -204,7 +209,10 @@ const UserManagement = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteUser(user.id);
+                            }}
                             className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
                           >
                             <Trash2 className="h-4 w-4" />

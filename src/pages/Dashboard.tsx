@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Users, GraduationCap, AlertTriangle, UserX, FileText, TrendingUp, Calendar } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const Dashboard = () => {
   const [filters, setFilters] = useState({
@@ -24,7 +24,7 @@ const Dashboard = () => {
     neverEnrolled: 235
   };
 
-  const recentActivity = [
+  const recentStats = [
     { type: 'New Dropouts', count: 15, breakdown: '9 Boys, 6 Girls' },
     { type: 'New Enrollments', count: 23, breakdown: '12 Boys, 11 Girls' }
   ];
@@ -46,6 +46,17 @@ const Dashboard = () => {
     { month: 'Jun', enrolled: 1876, dropout: 432, neverEnrolled: 235 }
   ];
 
+  const getDateRangeLabel = () => {
+    switch (filters.dateRange) {
+      case '7days': return 'Last 7 days';
+      case '30days': return 'Last 30 days';
+      case '90days': return 'Last 90 days';
+      case '6months': return 'Last 6 months';
+      case '1year': return 'Last year';
+      default: return 'Last 30 days';
+    }
+  };
+
   const handleExportPDF = () => {
     console.log('Exporting dashboard as PDF...');
   };
@@ -62,91 +73,87 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        {/* Filters */}
-        <Card className="shadow-card">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Block</label>
-                <Select value={filters.block} onValueChange={(value) => setFilters(prev => ({ ...prev, block: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Block" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Blocks</SelectItem>
-                    <SelectItem value="block1">Block 1</SelectItem>
-                    <SelectItem value="block2">Block 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Filters - Without Card */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 bg-card rounded-lg border border-border">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Block</label>
+            <Select value={filters.block} onValueChange={(value) => setFilters(prev => ({ ...prev, block: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Block" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Blocks</SelectItem>
+                <SelectItem value="block1">Block 1</SelectItem>
+                <SelectItem value="block2">Block 2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Cluster</label>
-                <Select value={filters.cluster} onValueChange={(value) => setFilters(prev => ({ ...prev, cluster: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Cluster" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Clusters</SelectItem>
-                    <SelectItem value="cluster1">Cluster 1</SelectItem>
-                    <SelectItem value="cluster2">Cluster 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Cluster</label>
+            <Select value={filters.cluster} onValueChange={(value) => setFilters(prev => ({ ...prev, cluster: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Cluster" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Clusters</SelectItem>
+                <SelectItem value="cluster1">Cluster 1</SelectItem>
+                <SelectItem value="cluster2">Cluster 2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Panchayat</label>
-                <Select value={filters.panchayat} onValueChange={(value) => setFilters(prev => ({ ...prev, panchayat: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Panchayat" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Panchayats</SelectItem>
-                    <SelectItem value="panchayat1">Panchayat 1</SelectItem>
-                    <SelectItem value="panchayat2">Panchayat 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Panchayat</label>
+            <Select value={filters.panchayat} onValueChange={(value) => setFilters(prev => ({ ...prev, panchayat: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Panchayat" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Panchayats</SelectItem>
+                <SelectItem value="panchayat1">Panchayat 1</SelectItem>
+                <SelectItem value="panchayat2">Panchayat 2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Village</label>
-                <Select value={filters.village} onValueChange={(value) => setFilters(prev => ({ ...prev, village: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Village" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Villages</SelectItem>
-                    <SelectItem value="village1">Village 1</SelectItem>
-                    <SelectItem value="village2">Village 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Village</label>
+            <Select value={filters.village} onValueChange={(value) => setFilters(prev => ({ ...prev, village: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Village" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Villages</SelectItem>
+                <SelectItem value="village1">Village 1</SelectItem>
+                <SelectItem value="village2">Village 2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Date Range</label>
-                <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7days">Last 7 days</SelectItem>
-                    <SelectItem value="30days">Last 30 days</SelectItem>
-                    <SelectItem value="90days">Last 90 days</SelectItem>
-                    <SelectItem value="6months">Last 6 months</SelectItem>
-                    <SelectItem value="1year">Last year</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Date Range</label>
+            <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7days">Last 7 days</SelectItem>
+                <SelectItem value="30days">Last 30 days</SelectItem>
+                <SelectItem value="90days">Last 90 days</SelectItem>
+                <SelectItem value="6months">Last 6 months</SelectItem>
+                <SelectItem value="1year">Last year</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-primary-light">
+                <div className="p-3 rounded-lg bg-primary/20">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
                 <div>
@@ -160,7 +167,7 @@ const Dashboard = () => {
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-success-light">
+                <div className="p-3 rounded-lg bg-success/20">
                   <GraduationCap className="h-8 w-8 text-success" />
                 </div>
                 <div>
@@ -174,7 +181,7 @@ const Dashboard = () => {
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-destructive-light">
+                <div className="p-3 rounded-lg bg-destructive/20">
                   <AlertTriangle className="h-8 w-8 text-destructive" />
                 </div>
                 <div>
@@ -188,7 +195,7 @@ const Dashboard = () => {
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-warning-light">
+                <div className="p-3 rounded-lg bg-warning/20">
                   <UserX className="h-8 w-8 text-warning" />
                 </div>
                 <div>
@@ -200,19 +207,20 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Bottom Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity */}
+        {/* Recent Stats and Villages of Concern Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Stats */}
           <Card className="shadow-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Recent Activity
+                Recent Stats
               </CardTitle>
+              <p className="text-sm text-muted-foreground">{getDateRangeLabel()}</p>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivity.map((activity, index) => (
+                {recentStats.map((activity, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
@@ -235,7 +243,7 @@ const Dashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
-                Villages of Concern
+                Villages of Concern (Worst 5)
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -257,30 +265,49 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Trends Chart */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Trends
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={trendsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="enrolled" stroke="hsl(var(--success))" strokeWidth={2} />
-                  <Line type="monotone" dataKey="dropout" stroke="hsl(var(--destructive))" strokeWidth={2} />
-                  <Line type="monotone" dataKey="neverEnrolled" stroke="hsl(var(--warning))" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* School Status Trend Chart */}
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              School Status Trend
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <LineChart data={trendsData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="enrolled" 
+                  stroke="hsl(var(--success))" 
+                  strokeWidth={2} 
+                  name="Enrolled"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="dropout" 
+                  stroke="hsl(var(--destructive))" 
+                  strokeWidth={2} 
+                  name="Dropout"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="neverEnrolled" 
+                  stroke="hsl(var(--warning))" 
+                  strokeWidth={2} 
+                  name="Never Enrolled"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
