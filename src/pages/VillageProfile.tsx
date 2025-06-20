@@ -69,32 +69,31 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Enrolled':
-        return <Badge className="bg-success/10 text-success border-success/20">{status}</Badge>;
+        return <Badge className="bg-success/10 text-success-dark border-success/20">{status}</Badge>;
       case 'Dropout':
-        return <Badge className="bg-destructive/10 text-destructive border-destructive/20">{status}</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive-dark border-destructive/20">{status}</Badge>;
       case 'Never Enrolled':
-        return <Badge className="bg-warning/10 text-warning border-warning/20">{status}</Badge>;
+        return <Badge className="bg-warning/10 text-warning-dark border-warning/20">{status}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
-  const getDateRangeLabel = (range: string) => {
-    switch (range) {
-      case '7days': return 'Last 7 days';
-      case '30days': return 'Last 30 days';
-      case '90days': return 'Last 3 months';
-      default: return 'Last 30 days';
-    }
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    };
+    return date.toLocaleDateString('en-GB', options);
   };
 
   const handleExportPDF = () => {
-    // Mock export functionality
     console.log('Exporting status updates as PDF...');
   };
 
   const handleExportCSV = () => {
-    // Mock export functionality
     console.log('Exporting status updates as CSV...');
   };
 
@@ -216,7 +215,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                       <p className="font-medium">{item.period}</p>
                       <p className="text-sm text-muted-foreground">{item.breakdown}</p>
                     </div>
-                    <Badge variant="destructive" className="text-sm font-semibold">
+                    <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-sm font-semibold">
                       {item.count}
                     </Badge>
                   </div>
@@ -339,7 +338,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                           <TableCell className="font-medium">{update.childName}</TableCell>
                           <TableCell>{getStatusBadge(update.oldStatus)}</TableCell>
                           <TableCell>{getStatusBadge(update.newStatus)}</TableCell>
-                          <TableCell>{new Date(update.date).toLocaleDateString()}</TableCell>
+                          <TableCell>{formatDate(update.date)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

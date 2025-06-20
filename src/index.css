@@ -185,6 +185,21 @@
   }
 }
 
+/* Custom utility classes */
+@layer utilities {
+  .text-success-dark {
+    color: hsl(var(--success-dark));
+  }
+
+  .text-destructive-dark {
+    color: hsl(var(--destructive-dark));
+  }
+
+  .text-warning-dark {
+    color: hsl(var(--warning-dark));
+  }
+}
+
 /* Custom status badge styles */
 .status-enrolled {
   background-color: hsl(var(--status-enrolled-bg));
