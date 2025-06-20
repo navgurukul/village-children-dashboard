@@ -34,15 +34,8 @@ const Dashboard = () => {
 
   const longDropoutData = [
     { period: '> 1 year', count: 156, breakdown: '64 Boys, 92 Girls' },
-    { period: '6-12 months', count: 89, breakdown: '37 Boys, 52 Girls' }
-  ];
-
-  const villagesOfConcern = [
-    { village: 'Haripur', dropouts: 12, breakdown: '4 Boys, 8 Girls' },
-    { village: 'Rampur', dropouts: 9, breakdown: '4 Boys, 5 Girls' },
-    { village: 'Lakshmipur', dropouts: 8, breakdown: '2 Boys, 6 Girls' },
-    { village: 'Govindpur', dropouts: 7, breakdown: '3 Boys, 4 Girls' },
-    { village: 'Shantipur', dropouts: 6, breakdown: '3 Boys, 3 Girls' }
+    { period: '6-12 months', count: 89, breakdown: '37 Boys, 52 Girls' },
+    { period: '3-6 months', count: 45, breakdown: '19 Boys, 26 Girls' }
   ];
 
   const trendsData = [
@@ -199,16 +192,16 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Row 2: Key Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Row 2: Key Insights - Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Survey Findings */}
           <Card className="shadow-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Recent Survey Findings
-              </CardTitle>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Recent Survey Findings
+                </CardTitle>
                 <Select value={recentSurveyDateRange} onValueChange={setRecentSurveyDateRange}>
                   <SelectTrigger className="w-[120px] bg-white">
                     <SelectValue />
@@ -227,7 +220,7 @@ const Dashboard = () => {
                 {recentSurveyFindings.map((finding, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg"
                   >
                     <div>
                       <p className="font-medium">{finding.type}</p>
@@ -235,9 +228,9 @@ const Dashboard = () => {
                     </div>
                     <Badge 
                       variant="secondary" 
-                      className={`text-lg font-semibold ${
-                        finding.type === 'Dropouts' ? 'text-destructive' : 
-                        finding.type === 'Enrollments' ? 'text-success' : ''
+                      className={`text-sm font-semibold ${
+                        finding.type === 'Dropouts' ? 'bg-destructive text-white' : 
+                        finding.type === 'Enrollments' ? 'bg-success text-white' : ''
                       }`}
                     >
                       {finding.count}
@@ -261,42 +254,14 @@ const Dashboard = () => {
                 {longDropoutData.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg"
                   >
                     <div>
                       <p className="font-medium">{item.period}</p>
                       <p className="text-sm text-muted-foreground">{item.breakdown}</p>
                     </div>
-                    <Badge variant="destructive">
+                    <Badge variant="destructive" className="text-sm font-semibold">
                       {item.count}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Villages of Concern */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5" />
-                Villages of Concern (Worst 5)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {villagesOfConcern.map((village, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
-                  >
-                    <div>
-                      <p className="font-medium">{village.village}</p>
-                      <p className="text-sm text-muted-foreground">{village.breakdown}</p>
-                    </div>
-                    <Badge variant="destructive">
-                      {village.dropouts} Dropouts
                     </Badge>
                   </div>
                 ))}

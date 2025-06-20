@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Home, Users, FileText, LogOut } from 'lucide-react';
+import { Home, Users, FileText, LogOut, MapPin } from 'lucide-react';
 import Dashboard from '../pages/Dashboard';
 import ChildrenRecords from '../pages/ChildrenRecords';
 import UserManagement from '../pages/UserManagement';
@@ -9,18 +10,22 @@ import ChildDetails from '../pages/ChildDetails';
 import EditChildDetails from '../pages/EditChildDetails';
 import BalMitraDetails from '../pages/BalMitraDetails';
 import EditUser from '../pages/EditUser';
+import Villages from '../pages/Villages';
+import AddNewVillage from '../pages/AddNewVillage';
+import VillageProfile from '../pages/VillageProfile';
 
 interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'users' | 'add-user' | 'bulk-upload' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user';
+type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile';
 
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedVillageId, setSelectedVillageId] = useState<string | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
 
   const navigationItems = [
@@ -33,6 +38,11 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       id: 'children' as const,
       label: 'Children Records',
       icon: FileText,
+    },
+    {
+      id: 'villages' as const,
+      label: 'Villages',
+      icon: MapPin,
     },
     {
       id: 'users' as const,
@@ -56,6 +66,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     if (page === 'edit-user' && data?.userId) {
       setSelectedUserId(data.userId);
     }
+    if (page === 'village-profile' && data?.villageId) {
+      setSelectedVillageId(data.villageId);
+    }
   };
 
   const renderContent = () => {
@@ -66,6 +79,15 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <ChildrenRecords 
           onChildClick={(childId) => handleNavigation('child-details', { childId })}
           onEditChild={(childId) => handleNavigation('edit-child-details', { childId, fromDetails: false })}
+          onDeleteChild={(childId) => console.log('Delete child:', childId)}
+        />;
+      case 'villages':
+        return <Villages 
+          onAddVillage={() => handleNavigation('add-village')}
+          onBulkUpload={() => handleNavigation('bulk-upload')}
+          onVillageClick={(villageId) => handleNavigation('village-profile', { villageId })}
+          onEditVillage={(villageId) => console.log('Edit village:', villageId)}
+          onDeleteVillage={(villageId) => console.log('Delete village:', villageId)}
         />;
       case 'users':
         return <UserManagement 
@@ -73,9 +95,12 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onBulkUpload={() => handleNavigation('bulk-upload')}
           onBalMitraClick={(balMitraId) => handleNavigation('bal-mitra-details', { balMitraId })}
           onEditUser={(userId) => handleNavigation('edit-user', { userId })}
+          onDeleteUser={(userId) => console.log('Delete user:', userId)}
         />;
       case 'add-user':
         return <AddNewUser onCancel={() => handleNavigation('users')} onSuccess={() => handleNavigation('users')} />;
+      case 'add-village':
+        return <AddNewVillage onCancel={() => handleNavigation('villages')} onSuccess={() => handleNavigation('villages')} />;
       case 'bulk-upload':
         return <BulkUploadUsers onComplete={() => handleNavigation('users')} />;
       case 'child-details':
@@ -90,6 +115,11 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           fromChildDetails={editChildFromDetails}
           onBack={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
           onSuccess={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
+        />;
+      case 'village-profile':
+        return <VillageProfile 
+          villageId={selectedVillageId} 
+          onBack={() => handleNavigation('villages')} 
         />;
       case 'bal-mitra-details':
         return <BalMitraDetails balMitraId={selectedBalMitraId} onBack={() => handleNavigation('users')} />;
