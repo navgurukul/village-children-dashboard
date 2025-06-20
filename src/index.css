@@ -215,3 +215,13 @@
   color: hsl(var(--status-active-fg));
   border: 1px solid hsl(var(--status-active-border));
 }
+
+/* Header hover effect for navigation items */
+nav a:hover {
+  @apply bg-accent text-accent-foreground;
+}
+
+/* Sidebar navigation item hover effect */
+.sidebar-nav-item:hover {
+  @apply bg-sidebar-accent text-sidebar-accent-foreground;
+}

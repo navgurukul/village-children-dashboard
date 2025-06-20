@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -151,7 +152,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         </div>
 
         {/* Results Summary */}
-        <div className="text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           Showing {paginatedData.length} of {filteredData.length} children
         </div>
 
@@ -217,7 +218,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => handleDeleteChild(student.id)} className="bg-destructive text-destructive-foreground">
                                   Delete
                                 </AlertDialogAction>
@@ -244,7 +245,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
             >
               Previous
             </Button>
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               Page {currentPage} of {totalPages}
             </span>
             <Button 

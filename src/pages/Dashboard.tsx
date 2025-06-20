@@ -220,8 +220,8 @@ const Dashboard = () => {
                     </div>
                     <Badge 
                       className={`text-sm font-semibold ${
-                        finding.type === 'Dropouts' ? 'bg-destructive text-white' : 
-                        finding.type === 'Enrollments' ? 'bg-success text-white' : 'bg-secondary'
+                        finding.type === 'Dropouts' ? 'bg-destructive/10 text-destructive border-destructive/20' : 
+                        finding.type === 'Enrollments' ? 'bg-success/10 text-success border-success/20' : 'bg-secondary'
                       }`}
                     >
                       <span className={finding.type === 'Never Enrolled' ? 'text-foreground' : ''}>{finding.count}</span>
@@ -251,7 +251,7 @@ const Dashboard = () => {
                       <p className="font-medium">{item.period}</p>
                       <p className="text-sm text-muted-foreground">{item.breakdown}</p>
                     </div>
-                    <Badge variant="destructive" className="text-sm font-semibold">
+                    <Badge className="bg-destructive/10 text-destructive text-sm font-semibold border-destructive/20">
                       {item.count}
                     </Badge>
                   </div>
