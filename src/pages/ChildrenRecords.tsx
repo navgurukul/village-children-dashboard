@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Search, Download, FileText, Edit, Trash2 } from 'lucide-react';
+import { Search, Download, FileText, Edit, Trash2, Filter } from 'lucide-react';
 import { mockStudentData } from '../data/mockData';
 
 interface ChildrenRecordsProps {
@@ -120,36 +119,35 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         </div>
 
         {/* Filters Row */}
-        <div className="flex gap-2">
-          <div>
-            <label className="text-sm font-bold mb-1 block">Block</label>
-            <Select value={blockFilter} onValueChange={setBlockFilter}>
-              <SelectTrigger className="w-[150px] bg-white">
-                <SelectValue placeholder="Block" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Blocks</SelectItem>
-                {blocks.map(block => (
-                  <SelectItem key={block} value={block}>{block}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <span className="font-medium">Filters</span>
           </div>
+          
+          <Select value={blockFilter} onValueChange={setBlockFilter}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Blocks" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Blocks</SelectItem>
+              {blocks.map(block => (
+                <SelectItem key={block} value={block}>{block}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <div>
-            <label className="text-sm font-bold mb-1 block">Status</label>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px] bg-white">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Enrolled">Enrolled</SelectItem>
-                <SelectItem value="Dropout">Dropout</SelectItem>
-                <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="Enrolled">Enrolled</SelectItem>
+              <SelectItem value="Dropout">Dropout</SelectItem>
+              <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Results Summary */}

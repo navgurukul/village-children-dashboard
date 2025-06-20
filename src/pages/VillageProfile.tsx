@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,6 +59,19 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
   const statusChangesSummary = {
     dropoutToEnrolled: 3,
     neverEnrolledToEnrolled: 4
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Enrolled':
+        return <Badge className="bg-success text-white">{status}</Badge>;
+      case 'Dropout':
+        return <Badge className="bg-destructive text-white">{status}</Badge>;
+      case 'Never Enrolled':
+        return <Badge className="bg-warning text-white">{status}</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
   };
 
   const getDateRangeLabel = (range: string) => {
@@ -126,7 +138,6 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Enrolled</p>
                   <p className="text-3xl font-bold text-foreground">{villageData.enrolled.count}</p>
-                  <p className="text-sm text-muted-foreground">({villageData.enrolled.percentage}%)</p>
                 </div>
               </div>
             </CardContent>
@@ -141,7 +152,6 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Dropout</p>
                   <p className="text-3xl font-bold text-foreground">{villageData.dropout.count}</p>
-                  <p className="text-sm text-muted-foreground">({villageData.dropout.percentage}%)</p>
                 </div>
               </div>
             </CardContent>
@@ -156,7 +166,6 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Never Enrolled</p>
                   <p className="text-3xl font-bold text-foreground">{villageData.neverEnrolled.count}</p>
-                  <p className="text-sm text-muted-foreground">({villageData.neverEnrolled.percentage}%)</p>
                 </div>
               </div>
             </CardContent>
@@ -237,72 +246,75 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
         </div>
 
         {/* Row 3: Recent Updates */}
-        <Card className="shadow-card">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Recent Child Status Updates
-              </CardTitle>
-              <Select value={recentUpdatesDateRange} onValueChange={setRecentUpdatesDateRange}>
-                <SelectTrigger className="w-[150px] bg-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7days">Last 7 Days</SelectItem>
-                  <SelectItem value="30days">Last 30 Days</SelectItem>
-                  <SelectItem value="90days">Last 3 Months</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-sm text-muted-foreground">{getDateRangeLabel(recentUpdatesDateRange)}</p>
-          </CardHeader>
-          <CardContent>
-            {/* Summary Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="p-4 rounded-lg bg-success/10">
-                <p className="text-sm font-medium text-muted-foreground">From Dropout to Enrolled</p>
-                <p className="text-2xl font-bold text-success">{statusChangesSummary.dropoutToEnrolled}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="shadow-card lg:col-span-2">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Recent Child Status Updates
+                </CardTitle>
+                <Select value={recentUpdatesDateRange} onValueChange={setRecentUpdatesDateRange}>
+                  <SelectTrigger className="w-[150px] bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7days">Last 7 Days</SelectItem>
+                    <SelectItem value="30days">Last 30 Days</SelectItem>
+                    <SelectItem value="90days">Last 3 Months</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="p-4 rounded-lg bg-primary/10">
-                <p className="text-sm font-medium text-muted-foreground">From Never Enrolled to Enrolled</p>
-                <p className="text-2xl font-bold text-primary">{statusChangesSummary.neverEnrolledToEnrolled}</p>
+            </CardHeader>
+            <CardContent>
+              {/* Summary Metrics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="p-4 rounded-lg bg-success/10">
+                  <p className="text-sm font-medium text-muted-foreground">From Dropout to Enrolled</p>
+                  <p className="text-2xl font-bold text-success">{statusChangesSummary.dropoutToEnrolled}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-primary/10">
+                  <p className="text-sm font-medium text-muted-foreground">From Never Enrolled to Enrolled</p>
+                  <p className="text-2xl font-bold text-primary">{statusChangesSummary.neverEnrolledToEnrolled}</p>
+                </div>
               </div>
-            </div>
 
-            {/* Update Log */}
-            <div className="space-y-3">
-              {displayedUpdates.map((update, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-accent/30">
-                  <div className="flex-1">
-                    <span className="font-medium">{update.childName}</span>
-                    <span className="mx-2 text-muted-foreground">|</span>
-                    <span className="text-sm">
-                      Status changed from 
-                      <Badge variant="outline" className="mx-1 text-xs">{update.oldStatus}</Badge>
-                      to
-                      <Badge variant="outline" className="mx-1 text-xs">{update.newStatus}</Badge>
+              {/* Update Log */}
+              <div className="space-y-3">
+                {displayedUpdates.map((update, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-accent/30">
+                    <div className="flex-1">
+                      <span className="font-medium">{update.childName}</span>
+                      <span className="mx-2 text-muted-foreground">|</span>
+                      <span className="text-sm">
+                        Status changed from 
+                        {getStatusBadge(update.oldStatus)}
+                        <span className="mx-1">to</span>
+                        {getStatusBadge(update.newStatus)}
+                      </span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {new Date(update.date).toLocaleDateString()}
                     </span>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(update.date).toLocaleDateString()}
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            {/* View All Button */}
-            {recentUpdates.length > 7 && !showAllUpdates && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowAllUpdates(true)}
-                className="w-full mt-4"
-              >
-                View All Status Updates
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+              {/* View All Button */}
+              {recentUpdates.length > 7 && !showAllUpdates && (
+                <div className="text-center mt-4">
+                  <Button 
+                    variant="link" 
+                    onClick={() => setShowAllUpdates(true)}
+                    className="text-primary"
+                  >
+                    View All Status Updates
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

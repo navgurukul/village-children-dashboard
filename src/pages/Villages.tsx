@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit, Trash2, Plus, Upload, Search, ArrowUpDown } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Edit, Trash2, Plus, Upload, Search, Filter } from 'lucide-react';
 
 interface VillagesProps {
   onAddVillage: () => void;
@@ -21,10 +23,8 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     cluster: 'all',
     panchayat: 'all'
   });
-  const [sortConfig, setSortConfig] = useState<{
-    field: 'enrolled' | 'dropout' | null;
-    direction: 'asc' | 'desc';
-  }>({ field: null, direction: 'asc' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   // Mock data
   const villagesData = [
@@ -90,21 +90,12 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     }
   ];
 
-  const handleSort = (field: 'enrolled' | 'dropout') => {
-    setSortConfig(prev => ({
-      field,
-      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
   const handleDeleteVillage = (villageId: string, villageName: string) => {
-    if (window.confirm(`Are you sure you want to delete ${villageName}? This action cannot be undone.`)) {
-      onDeleteVillage(villageId);
-    }
+    onDeleteVillage(villageId);
   };
 
-  const filteredAndSortedVillages = React.useMemo(() => {
-    let filtered = villagesData.filter(village => {
+  const filteredVillages = React.useMemo(() => {
+    return villagesData.filter(village => {
       const matchesSearch = village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            village.block.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            village.cluster.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -116,22 +107,15 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       
       return matchesSearch && matchesFilters;
     });
+  }, [searchTerm, filters, villagesData]);
 
-    if (sortConfig.field) {
-      filtered.sort((a, b) => {
-        const aValue = a[sortConfig.field!];
-        const bValue = b[sortConfig.field!];
-        
-        if (sortConfig.direction === 'asc') {
-          return aValue - bValue;
-        } else {
-          return bValue - aValue;
-        }
-      });
-    }
+  // Paginated data
+  const paginatedData = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredVillages.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredVillages, currentPage]);
 
-    return filtered;
-  }, [searchTerm, filters, sortConfig, villagesData]);
+  const totalPages = Math.ceil(filteredVillages.length / itemsPerPage);
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -141,7 +125,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
 
         {/* Search Bar and CTAs */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search villages, block, cluster, or panchayat..."
@@ -151,153 +135,176 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             />
           </div>
           <div className="flex gap-2">
-            <Button onClick={onBulkUpload} variant="outline" className="gap-2">
-              <Upload className="h-4 w-4" />
-              Bulk Upload
-            </Button>
             <Button onClick={onAddVillage} className="gap-2">
               <Plus className="h-4 w-4" />
               Add New Village
             </Button>
+            <Button onClick={onBulkUpload} variant="outline" className="gap-2 bg-white">
+              <Upload className="h-4 w-4" />
+              Bulk Upload
+            </Button>
           </div>
         </div>
 
-        {/* Filters and Sorting */}
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="space-y-2">
-            <label className="text-sm font-bold">Block</label>
-            <Select value={filters.block} onValueChange={(value) => setFilters(prev => ({ ...prev, block: value, cluster: 'all', panchayat: 'all' }))}>
-              <SelectTrigger className="w-[150px] bg-white">
-                <SelectValue placeholder="All Blocks" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Blocks</SelectItem>
-                <SelectItem value="Block 1">Block 1</SelectItem>
-                <SelectItem value="Block 2">Block 2</SelectItem>
-                <SelectItem value="Rajgangpur">Rajgangpur</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* Filters */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <span className="font-medium">Filters</span>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-bold">Cluster</label>
-            <Select value={filters.cluster} onValueChange={(value) => setFilters(prev => ({ ...prev, cluster: value, panchayat: 'all' }))}>
-              <SelectTrigger className="w-[150px] bg-white">
-                <SelectValue placeholder="All Clusters" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Clusters</SelectItem>
-                <SelectItem value="Cluster 1">Cluster 1</SelectItem>
-                <SelectItem value="Cluster 2">Cluster 2</SelectItem>
-                <SelectItem value="Cluster 3">Cluster 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={filters.block} onValueChange={(value) => setFilters(prev => ({ ...prev, block: value, cluster: 'all', panchayat: 'all' }))}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Blocks" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Blocks</SelectItem>
+              <SelectItem value="Block 1">Block 1</SelectItem>
+              <SelectItem value="Block 2">Block 2</SelectItem>
+              <SelectItem value="Rajgangpur">Rajgangpur</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div className="space-y-2">
-            <label className="text-sm font-bold">Panchayat</label>
-            <Select value={filters.panchayat} onValueChange={(value) => setFilters(prev => ({ ...prev, panchayat: value }))}>
-              <SelectTrigger className="w-[150px] bg-white">
-                <SelectValue placeholder="All Panchayats" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Panchayats</SelectItem>
-                <SelectItem value="Panchayat 1">Panchayat 1</SelectItem>
-                <SelectItem value="Panchayat 2">Panchayat 2</SelectItem>
-                <SelectItem value="Panchayat 3">Panchayat 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={filters.cluster} onValueChange={(value) => setFilters(prev => ({ ...prev, cluster: value, panchayat: 'all' }))}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Clusters" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Clusters</SelectItem>
+              <SelectItem value="Cluster 1">Cluster 1</SelectItem>
+              <SelectItem value="Cluster 2">Cluster 2</SelectItem>
+              <SelectItem value="Cluster 3">Cluster 3</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div className="space-y-2">
-            <label className="text-sm font-bold">Sort by Enrolled</label>
-            <Button
-              variant="outline"
-              onClick={() => handleSort('enrolled')}
-              className="gap-2 bg-white"
-            >
-              <ArrowUpDown className="h-4 w-4" />
-              {sortConfig.field === 'enrolled' ? (sortConfig.direction === 'asc' ? 'Low to High' : 'High to Low') : 'Sort'}
-            </Button>
-          </div>
+          <Select value={filters.panchayat} onValueChange={(value) => setFilters(prev => ({ ...prev, panchayat: value }))}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Panchayats" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Panchayats</SelectItem>
+              <SelectItem value="Panchayat 1">Panchayat 1</SelectItem>
+              <SelectItem value="Panchayat 2">Panchayat 2</SelectItem>
+              <SelectItem value="Panchayat 3">Panchayat 3</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-bold">Sort by Dropout</label>
-            <Button
-              variant="outline"
-              onClick={() => handleSort('dropout')}
-              className="gap-2 bg-white"
-            >
-              <ArrowUpDown className="h-4 w-4" />
-              {sortConfig.field === 'dropout' ? (sortConfig.direction === 'asc' ? 'Low to High' : 'High to Low') : 'Sort'}
-            </Button>
-          </div>
+        {/* Results Summary */}
+        <div className="text-muted-foreground">
+          Showing {paginatedData.length} of {filteredVillages.length} villages
         </div>
 
         {/* Data Table */}
-        <div className="border rounded-lg bg-white">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="font-bold">Village Name</TableHead>
-                <TableHead className="font-bold">Block</TableHead>
-                <TableHead className="font-bold">Cluster</TableHead>
-                <TableHead className="font-bold">Panchayat</TableHead>
-                <TableHead className="font-bold">Total Children</TableHead>
-                <TableHead className="font-bold">Enrolled Children</TableHead>
-                <TableHead className="font-bold">Dropout Children</TableHead>
-                <TableHead className="font-bold">Assigned Bal Mitra</TableHead>
-                <TableHead className="font-bold">Last Survey Date</TableHead>
-                <TableHead className="font-bold">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedVillages.map((village) => (
-                <TableRow 
-                  key={village.id} 
-                  className="cursor-pointer hover:bg-accent"
-                  onClick={() => onVillageClick(village.id)}
-                >
-                  <TableCell className="font-medium">{village.name}</TableCell>
-                  <TableCell>{village.block}</TableCell>
-                  <TableCell>{village.cluster}</TableCell>
-                  <TableCell>{village.panchayat}</TableCell>
-                  <TableCell>{village.totalChildren}</TableCell>
-                  <TableCell>{village.enrolled}</TableCell>
-                  <TableCell>{village.dropout}</TableCell>
-                  <TableCell>{village.assignedBalMitra}</TableCell>
-                  <TableCell>{new Date(village.lastSurveyDate).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditVillage(village.id);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteVillage(village.id, village.name);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <Card className="shadow-card">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="font-bold">Village Name</TableHead>
+                    <TableHead className="font-bold">Block</TableHead>
+                    <TableHead className="font-bold">Cluster</TableHead>
+                    <TableHead className="font-bold">Panchayat</TableHead>
+                    <TableHead className="font-bold">Total Children</TableHead>
+                    <TableHead className="font-bold">Enrolled Children</TableHead>
+                    <TableHead className="font-bold">Dropout Children</TableHead>
+                    <TableHead className="font-bold">Assigned Bal Mitra</TableHead>
+                    <TableHead className="font-bold">Last Survey Date</TableHead>
+                    <TableHead className="font-bold">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedData.map((village, index) => (
+                    <TableRow 
+                      key={village.id} 
+                      className={`cursor-pointer hover:bg-muted/50 transition-colors ${index % 2 === 0 ? "bg-muted/30" : ""}`}
+                      onClick={() => onVillageClick(village.id)}
+                    >
+                      <TableCell className="font-medium">{village.name}</TableCell>
+                      <TableCell>{village.block}</TableCell>
+                      <TableCell>{village.cluster}</TableCell>
+                      <TableCell>{village.panchayat}</TableCell>
+                      <TableCell>{village.totalChildren}</TableCell>
+                      <TableCell>{village.enrolled}</TableCell>
+                      <TableCell>{village.dropout}</TableCell>
+                      <TableCell>{village.assignedBalMitra}</TableCell>
+                      <TableCell>{new Date(village.lastSurv
 
-        {filteredAndSortedVillages.length === 0 && (
+eyDate).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditVillage(village.id);
+                            }}
+                            className="h-8 w-8 p-0 text-primary hover:text-primary-foreground hover:bg-primary"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => e.stopPropagation()}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Village</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete {village.name}? This action cannot be undone and will remove all associated data.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteVillage(village.id, village.name)} className="bg-destructive text-destructive-foreground">
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2">
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              variant="outline"
+            >
+              Previous
+            </Button>
+            <span className="text-muted-foreground">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              variant="outline"
+            >
+              Next
+            </Button>
+          </div>
+        )}
+
+        {filteredVillages.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No villages found matching the current search and filters.
           </div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Home, Users, FileText, LogOut, MapPin } from 'lucide-react';
 import Dashboard from '../pages/Dashboard';
@@ -12,12 +13,14 @@ import EditUser from '../pages/EditUser';
 import Villages from '../pages/Villages';
 import AddNewVillage from '../pages/AddNewVillage';
 import VillageProfile from '../pages/VillageProfile';
+import BulkUploadVillages from '../pages/BulkUploadVillages';
+import EditVillage from '../pages/EditVillage';
 
 interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile';
+type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile' | 'edit-village';
 
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -68,6 +71,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     if (page === 'village-profile' && data?.villageId) {
       setSelectedVillageId(data.villageId);
     }
+    if (page === 'edit-village' && data?.villageId) {
+      setSelectedVillageId(data.villageId);
+    }
   };
 
   const renderContent = () => {
@@ -82,9 +88,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'villages':
         return <Villages 
           onAddVillage={() => handleNavigation('add-village')}
-          onBulkUpload={() => handleNavigation('bulk-upload')}
+          onBulkUpload={() => handleNavigation('bulk-upload-villages')}
           onVillageClick={(villageId) => handleNavigation('village-profile', { villageId })}
-          onEditVillage={(villageId) => console.log('Edit village:', villageId)}
+          onEditVillage={(villageId) => handleNavigation('edit-village', { villageId })}
           onDeleteVillage={(villageId) => console.log('Delete village:', villageId)}
         />;
       case 'users':
@@ -100,6 +106,8 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <AddNewVillage onCancel={() => handleNavigation('villages')} onSuccess={() => handleNavigation('villages')} />;
       case 'bulk-upload':
         return <BulkUploadUsers onComplete={() => handleNavigation('users')} />;
+      case 'bulk-upload-villages':
+        return <BulkUploadVillages onComplete={() => handleNavigation('villages')} />;
       case 'child-details':
         return <ChildDetails 
           childId={selectedChildId} 
@@ -117,6 +125,12 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <VillageProfile 
           villageId={selectedVillageId} 
           onBack={() => handleNavigation('villages')} 
+        />;
+      case 'edit-village':
+        return <EditVillage 
+          villageId={selectedVillageId} 
+          onCancel={() => handleNavigation('villages')} 
+          onSuccess={() => handleNavigation('villages')} 
         />;
       case 'bal-mitra-details':
         return <BalMitraDetails balMitraId={selectedBalMitraId} onBack={() => handleNavigation('users')} />;

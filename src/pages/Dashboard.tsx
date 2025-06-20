@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Users, GraduationCap, AlertTriangle, UserX, FileText, TrendingUp, Calendar, Clock } from 'lucide-react';
+import { Users, GraduationCap, AlertTriangle, UserX, FileText, TrendingUp, Calendar, Clock, Filter } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const Dashboard = () => {
@@ -51,7 +50,7 @@ const Dashboard = () => {
     switch (range) {
       case '7days': return 'Last 7 days';
       case '30days': return 'Last 30 days';
-      case '90days': return 'Last 90 days';
+      case '90days': return 'Last 3 months';
       case '6months': return 'Last 6 months';
       case '1year': return 'Last year';
       default: return 'Last 30 days';
@@ -75,62 +74,55 @@ const Dashboard = () => {
         </div>
 
         {/* Location Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="text-sm font-bold mb-2 block">Block</label>
-            <Select value={locationFilters.block} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, block: value }))}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Block" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Blocks</SelectItem>
-                <SelectItem value="block1">Block 1</SelectItem>
-                <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <span className="font-medium">Filters</span>
           </div>
+          
+          <Select value={locationFilters.block} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, block: value }))}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Blocks" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Blocks</SelectItem>
+              <SelectItem value="block1">Block 1</SelectItem>
+              <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div>
-            <label className="text-sm font-bold mb-2 block">Cluster</label>
-            <Select value={locationFilters.cluster} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, cluster: value }))}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Cluster" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Clusters</SelectItem>
-                <SelectItem value="cluster1">Cluster 1</SelectItem>
-                <SelectItem value="cluster2">Cluster 2</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={locationFilters.cluster} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, cluster: value }))}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Clusters" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Clusters</SelectItem>
+              <SelectItem value="cluster1">Cluster 1</SelectItem>
+              <SelectItem value="cluster2">Cluster 2</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div>
-            <label className="text-sm font-bold mb-2 block">Panchayat</label>
-            <Select value={locationFilters.panchayat} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, panchayat: value }))}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Panchayat" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Panchayats</SelectItem>
-                <SelectItem value="panchayat1">Panchayat 1</SelectItem>
-                <SelectItem value="panchayat2">Panchayat 2</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={locationFilters.panchayat} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, panchayat: value }))}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Panchayats" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Panchayats</SelectItem>
+              <SelectItem value="panchayat1">Panchayat 1</SelectItem>
+              <SelectItem value="panchayat2">Panchayat 2</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div>
-            <label className="text-sm font-bold mb-2 block">Village</label>
-            <Select value={locationFilters.village} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, village: value }))}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Village" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Villages</SelectItem>
-                <SelectItem value="village1">Village 1</SelectItem>
-                <SelectItem value="village2">Village 2</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={locationFilters.village} onValueChange={(value) => setLocationFilters(prev => ({ ...prev, village: value }))}>
+            <SelectTrigger className="w-[150px] bg-white">
+              <SelectValue placeholder="All Villages" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Villages</SelectItem>
+              <SelectItem value="village1">Village 1</SelectItem>
+              <SelectItem value="village2">Village 2</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Row 1: KPI Cards */}
@@ -203,13 +195,13 @@ const Dashboard = () => {
                   Recent Survey Findings
                 </CardTitle>
                 <Select value={recentSurveyDateRange} onValueChange={setRecentSurveyDateRange}>
-                  <SelectTrigger className="w-[120px] bg-white">
+                  <SelectTrigger className="w-[140px] bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="7days">7 days</SelectItem>
-                    <SelectItem value="30days">30 days</SelectItem>
-                    <SelectItem value="90days">90 days</SelectItem>
+                    <SelectItem value="7days">Last 7 days</SelectItem>
+                    <SelectItem value="30days">Last 30 days</SelectItem>
+                    <SelectItem value="90days">Last 3 months</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -227,10 +219,9 @@ const Dashboard = () => {
                       <p className="text-sm text-muted-foreground">{finding.breakdown}</p>
                     </div>
                     <Badge 
-                      variant="secondary" 
                       className={`text-sm font-semibold ${
                         finding.type === 'Dropouts' ? 'bg-destructive text-white' : 
-                        finding.type === 'Enrollments' ? 'bg-success text-white' : ''
+                        finding.type === 'Enrollments' ? 'bg-success text-white' : 'bg-secondary'
                       }`}
                     >
                       {finding.count}
