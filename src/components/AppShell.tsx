@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Home, Users, FileText, LogOut, MapPin } from 'lucide-react';
 import Dashboard from '../pages/Dashboard';
@@ -79,7 +78,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <ChildrenRecords 
           onChildClick={(childId) => handleNavigation('child-details', { childId })}
           onEditChild={(childId) => handleNavigation('edit-child-details', { childId, fromDetails: false })}
-          onDeleteChild={(childId) => console.log('Delete child:', childId)}
         />;
       case 'villages':
         return <Villages 
@@ -95,7 +93,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onBulkUpload={() => handleNavigation('bulk-upload')}
           onBalMitraClick={(balMitraId) => handleNavigation('bal-mitra-details', { balMitraId })}
           onEditUser={(userId) => handleNavigation('edit-user', { userId })}
-          onDeleteUser={(userId) => console.log('Delete user:', userId)}
         />;
       case 'add-user':
         return <AddNewUser onCancel={() => handleNavigation('users')} onSuccess={() => handleNavigation('users')} />;
