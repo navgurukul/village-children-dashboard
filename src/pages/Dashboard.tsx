@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -201,11 +202,10 @@ const Dashboard = () => {
                   <SelectContent>
                     <SelectItem value="7days">Last 7 days</SelectItem>
                     <SelectItem value="30days">Last 30 days</SelectItem>
-                    <SelectItem value="90days">Last 3 months</SelectItem>
+                    <SelectItem value="90days">Last 3 Months</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <p className="text-sm text-muted-foreground">{getDateRangeLabel(recentSurveyDateRange)}</p>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -224,7 +224,7 @@ const Dashboard = () => {
                         finding.type === 'Enrollments' ? 'bg-success text-white' : 'bg-secondary'
                       }`}
                     >
-                      {finding.count}
+                      <span className={finding.type === 'Never Enrolled' ? 'text-foreground' : ''}>{finding.count}</span>
                     </Badge>
                   </div>
                 ))}

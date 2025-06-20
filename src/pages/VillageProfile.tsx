@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { ArrowLeft, Users, GraduationCap, AlertTriangle, UserX, Clock, TrendingUp, Calendar, Download } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -14,7 +16,8 @@ interface VillageProfileProps {
 
 const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
   const [recentUpdatesDateRange, setRecentUpdatesDateRange] = useState('30days');
-  const [showAllUpdates, setShowAllUpdates] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   // Mock village data
   const villageData = {
@@ -59,17 +62,18 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
 
   const statusChangesSummary = {
     dropoutToEnrolled: 3,
-    neverEnrolledToEnrolled: 4
+    neverEnrolledToEnrolled: 4,
+    enrolledToDropout: 2
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Enrolled':
-        return <Badge className="bg-success text-white">{status}</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20">{status}</Badge>;
       case 'Dropout':
-        return <Badge className="bg-destructive text-white">{status}</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive border-destructive/20">{status}</Badge>;
       case 'Never Enrolled':
-        return <Badge className="bg-warning text-white">{status}</Badge>;
+        return <Badge className="bg-warning/10 text-warning border-warning/20">{status}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -94,7 +98,15 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
     console.log('Exporting status updates as CSV...');
   };
 
-  const displayedUpdates = showAllUpdates ? recentUpdates : recentUpdates.slice(0, 7);
+  // Pagination calculations
+  const totalPages = Math.ceil(recentUpdates.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUpdates = recentUpdates.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -183,8 +195,8 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
           </Card>
         </div>
 
-        {/* Row 2: Deeper Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Row 2: Deeper Insights with increased margin */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           {/* Children with Long Dropout Period (1/3 width) */}
           <Card className="shadow-card">
             <CardHeader>
@@ -288,8 +300,8 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
             </div>
           </div>
 
-          {/* Summary Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Summary Metrics with third metric */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-lg bg-success/10">
               <p className="text-sm font-medium text-muted-foreground">From Dropout to Enrolled</p>
               <p className="text-2xl font-bold text-success">{statusChangesSummary.dropoutToEnrolled}</p>
@@ -298,55 +310,85 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
               <p className="text-sm font-medium text-muted-foreground">From Never Enrolled to Enrolled</p>
               <p className="text-2xl font-bold text-primary">{statusChangesSummary.neverEnrolledToEnrolled}</p>
             </div>
+            <div className="p-4 rounded-lg bg-destructive/10">
+              <p className="text-sm font-medium text-muted-foreground">From Enrolled to Dropout</p>
+              <p className="text-2xl font-bold text-destructive">{statusChangesSummary.enrolledToDropout}</p>
+            </div>
           </div>
 
           {/* Status Updates Table */}
-          <Card className="shadow-card">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="font-bold">Student Name</TableHead>
-                      <TableHead className="font-bold">Previous Status</TableHead>
-                      <TableHead className="font-bold">Current Status</TableHead>
-                      <TableHead className="font-bold">Date of Change</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {displayedUpdates.map((update, index) => (
-                      <TableRow 
-                        key={index} 
-                        className={`${index % 2 === 0 ? "bg-muted/30" : ""}`}
-                      >
-                        <TableCell className="font-medium">{update.childName}</TableCell>
-                        <TableCell>{getStatusBadge(update.oldStatus)}</TableCell>
-                        <TableCell>{getStatusBadge(update.newStatus)}</TableCell>
-                        <TableCell>{new Date(update.date).toLocaleDateString()}</TableCell>
+          <div className="space-y-4">
+            <Card className="shadow-card">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-bold">Student Name</TableHead>
+                        <TableHead className="font-bold">Previous Status</TableHead>
+                        <TableHead className="font-bold">Current Status</TableHead>
+                        <TableHead className="font-bold">Date of Change</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {currentUpdates.map((update, index) => (
+                        <TableRow 
+                          key={index} 
+                          className={`${index % 2 === 0 ? "bg-muted/30" : ""}`}
+                        >
+                          <TableCell className="font-medium">{update.childName}</TableCell>
+                          <TableCell>{getStatusBadge(update.oldStatus)}</TableCell>
+                          <TableCell>{getStatusBadge(update.newStatus)}</TableCell>
+                          <TableCell>{new Date(update.date).toLocaleDateString()}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* View All Button */}
-          {recentUpdates.length > 7 && !showAllUpdates && (
-            <div className="text-center">
-              <Button 
-                variant="link" 
-                onClick={() => setShowAllUpdates(true)}
-                className="text-primary"
-              >
-                View All Status Updates
-              </Button>
-            </div>
-          )}
-
-          {/* Results Summary */}
-          <div className="text-muted-foreground text-center">
-            Showing {displayedUpdates.length} of {recentUpdates.length} status updates
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) handlePageChange(currentPage - 1);
+                      }}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(i + 1);
+                        }}
+                        isActive={currentPage === i + 1}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                      }}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </div>
         </div>
       </div>
