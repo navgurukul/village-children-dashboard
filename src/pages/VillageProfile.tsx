@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, GraduationCap, AlertTriangle, UserX, Clock, TrendingUp, Calendar } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ArrowLeft, Users, GraduationCap, AlertTriangle, UserX, Clock, TrendingUp, Calendar, Download } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface VillageProfileProps {
@@ -81,6 +82,16 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
       case '90days': return 'Last 3 months';
       default: return 'Last 30 days';
     }
+  };
+
+  const handleExportPDF = () => {
+    // Mock export functionality
+    console.log('Exporting status updates as PDF...');
+  };
+
+  const handleExportCSV = () => {
+    // Mock export functionality
+    console.log('Exporting status updates as CSV...');
   };
 
   const displayedUpdates = showAllUpdates ? recentUpdates : recentUpdates.slice(0, 7);
@@ -245,75 +256,98 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
           </Card>
         </div>
 
-        {/* Row 3: Recent Updates */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="shadow-card lg:col-span-2">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Recent Child Status Updates
-                </CardTitle>
-                <Select value={recentUpdatesDateRange} onValueChange={setRecentUpdatesDateRange}>
-                  <SelectTrigger className="w-[150px] bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7days">Last 7 Days</SelectItem>
-                    <SelectItem value="30days">Last 30 Days</SelectItem>
-                    <SelectItem value="90days">Last 3 Months</SelectItem>
-                  </SelectContent>
-                </Select>
+        {/* Row 3: Recent Updates Section */}
+        <div className="space-y-6">
+          {/* Header with Title, Filter, and Export */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              <h2 className="text-2xl font-semibold">Recent Child Status Updates</h2>
+            </div>
+            <div className="flex items-center gap-4">
+              <Select value={recentUpdatesDateRange} onValueChange={setRecentUpdatesDateRange}>
+                <SelectTrigger className="w-[150px] bg-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7days">Last 7 Days</SelectItem>
+                  <SelectItem value="30days">Last 30 Days</SelectItem>
+                  <SelectItem value="90days">Last 3 Months</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 bg-white">
+                  <Download className="h-4 w-4" />
+                  PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-2 bg-white">
+                  <Download className="h-4 w-4" />
+                  CSV
+                </Button>
               </div>
-            </CardHeader>
-            <CardContent>
-              {/* Summary Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="p-4 rounded-lg bg-success/10">
-                  <p className="text-sm font-medium text-muted-foreground">From Dropout to Enrolled</p>
-                  <p className="text-2xl font-bold text-success">{statusChangesSummary.dropoutToEnrolled}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-primary/10">
-                  <p className="text-sm font-medium text-muted-foreground">From Never Enrolled to Enrolled</p>
-                  <p className="text-2xl font-bold text-primary">{statusChangesSummary.neverEnrolledToEnrolled}</p>
-                </div>
-              </div>
+            </div>
+          </div>
 
-              {/* Update Log */}
-              <div className="space-y-3">
-                {displayedUpdates.map((update, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-accent/30">
-                    <div className="flex-1">
-                      <span className="font-medium">{update.childName}</span>
-                      <span className="mx-2 text-muted-foreground">|</span>
-                      <span className="text-sm">
-                        Status changed from 
-                        {getStatusBadge(update.oldStatus)}
-                        <span className="mx-1">to</span>
-                        {getStatusBadge(update.newStatus)}
-                      </span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(update.date).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
+          {/* Summary Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-lg bg-success/10">
+              <p className="text-sm font-medium text-muted-foreground">From Dropout to Enrolled</p>
+              <p className="text-2xl font-bold text-success">{statusChangesSummary.dropoutToEnrolled}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-primary/10">
+              <p className="text-sm font-medium text-muted-foreground">From Never Enrolled to Enrolled</p>
+              <p className="text-2xl font-bold text-primary">{statusChangesSummary.neverEnrolledToEnrolled}</p>
+            </div>
+          </div>
 
-              {/* View All Button */}
-              {recentUpdates.length > 7 && !showAllUpdates && (
-                <div className="text-center mt-4">
-                  <Button 
-                    variant="link" 
-                    onClick={() => setShowAllUpdates(true)}
-                    className="text-primary"
-                  >
-                    View All Status Updates
-                  </Button>
-                </div>
-              )}
+          {/* Status Updates Table */}
+          <Card className="shadow-card">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-bold">Student Name</TableHead>
+                      <TableHead className="font-bold">Previous Status</TableHead>
+                      <TableHead className="font-bold">Current Status</TableHead>
+                      <TableHead className="font-bold">Date of Change</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {displayedUpdates.map((update, index) => (
+                      <TableRow 
+                        key={index} 
+                        className={`${index % 2 === 0 ? "bg-muted/30" : ""}`}
+                      >
+                        <TableCell className="font-medium">{update.childName}</TableCell>
+                        <TableCell>{getStatusBadge(update.oldStatus)}</TableCell>
+                        <TableCell>{getStatusBadge(update.newStatus)}</TableCell>
+                        <TableCell>{new Date(update.date).toLocaleDateString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
+
+          {/* View All Button */}
+          {recentUpdates.length > 7 && !showAllUpdates && (
+            <div className="text-center">
+              <Button 
+                variant="link" 
+                onClick={() => setShowAllUpdates(true)}
+                className="text-primary"
+              >
+                View All Status Updates
+              </Button>
+            </div>
+          )}
+
+          {/* Results Summary */}
+          <div className="text-muted-foreground text-center">
+            Showing {displayedUpdates.length} of {recentUpdates.length} status updates
+          </div>
         </div>
       </div>
     </div>
