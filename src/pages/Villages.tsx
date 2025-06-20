@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Filter, Search, Plus, Upload, Edit, Trash2 } from 'lucide-react';
 
-const Villages = () => {
+interface VillagesProps {
+  onAddVillage: () => void;
+  onBulkUpload: () => void;
+  onVillageClick: (villageId: string) => void;
+  onEditVillage: (villageId: string) => void;
+  onDeleteVillage: (villageId: string) => void;
+}
+
+const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, onDeleteVillage }: VillagesProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilters, setLocationFilters] = useState({
     block: 'all',
@@ -79,7 +88,7 @@ const Villages = () => {
   };
 
   const handleDeleteVillage = (villageId: string) => {
-    console.log('Deleting village:', villageId);
+    onDeleteVillage(villageId);
   };
 
   return (
@@ -89,11 +98,11 @@ const Villages = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-foreground">Villages</h1>
           <div className="flex gap-2">
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={onAddVillage}>
               <Plus className="h-4 w-4" />
               Add New Village
             </Button>
-            <Button variant="outline" className="gap-2 bg-white">
+            <Button variant="outline" className="gap-2 bg-white" onClick={onBulkUpload}>
               <Upload className="h-4 w-4" />
               Bulk Upload
             </Button>
@@ -176,7 +185,8 @@ const Villages = () => {
                   {currentVillages.map((village, index) => (
                     <TableRow 
                       key={village.id} 
-                      className={`${index % 2 === 0 ? "bg-muted/30" : ""}`}
+                      className={`${index % 2 === 0 ? "bg-muted/30" : ""} cursor-pointer hover:bg-muted/50`}
+                      onClick={() => onVillageClick(village.id)}
                     >
                       <TableCell className="font-medium">{village.name}</TableCell>
                       <TableCell>{village.block}</TableCell>
@@ -195,8 +205,8 @@ const Villages = () => {
                       </TableCell>
                       <TableCell>{village.assignedBalMitra}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm">
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="sm" onClick={() => onEditVillage(village.id)}>
                             <Edit className="h-4 w-4 text-foreground" />
                           </Button>
                           <AlertDialog>
