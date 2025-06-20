@@ -17,7 +17,7 @@ interface RecentSurveyFindingsProps {
   onDateRangeChange: (range: string) => void;
 }
 
-const RecentSurveyFindings = ({ findings, dateRange, onDateRangeChange }: Recent SurveyFindingsProps) => {
+const RecentSurveyFindings = ({ findings, dateRange, onDateRangeChange }: RecentSurveyFindingsProps) => {
   return (
     <Card className="shadow-card">
       <CardHeader>
