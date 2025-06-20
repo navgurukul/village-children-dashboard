@@ -229,9 +229,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
                       <TableCell>{village.enrolled}</TableCell>
                       <TableCell>{village.dropout}</TableCell>
                       <TableCell>{village.assignedBalMitra}</TableCell>
-                      <TableCell>{new Date(village.lastSurv
-
-eyDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(village.lastSurveyDate).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button
