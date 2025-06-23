@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
 import { Home, Users, FileText, LogOut, MapPin, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileHeader from './MobileHeader';
 import Dashboard from '../pages/Dashboard';
 import ChildrenRecords from '../pages/ChildrenRecords';
 import UserManagement from '../pages/UserManagement';
@@ -32,6 +33,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedVillageId, setSelectedVillageId] = useState<string | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
+  const isMobile = useIsMobile();
 
   const navigationItems = [
     {
@@ -151,75 +153,86 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top Header with Glassmorphism */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Left side - Logo and Navigation */}
-            <div className="flex items-center gap-8">
-              {/* Logo */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">V</span>
+    <div className="min-h-screen bg-background w-full">
+      {/* Mobile Header */}
+      {isMobile && (
+        <MobileHeader 
+          currentPage={currentPage}
+          onNavigate={handleNavigation}
+          onProfileClick={() => handleNavigation('profile')}
+        />
+      )}
+
+      {/* Desktop Header */}
+      {!isMobile && (
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              {/* Left side - Logo and Navigation */}
+              <div className="flex items-center gap-8">
+                {/* Logo */}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-sm">V</span>
+                  </div>
+                  <div>
+                    <h1 className="text-lg font-bold text-foreground">VCR Portal</h1>
+                    <p className="text-xs text-muted-foreground">Village Children Register</p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-lg font-bold text-foreground">VCR Portal</h1>
-                  <p className="text-xs text-muted-foreground">Village Children Register</p>
-                </div>
+
+                {/* Navigation */}
+                <nav className="flex items-center gap-1">
+                  {navigationItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = currentPage === item.id;
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleNavigation(item.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
               </div>
 
-              {/* Navigation */}
-              <nav className="flex items-center gap-1">
-                {navigationItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = currentPage === item.id;
-                  
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleNavigation(item.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </nav>
+              {/* Right side - Profile Avatar */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer">
+                    <AvatarImage src="" alt="Profile" />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleNavigation('profile')}>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onLogout} className="text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-
-            {/* Right side - Profile Avatar */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Avatar className="cursor-pointer">
-                  <AvatarImage src="" alt="Profile" />
-                  <AvatarFallback>
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleNavigation('profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onLogout} className="text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Main Content */}
-      <main className="pt-20">
+      <main className={isMobile ? "pt-14" : "pt-20"}>
         {renderContent()}
       </main>
     </div>

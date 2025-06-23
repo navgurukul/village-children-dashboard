@@ -23,8 +23,7 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
     mobile: '+91 98765 43210',
     joiningDate: '2024-02-10',
     block: 'Rajgangpur',
-    cluster: 'Cluster A',
-    panchayat: 'Panchayat 1',
+    gramPanchayat: 'Gram Panchayat 1',
     villages: ['Haripur', 'Rampur', 'Lakshmipur', 'Govindpur', 'Shantipur']
   };
 
@@ -84,12 +83,12 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4">
           <Button 
             onClick={onBack} 
-            variant="outline" 
+            variant="link" 
             size="sm"
-            className="gap-2"
+            className="gap-2 self-start p-0 text-primary"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Users
@@ -128,8 +127,8 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
                 <p className="text-lg font-medium">{balMitraData.block}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Cluster</label>
-                <p className="text-lg font-medium">{balMitraData.cluster}</p>
+                <label className="text-sm font-medium text-muted-foreground">Gram Panchayat</label>
+                <p className="text-lg font-medium">{balMitraData.gramPanchayat}</p>
               </div>
             </div>
 
@@ -148,7 +147,7 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium">Performance Data Range:</label>
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px] bg-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -171,34 +170,34 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="p-3 rounded-lg bg-primary/20 w-fit mx-auto mb-2">
-                  <Users className="h-8 w-8 text-primary" />
+                  <Users className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Total Surveyed</p>
-                <p className="text-3xl font-bold text-foreground">{performanceData.totalSurveyed}</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.totalSurveyed}</p>
               </div>
 
               <div className="text-center">
                 <div className="p-3 rounded-lg bg-success/20 w-fit mx-auto mb-2">
-                  <GraduationCap className="h-8 w-8 text-success" />
+                  <GraduationCap className="h-6 w-6 md:h-8 md:w-8 text-success" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Enrolled</p>
-                <p className="text-3xl font-bold text-foreground">{performanceData.enrolled}</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.enrolled}</p>
               </div>
 
               <div className="text-center">
                 <div className="p-3 rounded-lg bg-destructive/20 w-fit mx-auto mb-2">
-                  <AlertTriangle className="h-8 w-8 text-destructive" />
+                  <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-destructive" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Dropout</p>
-                <p className="text-3xl font-bold text-foreground">{performanceData.dropout}</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.dropout}</p>
               </div>
 
               <div className="text-center">
                 <div className="p-3 rounded-lg bg-warning/20 w-fit mx-auto mb-2">
-                  <UserX className="h-8 w-8 text-warning" />
+                  <UserX className="h-6 w-6 md:h-8 md:w-8 text-warning" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Never Enrolled</p>
-                <p className="text-3xl font-bold text-foreground">{performanceData.neverEnrolled}</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.neverEnrolled}</p>
               </div>
             </div>
           </CardContent>
@@ -247,18 +246,20 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={villagePerformance}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="village" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="enrolled" stackId="a" fill="hsl(var(--success))" name="Enrolled" />
-                  <Bar dataKey="dropout" stackId="a" fill="hsl(var(--destructive))" name="Dropout" />
-                  <Bar dataKey="neverEnrolled" stackId="a" fill="hsl(var(--warning))" name="Never Enrolled" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="overflow-x-auto">
+                <ResponsiveContainer width="100%" height={250} minWidth={300}>
+                  <BarChart data={villagePerformance}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="village" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="enrolled" stackId="a" fill="hsl(var(--success))" name="Enrolled" />
+                    <Bar dataKey="dropout" stackId="a" fill="hsl(var(--destructive))" name="Dropout" />
+                    <Bar dataKey="neverEnrolled" stackId="a" fill="hsl(var(--warning))" name="Never Enrolled" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>

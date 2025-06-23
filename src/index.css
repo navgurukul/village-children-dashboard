@@ -152,6 +152,33 @@
     line-height: 1.6;
   }
 
+  /* Mobile typography adjustments */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px;
+    }
+    
+    h1 {
+      @apply text-2xl font-bold;
+    }
+
+    h2 {
+      @apply text-xl font-semibold;
+    }
+
+    h3 {
+      @apply text-lg font-medium;
+    }
+
+    h4 {
+      @apply text-base font-medium;
+    }
+    
+    .text-body {
+      font-size: 16px;
+    }
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-manrope;
   }
@@ -239,4 +266,16 @@ nav a:hover {
 /* Sidebar navigation item hover effect */
 .sidebar-nav-item:hover {
   @apply bg-sidebar-accent text-sidebar-accent-foreground;
+}
+
+/* Mobile touch targets */
+@media (max-width: 768px) {
+  button, a, input, select {
+    min-height: 44px;
+  }
+  
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
