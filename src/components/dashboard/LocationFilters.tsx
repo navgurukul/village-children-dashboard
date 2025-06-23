@@ -5,8 +5,7 @@ import { Filter } from 'lucide-react';
 
 interface LocationFilters {
   block: string;
-  cluster: string;
-  panchayat: string;
+  gramPanchayat: string;
   village: string;
 }
 
@@ -38,25 +37,14 @@ const LocationFilters = ({ filters, onFiltersChange }: LocationFiltersProps) => 
         </SelectContent>
       </Select>
 
-      <Select value={filters.cluster} onValueChange={(value) => updateFilter('cluster', value)}>
+      <Select value={filters.gramPanchayat} onValueChange={(value) => updateFilter('gramPanchayat', value)}>
         <SelectTrigger className="w-[150px] bg-white">
-          <SelectValue placeholder="All Clusters" />
+          <SelectValue placeholder="All Gram Panchayats" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Clusters</SelectItem>
-          <SelectItem value="cluster1">Cluster 1</SelectItem>
-          <SelectItem value="cluster2">Cluster 2</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <Select value={filters.panchayat} onValueChange={(value) => updateFilter('panchayat', value)}>
-        <SelectTrigger className="w-[150px] bg-white">
-          <SelectValue placeholder="All Panchayats" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Panchayats</SelectItem>
-          <SelectItem value="panchayat1">Panchayat 1</SelectItem>
-          <SelectItem value="panchayat2">Panchayat 2</SelectItem>
+          <SelectItem value="all">All Gram Panchayats</SelectItem>
+          <SelectItem value="panchayat1">Gram Panchayat 1</SelectItem>
+          <SelectItem value="panchayat2">Gram Panchayat 2</SelectItem>
         </SelectContent>
       </Select>
 

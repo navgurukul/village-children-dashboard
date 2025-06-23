@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,8 +23,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
     id: '1',
     name: 'Haripur',
     block: 'Block C',
-    cluster: 'Cluster 5',
-    panchayat: 'Panchayat 1',
+    gramPanchayat: 'Gram Panchayat 1',
     assignedBalMitra: 'Ravi Kumar',
     totalChildren: 245,
     enrolled: { count: 189, percentage: 77.1 },
@@ -125,11 +123,11 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
             <div>
               <h1 className="text-3xl font-bold text-foreground">{villageData.name}</h1>
               <p className="text-lg text-muted-foreground mt-1">
-                {villageData.block} &gt; {villageData.cluster} &gt; {villageData.panchayat}
+                {villageData.block} &gt; {villageData.gramPanchayat}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">Assigned Personnel</p>
+              <p className="text-sm text-muted-foreground">Assigned Bal Mitra</p>
               <p className="font-semibold">{villageData.assignedBalMitra}</p>
             </div>
           </div>

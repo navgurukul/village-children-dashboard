@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { FileText } from 'lucide-react';
@@ -11,8 +10,7 @@ import TrendsChart from '../components/dashboard/TrendsChart';
 const Dashboard = () => {
   const [locationFilters, setLocationFilters] = useState({
     block: 'all',
-    cluster: 'all',
-    panchayat: 'all',
+    gramPanchayat: 'all',
     village: 'all'
   });
 

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Search, Plus, Upload, Edit, Trash2, Copy } from 'lucide-react';
 
 interface UserManagementProps {
@@ -17,6 +18,8 @@ interface UserManagementProps {
 
 const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   // Mock user data - sorted to show Admins first
   const users = [
@@ -52,9 +55,10 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     }
   ].sort((a, b) => a.role === 'Admin' ? -1 : b.role === 'Admin' ? 1 : 0);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    console.log('Copied to clipboard:', text);
+  const copyLoginDetails = (username: string, password: string) => {
+    const loginDetails = `Username: ${username}\nPassword: ${password}`;
+    navigator.clipboard.writeText(loginDetails);
+    console.log('Copied login details to clipboard');
   };
 
   const handleDeleteUser = (userId: number) => {
@@ -80,6 +84,15 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     
     return matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -114,11 +127,13 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
           </div>
         </div>
 
+        {/* Users Count */}
+        <div className="text-muted-foreground text-xs">
+          Showing {currentUsers.length} of {filteredUsers.length} users
+        </div>
+
         {/* Users Table */}
         <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle>Users ({filteredUsers.length})</CardTitle>
-          </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
@@ -134,7 +149,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map((user, index) => (
+                  {currentUsers.map((user, index) => (
                     <TableRow 
                       key={user.id} 
                       className={`${index % 2 === 0 ? "bg-muted/30" : ""} ${user.role === 'Bal Mitra' ? 'cursor-pointer hover:bg-muted/50' : ''}`}
@@ -163,41 +178,25 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                           )}
                         </div>
                       </TableCell>
+                      <TableCell>{user.username}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span>{user.username}</span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              copyToClipboard(user.username);
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-sm">••••••••</span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              copyToClipboard(user.password);
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
+                        <span className="font-mono text-sm">••••••••</span>
                       </TableCell>
                       <TableCell>{user.createdOn}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyLoginDetails(user.username, user.password);
+                            }}
+                            className="h-8 w-8 p-0"
+                            title="Copy Login Details"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"
@@ -244,6 +243,48 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             </div>
           </CardContent>
         </Card>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) handlePageChange(currentPage - 1);
+                  }}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              {[...Array(totalPages)].map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePageChange(i + 1);
+                    }}
+                    isActive={currentPage === i + 1}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                  }}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
     </div>
   );

@@ -18,8 +18,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilters, setLocationFilters] = useState({
     block: 'all',
-    cluster: 'all',
-    panchayat: 'all'
+    gramPanchayat: 'all'
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -30,8 +29,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       id: '1',
       name: 'Haripur',
       block: 'Block A',
-      cluster: 'Cluster 1',
-      panchayat: 'Panchayat 1',
+      gramPanchayat: 'Gram Panchayat 1',
       totalChildren: 245,
       enrolled: 189,
       dropout: 42,
@@ -42,8 +40,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       id: '2',
       name: 'Rampur',
       block: 'Block A',
-      cluster: 'Cluster 1',
-      panchayat: 'Panchayat 2',
+      gramPanchayat: 'Gram Panchayat 2',
       totalChildren: 180,
       enrolled: 156,
       dropout: 18,
@@ -54,8 +51,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       id: '3',
       name: 'Govindpur',
       block: 'Block B',
-      cluster: 'Cluster 2',
-      panchayat: 'Panchayat 3',
+      gramPanchayat: 'Gram Panchayat 3',
       totalChildren: 320,
       enrolled: 245,
       dropout: 55,
@@ -68,10 +64,9 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     const matchesSearch = village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          village.assignedBalMitra.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBlock = locationFilters.block === 'all' || village.block === locationFilters.block;
-    const matchesCluster = locationFilters.cluster === 'all' || village.cluster === locationFilters.cluster;
-    const matchesPanchayat = locationFilters.panchayat === 'all' || village.panchayat === locationFilters.panchayat;
+    const matchesGramPanchayat = locationFilters.gramPanchayat === 'all' || village.gramPanchayat === locationFilters.gramPanchayat;
     
-    return matchesSearch && matchesBlock && matchesCluster && matchesPanchayat;
+    return matchesSearch && matchesBlock && matchesGramPanchayat;
   });
 
   const totalPages = Math.ceil(filteredVillages.length / itemsPerPage);
@@ -92,12 +87,12 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       <div className="max-w-7xl mx-auto space-y-6">
         <VillagesHeader onAddVillage={onAddVillage} onBulkUpload={onBulkUpload} />
 
-        <div className="flex flex-col lg:flex-row gap-4">
-          <VillagesSearchAndActions 
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
-        </div>
+        <VillagesSearchAndActions 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onAddVillage={onAddVillage}
+          onBulkUpload={onBulkUpload}
+        />
 
         <VillagesFilters 
           locationFilters={locationFilters}

@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
-import { Home, Users, FileText, LogOut, MapPin } from 'lucide-react';
+import { Home, Users, FileText, LogOut, MapPin, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Dashboard from '../pages/Dashboard';
 import ChildrenRecords from '../pages/ChildrenRecords';
 import UserManagement from '../pages/UserManagement';
@@ -15,12 +17,13 @@ import AddNewVillage from '../pages/AddNewVillage';
 import VillageProfile from '../pages/VillageProfile';
 import BulkUploadVillages from '../pages/BulkUploadVillages';
 import EditVillage from '../pages/EditVillage';
+import Profile from '../pages/Profile';
 
 interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile' | 'edit-village';
+type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile' | 'edit-village' | 'profile';
 
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -140,6 +143,8 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onCancel={() => handleNavigation('users')} 
           onSuccess={() => handleNavigation('users')} 
         />;
+      case 'profile':
+        return <Profile onBack={() => handleNavigation('dashboard')} onLogout={onLogout} />;
       default:
         return <Dashboard />;
     }
@@ -188,14 +193,27 @@ const AppShell = ({ onLogout }: AppShellProps) => {
               </nav>
             </div>
 
-            {/* Right side - Logout */}
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
-            </button>
+            {/* Right side - Profile Avatar */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src="" alt="Profile" />
+                  <AvatarFallback>
+                    <User className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleNavigation('profile')}>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onLogout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

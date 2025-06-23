@@ -11,8 +11,7 @@ interface Village {
   id: string;
   name: string;
   block: string;
-  cluster: string;
-  panchayat: string;
+  gramPanchayat: string;
   totalChildren: number;
   enrolled: number;
   dropout: number;
@@ -37,12 +36,11 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
               <TableRow>
                 <TableHead className="font-bold">Village Name</TableHead>
                 <TableHead className="font-bold">Block</TableHead>
-                <TableHead className="font-bold">Cluster</TableHead>
-                <TableHead className="font-bold">Panchayat</TableHead>
+                <TableHead className="font-bold">Gram Panchayat</TableHead>
                 <TableHead className="font-bold">Total Children</TableHead>
                 <TableHead className="font-bold">Enrolled Children</TableHead>
                 <TableHead className="font-bold">Dropout Children</TableHead>
-                <TableHead className="font-bold">Assigned Personnel</TableHead>
+                <TableHead className="font-bold">Assigned Bal Mitra</TableHead>
                 <TableHead className="font-bold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -55,8 +53,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                 >
                   <TableCell className="font-medium">{village.name}</TableCell>
                   <TableCell>{village.block}</TableCell>
-                  <TableCell>{village.cluster}</TableCell>
-                  <TableCell>{village.panchayat}</TableCell>
+                  <TableCell>{village.gramPanchayat}</TableCell>
                   <TableCell>{village.totalChildren}</TableCell>
                   <TableCell>
                     <Badge className="bg-success/10 text-success border-success/20">
