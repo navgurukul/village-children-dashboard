@@ -123,48 +123,22 @@
     @apply hover:bg-transparent hover:text-current;
   }
 
-  /* Mobile Typography */
-  @media (max-width: 768px) {
-    .text-base { font-size: 1rem; line-height: 1.7; }
-    .text-lg { font-size: 1.25rem; line-height: 1.5; }
-    .text-xl { font-size: 1.5rem; line-height: 1.5; }
-    .text-2xl { font-size: 2rem; line-height: 1.5; }
-    .text-3xl { font-size: 3rem; line-height: 1.5; }
-    .text-4xl { font-size: 4rem; line-height: 1.5; }
-    .text-5xl { font-size: 5rem; line-height: 1.5; }
-    .text-sm { font-size: 0.875rem; line-height: 1.7; }
-    .text-xs { font-size: 0.75rem; line-height: 1.7; }
+  /* Filter chips for mobile */
+  .filter-chips {
+    @apply flex gap-2 overflow-x-auto pb-2;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
-  /* Desktop Typography */
-  @media (min-width: 769px) {
-    .text-base { font-size: 1.125rem; line-height: 1.7; }
-    .text-lg { font-size: 1.5rem; line-height: 1.5; }
-    .text-xl { font-size: 2rem; line-height: 1.5; }
-    .text-2xl { font-size: 2.625rem; line-height: 1.5; }
-    .text-3xl { font-size: 3.5rem; line-height: 1.5; }
-    .text-4xl { font-size: 4.5rem; line-height: 1.5; }
-    .text-5xl { font-size: 6rem; line-height: 1.5; }
-    .text-sm { font-size: 0.875rem; line-height: 1.7; }
-    .text-xs { font-size: 0.75rem; line-height: 1.7; }
+  .filter-chips::-webkit-scrollbar {
+    display: none;
   }
-}
 
-/* Filter chips for mobile */
-.filter-chips {
-  @apply flex gap-2 overflow-x-auto pb-2;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
+  .filter-chip {
+    @apply min-w-fit px-3 py-1.5 bg-white border border-border rounded-full text-sm font-medium whitespace-nowrap;
+  }
 
-.filter-chips::-webkit-scrollbar {
-  display: none;
-}
-
-.filter-chip {
-  @apply min-w-fit px-3 py-1.5 bg-white border border-border rounded-full text-sm font-medium whitespace-nowrap;
-}
-
-.filter-chip.active {
-  @apply bg-primary text-primary-foreground border-primary;
+  .filter-chip.active {
+    @apply bg-primary text-primary-foreground border-primary;
+  }
 }
