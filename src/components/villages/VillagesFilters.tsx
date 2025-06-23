@@ -3,17 +3,23 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Filter } from 'lucide-react';
 
-interface LocationFilters {
-  block: string;
-  gramPanchayat: string;
-}
-
 interface VillagesFiltersProps {
-  locationFilters: LocationFilters;
-  onLocationFilterChange: (key: keyof LocationFilters, value: string) => void;
+  blockFilter: string;
+  gramPanchayatFilter: string;
+  blocks: string[];
+  gramPanchayats: string[];
+  onBlockFilterChange: (value: string) => void;
+  onGramPanchayatFilterChange: (value: string) => void;
 }
 
-const VillagesFilters = ({ locationFilters, onLocationFilterChange }: VillagesFiltersProps) => {
+const VillagesFilters = ({ 
+  blockFilter, 
+  gramPanchayatFilter, 
+  blocks, 
+  gramPanchayats, 
+  onBlockFilterChange, 
+  onGramPanchayatFilterChange 
+}: VillagesFiltersProps) => {
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
@@ -21,26 +27,27 @@ const VillagesFilters = ({ locationFilters, onLocationFilterChange }: VillagesFi
         <span className="font-medium">Filters</span>
       </div>
       
-      <Select value={locationFilters.block} onValueChange={(value) => onLocationFilterChange('block', value)}>
+      <Select value={blockFilter} onValueChange={onBlockFilterChange}>
         <SelectTrigger className="w-[150px] bg-white">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Blocks</SelectItem>
-          <SelectItem value="Block A">Block A</SelectItem>
-          <SelectItem value="Block B">Block B</SelectItem>
+          {blocks.map(block => (
+            <SelectItem key={block} value={block}>{block}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
-      <Select value={locationFilters.gramPanchayat} onValueChange={(value) => onLocationFilterChange('gramPanchayat', value)}>
-        <SelectTrigger className="w-[150px] bg-white">
+      <Select value={gramPanchayatFilter} onValueChange={onGramPanchayatFilterChange}>
+        <SelectTrigger className="w-[180px] bg-white">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Gram Panchayats</SelectItem>
-          <SelectItem value="Panchayat 1">Gram Panchayat 1</SelectItem>
-          <SelectItem value="Panchayat 2">Gram Panchayat 2</SelectItem>
-          <SelectItem value="Panchayat 3">Gram Panchayat 3</SelectItem>
+          {gramPanchayats.map(gp => (
+            <SelectItem key={gp} value={gp}>{gp}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

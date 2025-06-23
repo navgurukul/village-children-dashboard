@@ -29,7 +29,7 @@ interface VillagesProps {
   onDeleteVillage: (villageId: string) => void;
 }
 
-const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage,onDeleteVillage }: VillagesProps) => {
+const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, onDeleteVillage }: VillagesProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [blockFilter, setBlockFilter] = useState('all');
   const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');

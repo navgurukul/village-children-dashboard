@@ -27,21 +27,37 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     return [...new Set(mockStudentData.map(student => student.block))];
   }, []);
 
+  // Transform mockStudentData to match Child interface
+  const childrenData = useMemo(() => {
+    return mockStudentData.map(student => ({
+      id: student.id,
+      name: student.name,
+      age: student.age,
+      gender: student.gender,
+      village: student.village,
+      aadhaar: student.aadhaar || 'N/A',
+      schoolName: student.schoolName || 'N/A',
+      schoolStatus: student.schoolStatus,
+      block: student.block,
+      gramPanchayat: student.gramPanchayat || 'N/A'
+    }));
+  }, []);
+
   // Filter data
   const filteredData = useMemo(() => {
-    return mockStudentData.filter(student => {
+    return childrenData.filter(child => {
       const matchesSearch = searchTerm === '' || 
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.block.toLowerCase().includes(searchTerm.toLowerCase());
+        child.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        child.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        child.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        child.block.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesBlock = blockFilter === 'all' || student.block === blockFilter;
-      const matchesStatus = statusFilter === 'all' || student.schoolStatus === statusFilter;
+      const matchesBlock = blockFilter === 'all' || child.block === blockFilter;
+      const matchesStatus = statusFilter === 'all' || child.schoolStatus === statusFilter;
 
       return matchesSearch && matchesBlock && matchesStatus;
     });
-  }, [searchTerm, blockFilter, statusFilter]);
+  }, [childrenData, searchTerm, blockFilter, statusFilter]);
 
   // Paginated data
   const paginatedData = useMemo(() => {
