@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Search, Plus, Upload, Edit, Trash2, Copy } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Search, Plus, Upload, Edit, Trash2, Copy, MoreVertical } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UserManagementProps {
   onAddUser: () => void;
@@ -17,6 +19,9 @@ interface UserManagementProps {
 
 const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  const isMobile = useIsMobile();
 
   // Mock user data - sorted to show Admins first
   const users = [
@@ -52,9 +57,10 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     }
   ].sort((a, b) => a.role === 'Admin' ? -1 : b.role === 'Admin' ? 1 : 0);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    console.log('Copied to clipboard:', text);
+  const copyLoginDetails = (username: string, password: string) => {
+    const loginDetails = `Username: ${username}\nPassword: ${password}`;
+    navigator.clipboard.writeText(loginDetails);
+    console.log('Login details copied to clipboard');
   };
 
   const handleDeleteUser = (userId: number) => {
@@ -80,6 +86,107 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     
     return matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  if (isMobile) {
+    return (
+      <div className="p-4 bg-background min-h-screen pt-4">
+        <div className="max-w-7xl mx-auto space-y-4">
+          <h1 className="text-2xl font-bold text-foreground">User Management</h1>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-white text-base"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button onClick={onAddUser} className="gap-2 flex-1">
+              <Plus className="h-4 w-4" />
+              Add New User
+            </Button>
+            <Button onClick={onBulkUpload} variant="outline" className="gap-2 flex-1 bg-white">
+              <Upload className="h-4 w-4" />
+              Bulk Upload
+            </Button>
+          </div>
+
+          <div className="text-sm text-muted-foreground">
+            Showing {currentUsers.length} of {filteredUsers.length} users
+          </div>
+
+          {/* Mobile Card List */}
+          <div className="space-y-3">
+            {currentUsers.map((user) => (
+              <div
+                key={user.id}
+                className="mobile-card"
+                onClick={() => handleUserClick(user)}
+              >
+                <div className="mobile-card-header">
+                  <div>
+                    <div className="mobile-card-title">{user.name}</div>
+                    <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'} className="text-xs">
+                      {user.role}
+                    </Badge>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => copyLoginDetails(user.username, user.password)}>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy Login Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditUser(user.id)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDeleteUser(user.id)} className="text-destructive">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <div className="mobile-card-content">
+                  <div className="mobile-card-row">
+                    <span className="text-muted-foreground">Assigned To:</span>
+                    <span className="text-primary">{user.assignedTo}</span>
+                  </div>
+                  <div className="mobile-card-row">
+                    <span className="text-muted-foreground">Username:</span>
+                    <span className="font-mono text-xs">{user.username}</span>
+                  </div>
+                  <div className="mobile-card-row">
+                    <span className="text-muted-foreground">Created:</span>
+                    <span>{user.createdOn}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -114,11 +221,12 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
           </div>
         </div>
 
+        <div className="text-muted-foreground text-xs">
+          Showing {currentUsers.length} of {filteredUsers.length} users
+        </div>
+
         {/* Users Table */}
         <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle>Users ({filteredUsers.length})</CardTitle>
-          </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
@@ -134,7 +242,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map((user, index) => (
+                  {currentUsers.map((user, index) => (
                     <TableRow 
                       key={user.id} 
                       className={`${index % 2 === 0 ? "bg-muted/30" : ""} ${user.role === 'Bal Mitra' ? 'cursor-pointer hover:bg-muted/50' : ''}`}
@@ -163,41 +271,25 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                           )}
                         </div>
                       </TableCell>
+                      <TableCell>{user.username}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span>{user.username}</span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              copyToClipboard(user.username);
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-sm">••••••••</span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              copyToClipboard(user.password);
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
+                        <span className="font-mono text-sm">••••••••</span>
                       </TableCell>
                       <TableCell>{user.createdOn}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyLoginDetails(user.username, user.password);
+                            }}
+                            className="h-8 w-8 p-0"
+                            title="Copy Login Details"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"

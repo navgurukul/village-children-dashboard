@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface VillagesHeaderProps {
   onAddVillage: () => void;
@@ -9,19 +10,19 @@ interface VillagesHeaderProps {
 }
 
 const VillagesHeader = ({ onAddVillage, onBulkUpload }: VillagesHeaderProps) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold text-foreground">Villages</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-between items-center">
       <h1 className="text-3xl font-bold text-foreground">Villages</h1>
-      <div className="flex gap-2">
-        <Button className="gap-2" onClick={onAddVillage}>
-          <Plus className="h-4 w-4" />
-          Add New Village
-        </Button>
-        <Button variant="outline" className="gap-2 bg-white" onClick={onBulkUpload}>
-          <Upload className="h-4 w-4" />
-          Bulk Upload
-        </Button>
-      </div>
     </div>
   );
 };

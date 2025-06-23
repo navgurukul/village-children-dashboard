@@ -148,40 +148,103 @@
 
   body {
     @apply bg-background text-foreground font-manrope;
-    font-size: 18px;
-    line-height: 1.6;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-manrope;
+    line-height: 1.5;
+  }
+
+  /* Desktop Typography (Base: 18px) */
+  body {
+    font-size: 18px;
+    line-height: 1.7;
   }
 
   h1 {
-    @apply text-3xl font-bold;
+    font-size: 96px; /* 6rem */
   }
 
   h2 {
-    @apply text-2xl font-semibold;
+    font-size: 72px; /* 4.5rem */
   }
 
   h3 {
-    @apply text-xl font-medium;
+    font-size: 56px; /* 3.5rem */
   }
 
   h4 {
-    @apply text-lg font-medium;
+    font-size: 42px; /* 2.625rem */
+  }
+
+  h5 {
+    font-size: 32px; /* 2rem */
+  }
+
+  h6 {
+    font-size: 24px; /* 1.5rem */
   }
 
   .text-body {
     font-size: 18px;
+    line-height: 1.7;
   }
 
   .text-small {
     font-size: 14px;
+    line-height: 1.7;
   }
 
   .text-caption {
     font-size: 12px;
+    line-height: 1.7;
+  }
+
+  /* Mobile Typography (Base: 16px) */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    h1 {
+      font-size: 80px; /* 5rem */
+    }
+
+    h2 {
+      font-size: 64px; /* 4rem */
+    }
+
+    h3 {
+      font-size: 48px; /* 3rem */
+    }
+
+    h4 {
+      font-size: 32px; /* 2rem */
+    }
+
+    h5 {
+      font-size: 24px; /* 1.5rem */
+    }
+
+    h6 {
+      font-size: 20px; /* 1.25rem */
+    }
+
+    .text-body {
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .text-small {
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .text-caption {
+      font-size: 12px;
+      line-height: 1.7;
+    }
   }
 }
 
@@ -197,6 +260,10 @@
 
   .text-warning-dark {
     color: hsl(var(--warning-dark));
+  }
+
+  .shadow-card {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 }
 
@@ -239,4 +306,35 @@ nav a:hover {
 /* Sidebar navigation item hover effect */
 .sidebar-nav-item:hover {
   @apply bg-sidebar-accent text-sidebar-accent-foreground;
+}
+
+/* Mobile Card List Styles */
+@media (max-width: 768px) {
+  .mobile-card {
+    @apply bg-card border border-border rounded-lg p-4 space-y-2;
+  }
+
+  .mobile-card-header {
+    @apply flex items-center justify-between;
+  }
+
+  .mobile-card-title {
+    @apply font-semibold text-base;
+  }
+
+  .mobile-card-subtitle {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .mobile-card-content {
+    @apply space-y-1;
+  }
+
+  .mobile-card-row {
+    @apply flex items-center justify-between text-sm;
+  }
+
+  .mobile-card-actions {
+    @apply flex justify-end pt-2;
+  }
 }
