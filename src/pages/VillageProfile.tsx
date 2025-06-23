@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,7 +90,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
     const date = new Date(dateString);
     const options: Intl.DateTimeFormatOptions = { 
       day: 'numeric', 
-      month: 'long', 
+      month: 'short', 
       year: 'numeric' 
     };
     return date.toLocaleDateString('en-GB', options);
@@ -242,18 +241,21 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="text-sm font-medium text-muted-foreground">School Name</div>
+                  <div className="text-sm font-medium text-muted-foreground">Enrolled Students</div>
+                </div>
                 {schoolsData.map((school, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg"
+                    className="grid grid-cols-2 gap-4 items-center p-3 rounded-lg"
                   >
                     <div>
                       <p className="font-medium">{school.name}</p>
-                      <p className="text-sm text-muted-foreground">Students Enrolled</p>
                     </div>
-                    <Badge className="bg-primary/10 text-primary border-primary/20 text-sm font-semibold">
-                      {school.enrolled}
-                    </Badge>
+                    <div className="bg-success/10 text-success rounded-lg px-3 py-2 text-center">
+                      <span className="text-sm font-semibold">{school.enrolled}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -381,7 +383,6 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
               ))}
             </div>
           ) : (
-            
             <div className="space-y-4">
               <Card className="shadow-card">
                 <CardContent className="p-0">

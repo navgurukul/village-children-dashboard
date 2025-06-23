@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -127,6 +126,16 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     }
   ];
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    };
+    return date.toLocaleDateString('en-GB', options);
+  };
+
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -250,32 +259,46 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                       <TableCell className="font-mono text-sm">{user.username}</TableCell>
                       <TableCell className="font-mono text-sm">{user.password}</TableCell>
                       <TableCell>{user.assignedTo}</TableCell>
-                      <TableCell>{user.createdOn}</TableCell>
+                      <TableCell>{formatDate(user.createdOn)}</TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleCopyLoginDetails(user.username, user.password)}>
-                              <Copy className="mr-2 h-4 w-4" />
-                              Copy Login Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEditUser(user.id)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDeleteUser(user.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyLoginDetails(user.username, user.password);
+                            }}
+                            title="Copy Login Details"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditUser(user.id);
+                            }}
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteUser(user.id);
+                            }}
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

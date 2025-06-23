@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import VillagesHeader from '../components/villages/VillagesHeader';
@@ -37,7 +36,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   const itemsPerPage = 20;
   const isMobile = useIsMobile();
 
-  // Mock villages data
+  // Mock villages data with 5 villages
   const villagesData: Village[] = [
     {
       id: '1',
@@ -50,7 +49,50 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       neverEnrolled: 14,
       assignedBalMitra: 'Ravi Kumar'
     },
-    // ... more villages data
+    {
+      id: '2',
+      name: 'Rampur',
+      block: 'Block A',
+      gramPanchayat: 'Gram Panchayat 2',
+      totalChildren: 198,
+      enrolled: 156,
+      dropout: 28,
+      neverEnrolled: 14,
+      assignedBalMitra: 'Priya Sharma'
+    },
+    {
+      id: '3',
+      name: 'Lakshmipur',
+      block: 'Block B',
+      gramPanchayat: 'Gram Panchayat 1',
+      totalChildren: 167,
+      enrolled: 134,
+      dropout: 23,
+      neverEnrolled: 10,
+      assignedBalMitra: 'Amit Singh'
+    },
+    {
+      id: '4',
+      name: 'Govindpur',
+      block: 'Block C',
+      gramPanchayat: 'Gram Panchayat 3',
+      totalChildren: 213,
+      enrolled: 178,
+      dropout: 25,
+      neverEnrolled: 10,
+      assignedBalMitra: 'Sunita Devi'
+    },
+    {
+      id: '5',
+      name: 'Shantipur',
+      block: 'Block A',
+      gramPanchayat: 'Gram Panchayat 2',
+      totalChildren: 156,
+      enrolled: 125,
+      dropout: 21,
+      neverEnrolled: 10,
+      assignedBalMitra: 'Rajesh Kumar'
+    }
   ];
 
   // Get unique blocks and gram panchayats for filters

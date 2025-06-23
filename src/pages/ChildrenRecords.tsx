@@ -1,13 +1,8 @@
 
 import React, { useState, useMemo } from 'react';
-import { Button } from "@/components/ui/button";
 import { mockStudentData } from '../data/mockData';
-import SearchAndExportBar from '../components/children-records/SearchAndExportBar';
-import FiltersRow from '../components/children-records/FiltersRow';
-import FilterChips from '../components/FilterChips';
-import ChildrenTable from '../components/children-records/ChildrenTable';
-import ChildrenCardList from '../components/children-records/ChildrenCardList';
-import { useIsMobile } from "@/hooks/use-mobile";
+import ChildrenRecordsHeader from '../components/children-records/ChildrenRecordsHeader';
+import ChildrenRecordsContent from '../components/children-records/ChildrenRecordsContent';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string) => void;
@@ -20,23 +15,31 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-  const isMobile = useIsMobile();
 
   // Get unique blocks for filter
   const blocks = useMemo(() => {
     return [...new Set(mockStudentData.map(student => student.block))];
   }, []);
 
-  // Transform mockStudentData to match Child interface
+  // Transform mockStudentData to match Child interface with populated school names
   const childrenData = useMemo(() => {
-    return mockStudentData.map(student => ({
+    const schools = [
+      'Primary School Haripur',
+      'Government High School',
+      'Anganwadi Center 1',
+      'Anganwadi Center 2',
+      'St. Mary\'s School',
+      'Government Primary School'
+    ];
+    
+    return mockStudentData.map((student, index) => ({
       id: student.id,
       name: student.name,
       age: student.age,
       gender: student.gender,
       village: student.village,
       aadhaar: 'N/A', // Not available in StudentData
-      schoolName: student.school || 'N/A',
+      schoolName: student.school || schools[index % schools.length],
       schoolStatus: student.schoolStatus,
       block: student.block,
       gramPanchayat: student.panchayat || 'N/A'
@@ -64,8 +67,6 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredData, currentPage]);
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const handleExportCSV = () => {
     console.log('Exporting CSV...');
@@ -111,90 +112,28 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold text-foreground">Children Records</h1>
-
-        {isMobile ? (
-          <div className="space-y-4">
-            {/* Search Bar - Full Width */}
-            <div className="w-full">
-              <SearchAndExportBar
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                onExportCSV={handleExportCSV}
-                onExportPDF={handleExportPDF}
-                isMobile={true}
-              />
-            </div>
-
-            {/* Filter Chips */}
-            <FilterChips
-              filters={filterOptions}
-              onFilterChange={handleFilterChange}
-            />
-
-            <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} children
-            </div>
-
-            {/* Children Card List */}
-            <ChildrenCardList
-              data={paginatedData}
-              onChildClick={onChildClick}
-              onEditChild={onEditChild}
-              onDeleteChild={handleDeleteChild}
-            />
-          </div>
-        ) : (
-          <>
-            <SearchAndExportBar
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              onExportCSV={handleExportCSV}
-              onExportPDF={handleExportPDF}
-            />
-
-            <FiltersRow
-              blockFilter={blockFilter}
-              statusFilter={statusFilter}
-              blocks={blocks}
-              onBlockFilterChange={setBlockFilter}
-              onStatusFilterChange={setStatusFilter}
-            />
-
-            <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} children
-            </div>
-
-            <ChildrenTable
-              data={paginatedData}
-              onChildClick={onChildClick}
-              onEditChild={onEditChild}
-              onDeleteChild={handleDeleteChild}
-            />
-          </>
-        )}
-
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2">
-            <Button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              variant="outline"
-            >
-              Previous
-            </Button>
-            <span className="text-muted-foreground text-xs">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              variant="outline"
-            >
-              Next
-            </Button>
-          </div>
-        )}
+        <ChildrenRecordsHeader />
+        
+        <ChildrenRecordsContent
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          blockFilter={blockFilter}
+          statusFilter={statusFilter}
+          blocks={blocks}
+          onBlockFilterChange={setBlockFilter}
+          onStatusFilterChange={setStatusFilter}
+          paginatedData={paginatedData}
+          filteredData={filteredData}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          onChildClick={onChildClick}
+          onEditChild={onEditChild}
+          onDeleteChild={handleDeleteChild}
+          handleExportCSV={handleExportCSV}
+          handleExportPDF={handleExportPDF}
+          handleFilterChange={handleFilterChange}
+          filterOptions={filterOptions}
+        />
       </div>
     </div>
   );

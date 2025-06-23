@@ -33,20 +33,19 @@ const SearchAndExportBar = ({
       
       <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
         <Button 
+          onClick={onExportPDF} 
+          className={`gap-2 ${isMobile ? 'flex-1' : ''}`}
+        >
+          <FileText className="h-4 w-4" />
+          Export PDF
+        </Button>
+        <Button 
           onClick={onExportCSV} 
           variant="outline" 
           className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}
         >
           <Download className="h-4 w-4" />
           Export CSV
-        </Button>
-        <Button 
-          onClick={onExportPDF} 
-          variant="outline" 
-          className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}
-        >
-          <FileText className="h-4 w-4" />
-          Export PDF
         </Button>
       </div>
     </div>
