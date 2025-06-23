@@ -133,7 +133,7 @@ const ChildrenRecordsContent = ({
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2">
           <Button 
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
             disabled={currentPage === 1}
             variant="outline"
           >
@@ -143,7 +143,7 @@ const ChildrenRecordsContent = ({
             Page {currentPage} of {totalPages}
           </span>
           <Button 
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
             disabled={currentPage === totalPages}
             variant="outline"
           >
