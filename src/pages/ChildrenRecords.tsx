@@ -35,11 +35,11 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       age: student.age,
       gender: student.gender,
       village: student.village,
-      aadhaar: student.aadhaar || 'N/A',
-      schoolName: student.schoolName || 'N/A',
+      aadhaar: 'N/A', // Not available in StudentData
+      schoolName: student.school || 'N/A',
       schoolStatus: student.schoolStatus,
       block: student.block,
-      gramPanchayat: student.gramPanchayat || 'N/A'
+      gramPanchayat: student.panchayat || 'N/A'
     }));
   }, []);
 
