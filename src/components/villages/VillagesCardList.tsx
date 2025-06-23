@@ -124,7 +124,7 @@ const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVil
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     </>
   );
