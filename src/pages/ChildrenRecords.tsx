@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { mockStudentData } from '../data/mockData';
 import SearchAndExportBar from '../components/children-records/SearchAndExportBar';
 import FiltersRow from '../components/children-records/FiltersRow';
+import FilterChips from '../components/FilterChips';
 import ChildrenTable from '../components/children-records/ChildrenTable';
+import ChildrenCardList from '../components/children-records/ChildrenCardList';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string) => void;
@@ -17,6 +20,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const isMobile = useIsMobile();
 
   // Get unique blocks for filter
   const blocks = useMemo(() => {
@@ -59,36 +63,100 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     console.log('Deleting child:', childId);
   };
 
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'block') {
+      setBlockFilter(value);
+    } else if (filterId === 'status') {
+      setStatusFilter(value);
+    }
+  };
+
+  const filterOptions = [
+    {
+      label: 'Block',
+      value: blockFilter,
+      options: [
+        { label: 'All Blocks', value: 'all' },
+        ...blocks.map(block => ({ label: block, value: block }))
+      ]
+    },
+    {
+      label: 'Status',
+      value: statusFilter,
+      options: [
+        { label: 'All Statuses', value: 'all' },
+        { label: 'Enrolled', value: 'Enrolled' },
+        { label: 'Dropout', value: 'Dropout' },
+        { label: 'Never Enrolled', value: 'Never Enrolled' }
+      ]
+    }
+  ];
+
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
         <h1 className="text-3xl font-bold text-foreground">Children Records</h1>
 
-        <SearchAndExportBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onExportCSV={handleExportCSV}
-          onExportPDF={handleExportPDF}
-        />
+        {isMobile ? (
+          <div className="space-y-4">
+            {/* Search Bar - Full Width */}
+            <div className="w-full">
+              <SearchAndExportBar
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                onExportCSV={handleExportCSV}
+                onExportPDF={handleExportPDF}
+                isMobile={true}
+              />
+            </div>
 
-        <FiltersRow
-          blockFilter={blockFilter}
-          statusFilter={statusFilter}
-          blocks={blocks}
-          onBlockFilterChange={setBlockFilter}
-          onStatusFilterChange={setStatusFilter}
-        />
+            {/* Filter Chips */}
+            <FilterChips
+              filters={filterOptions}
+              onFilterChange={handleFilterChange}
+            />
 
-        <div className="text-muted-foreground text-xs">
-          Showing {paginatedData.length} of {filteredData.length} children
-        </div>
+            <div className="text-muted-foreground text-xs">
+              Showing {paginatedData.length} of {filteredData.length} children
+            </div>
 
-        <ChildrenTable
-          data={paginatedData}
-          onChildClick={onChildClick}
-          onEditChild={onEditChild}
-          onDeleteChild={handleDeleteChild}
-        />
+            {/* Children Card List */}
+            <ChildrenCardList
+              data={paginatedData}
+              onChildClick={onChildClick}
+              onEditChild={onEditChild}
+              onDeleteChild={handleDeleteChild}
+            />
+          </div>
+        ) : (
+          <>
+            <SearchAndExportBar
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onExportCSV={handleExportCSV}
+              onExportPDF={handleExportPDF}
+            />
+
+            <FiltersRow
+              blockFilter={blockFilter}
+              statusFilter={statusFilter}
+              blocks={blocks}
+              onBlockFilterChange={setBlockFilter}
+              onStatusFilterChange={setStatusFilter}
+            />
+
+            <div className="text-muted-foreground text-xs">
+              Showing {paginatedData.length} of {filteredData.length} children
+            </div>
+
+            <ChildrenTable
+              data={paginatedData}
+              onChildClick={onChildClick}
+              onEditChild={onEditChild}
+              onDeleteChild={handleDeleteChild}
+            />
+          </>
+        )}
 
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2">

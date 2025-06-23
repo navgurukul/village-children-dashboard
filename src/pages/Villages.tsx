@@ -1,10 +1,25 @@
 
-import React, { useState } from 'react';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import React, { useState, useMemo } from 'react';
+import { Button } from "@/components/ui/button";
 import VillagesHeader from '../components/villages/VillagesHeader';
 import VillagesSearchAndActions from '../components/villages/VillagesSearchAndActions';
 import VillagesFilters from '../components/villages/VillagesFilters';
+import FilterChips from '../components/FilterChips';
 import VillagesTable from '../components/villages/VillagesTable';
+import VillagesCardList from '../components/villages/VillagesCardList';
+import { useIsMobile } from "@/hooks/use-mobile";
+
+interface Village {
+  id: string;
+  name: string;
+  block: string;
+  gramPanchayat: string;
+  totalChildren: number;
+  enrolled: number;
+  dropout: number;
+  neverEnrolled: number;
+  assignedBalMitra: string;
+}
 
 interface VillagesProps {
   onAddVillage: () => void;
@@ -14,21 +29,20 @@ interface VillagesProps {
   onDeleteVillage: (villageId: string) => void;
 }
 
-const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, onDeleteVillage }: VillagesProps) => {
+const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage,onDeleteVillage }: VillagesProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [locationFilters, setLocationFilters] = useState({
-    block: 'all',
-    gramPanchayat: 'all'
-  });
+  const [blockFilter, setBlockFilter] = useState('all');
+  const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const isMobile = useIsMobile();
 
-  // Mock data
-  const villagesData = [
+  // Mock villages data
+  const villagesData: Village[] = [
     {
       id: '1',
       name: 'Haripur',
-      block: 'Block A',
+      block: 'Block C',
       gramPanchayat: 'Gram Panchayat 1',
       totalChildren: 245,
       enrolled: 189,
@@ -36,119 +50,156 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       neverEnrolled: 14,
       assignedBalMitra: 'Ravi Kumar'
     },
-    {
-      id: '2',
-      name: 'Rampur',
-      block: 'Block A',
-      gramPanchayat: 'Gram Panchayat 2',
-      totalChildren: 180,
-      enrolled: 156,
-      dropout: 18,
-      neverEnrolled: 6,
-      assignedBalMitra: 'Priya Singh'
-    },
-    {
-      id: '3',
-      name: 'Govindpur',
-      block: 'Block B',
-      gramPanchayat: 'Gram Panchayat 3',
-      totalChildren: 320,
-      enrolled: 245,
-      dropout: 55,
-      neverEnrolled: 20,
-      assignedBalMitra: 'Amit Sharma'
-    }
+    // ... more villages data
   ];
 
-  const filteredVillages = villagesData.filter(village => {
-    const matchesSearch = village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         village.assignedBalMitra.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBlock = locationFilters.block === 'all' || village.block === locationFilters.block;
-    const matchesGramPanchayat = locationFilters.gramPanchayat === 'all' || village.gramPanchayat === locationFilters.gramPanchayat;
-    
-    return matchesSearch && matchesBlock && matchesGramPanchayat;
-  });
+  // Get unique blocks and gram panchayats for filters
+  const blocks = useMemo(() => {
+    return [...new Set(villagesData.map(village => village.block))];
+  }, []);
 
-  const totalPages = Math.ceil(filteredVillages.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentVillages = filteredVillages.slice(startIndex, endIndex);
+  const gramPanchayats = useMemo(() => {
+    return [...new Set(villagesData.map(village => village.gramPanchayat))];
+  }, []);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  // Filter data
+  const filteredData = useMemo(() => {
+    return villagesData.filter(village => {
+      const matchesSearch = searchTerm === '' || 
+        village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        village.block.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        village.gramPanchayat.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        village.assignedBalMitra.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesBlock = blockFilter === 'all' || village.block === blockFilter;
+      const matchesGramPanchayat = gramPanchayatFilter === 'all' || village.gramPanchayat === gramPanchayatFilter;
+
+      return matchesSearch && matchesBlock && matchesGramPanchayat;
+    });
+  }, [searchTerm, blockFilter, gramPanchayatFilter]);
+
+  // Paginated data
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredData, currentPage]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'block') {
+      setBlockFilter(value);
+    } else if (filterId === 'gram panchayat') {
+      setGramPanchayatFilter(value);
+    }
   };
 
-  const handleLocationFilterChange = (key: keyof typeof locationFilters, value: string) => {
-    setLocationFilters(prev => ({ ...prev, [key]: value }));
-  };
+  const filterOptions = [
+    {
+      label: 'Block',
+      value: blockFilter,
+      options: [
+        { label: 'All Blocks', value: 'all' },
+        ...blocks.map(block => ({ label: block, value: block }))
+      ]
+    },
+    {
+      label: 'Gram Panchayat',
+      value: gramPanchayatFilter,
+      options: [
+        { label: 'All Gram Panchayats', value: 'all' },
+        ...gramPanchayats.map(gp => ({ label: gp, value: gp }))
+      ]
+    }
+  ];
 
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
-        <VillagesHeader onAddVillage={onAddVillage} onBulkUpload={onBulkUpload} />
+        {!isMobile && <VillagesHeader />}
+        
+        {isMobile ? (
+          <div className="space-y-4">
+            <h1 className="text-3xl font-bold text-foreground">Villages</h1>
+            
+            {/* Search Bar - Full Width */}
+            <VillagesSearchAndActions
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onAddVillage={onAddVillage}
+              onBulkUpload={onBulkUpload}
+              isMobile={true}
+            />
 
-        <VillagesSearchAndActions 
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onAddVillage={onAddVillage}
-          onBulkUpload={onBulkUpload}
-        />
+            {/* Filter Chips */}
+            <FilterChips
+              filters={filterOptions}
+              onFilterChange={handleFilterChange}
+            />
 
-        <VillagesFilters 
-          locationFilters={locationFilters}
-          onLocationFilterChange={handleLocationFilterChange}
-        />
+            <div className="text-muted-foreground text-xs">
+              Showing {paginatedData.length} of {filteredData.length} villages
+            </div>
 
-        <div className="text-muted-foreground text-xs">
-          Showing {currentVillages.length} of {filteredVillages.length} villages
-        </div>
+            {/* Villages Card List */}
+            <VillagesCardList
+              villages={paginatedData}
+              onVillageClick={onVillageClick}
+              onEditVillage={onEditVillage}
+              onDeleteVillage={onDeleteVillage}
+            />
+          </div>
+        ) : (
+          <>
+            <VillagesSearchAndActions
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onAddVillage={onAddVillage}
+              onBulkUpload={onBulkUpload}
+            />
 
-        <VillagesTable
-          villages={currentVillages}
-          onVillageClick={onVillageClick}
-          onEditVillage={onEditVillage}
-          onDeleteVillage={onDeleteVillage}
-        />
+            <VillagesFilters
+              blockFilter={blockFilter}
+              gramPanchayatFilter={gramPanchayatFilter}
+              blocks={blocks}
+              gramPanchayats={gramPanchayats}
+              onBlockFilterChange={setBlockFilter}
+              onGramPanchayatFilterChange={setGramPanchayatFilter}
+            />
+
+            <div className="text-muted-foreground text-xs">
+              Showing {paginatedData.length} of {filteredData.length} villages
+            </div>
+
+            <VillagesTable
+              villages={paginatedData}
+              onVillageClick={onVillageClick}
+              onEditVillage={onEditVillage}
+              onDeleteVillage={onDeleteVillage}
+            />
+          </>
+        )}
 
         {totalPages > 1 && (
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  href="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) handlePageChange(currentPage - 1);
-                  }}
-                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-              {[...Array(totalPages)].map((_, i) => (
-                <PaginationItem key={i + 1}>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePageChange(i + 1);
-                    }}
-                    isActive={currentPage === i + 1}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext 
-                  href="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages) handlePageChange(currentPage + 1);
-                  }}
-                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <div className="flex justify-center items-center gap-2">
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              variant="outline"
+            >
+              Previous
+            </Button>
+            <span className="text-muted-foreground text-xs">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              variant="outline"
+            >
+              Next
+            </Button>
+          </div>
         )}
       </div>
     </div>

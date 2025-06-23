@@ -1,11 +1,11 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Upload, X, User, LogOut } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ArrowLeft, LogOut, User, Camera, Upload, Trash2 } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProfileProps {
   onBack: () => void;
@@ -13,135 +13,143 @@ interface ProfileProps {
 }
 
 const Profile = ({ onBack, onLogout }: ProfileProps) => {
-  const [profileData, setProfileData] = useState({
-    name: 'Admin User',
-    mobile: '+91 9876543210',
-    profilePicture: ''
-  });
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const isMobile = useIsMobile();
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Mock admin data
+  const adminData = {
+    name: 'Admin User',
+    email: 'admin@portal.com',
+    mobile: '+91 98765 43210',
+    role: 'Admin'
+  };
+
+  const handleImageUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setIsUploading(true);
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileData(prev => ({ ...prev, profilePicture: e.target?.result as string }));
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+        setIsUploading(false);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleRemoveImage = () => {
-    setProfileData(prev => ({ ...prev, profilePicture: '' }));
-  };
-
-  const handleSave = () => {
-    console.log('Saving profile:', profileData);
-    onBack();
+  const handleImageRemove = () => {
+    setProfileImage(null);
   };
 
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Button 
             onClick={onBack} 
             variant="link" 
-            className="gap-2 p-0 h-auto"
+            className="gap-2 p-0 h-auto self-start"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            Back to Dashboard
           </Button>
           <h1 className="text-3xl font-bold text-foreground">Profile</h1>
         </div>
 
-        {/* Profile Form */}
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle>Admin Profile</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Profile Picture */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={profileData.profilePicture} alt="Profile" />
-                <AvatarFallback>
-                  <User className="h-8 w-8" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex gap-2">
-                <label htmlFor="profile-upload">
-                  <Button variant="outline" className="gap-2" asChild>
-                    <span className="cursor-pointer">
-                      <Upload className="h-4 w-4" />
-                      {profileData.profilePicture ? 'Change Picture' : 'Upload Picture'}
-                    </span>
-                  </Button>
-                </label>
-                <input
-                  id="profile-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                {profileData.profilePicture && (
-                  <Button variant="outline" size="icon" onClick={handleRemoveImage}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={profileData.name}
-                onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
-                className="bg-white"
-              />
-            </div>
-
-            {/* Mobile Number */}
-            <div className="space-y-2">
-              <Label htmlFor="mobile">Mobile Number</Label>
-              <Input
-                id="mobile"
-                type="tel"
-                value={profileData.mobile}
-                onChange={(e) => setProfileData(prev => ({ ...prev, mobile: e.target.value }))}
-                className="bg-white"
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-center gap-4">
-              <Button type="button" variant="outline" onClick={onBack}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>
-                Save Changes
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Logout Section */}
+        {/* Profile Card */}
         <Card className="shadow-card">
           <CardContent className="p-6">
-            <Button 
-              onClick={onLogout} 
-              variant="destructive" 
-              className="gap-2 w-full"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
+            <div className={`${isMobile ? 'space-y-6' : 'flex items-start gap-8'}`}>
+              {/* Profile Picture Section */}
+              <div className={`${isMobile ? 'flex flex-col items-center' : 'flex-shrink-0'}`}>
+                <div className="relative">
+                  <Avatar className="h-32 w-32">
+                    <AvatarImage src={profileImage || ""} alt="Profile" />
+                    <AvatarFallback className="text-2xl">
+                      <User className="h-16 w-16" />
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="absolute bottom-0 right-0">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" className="rounded-full h-10 w-10 p-0">
+                          <Camera className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={handleImageUpload} disabled={isUploading}>
+                          <Upload className="mr-2 h-4 w-4" />
+                          {profileImage ? 'Change Picture' : 'Upload Picture'}
+                        </DropdownMenuItem>
+                        {profileImage && (
+                          <DropdownMenuItem onClick={handleImageRemove} className="text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Remove Picture
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+                
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Profile Information */}
+              <div className={`${isMobile ? 'w-full' : 'flex-1'} space-y-4`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Name</label>
+                    <p className="text-lg font-medium">{adminData.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Email</label>
+                    <p className="text-lg font-medium">{adminData.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Mobile Number</label>
+                    <p className="text-lg font-medium">{adminData.mobile}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Role</label>
+                    <Badge variant="default" className="text-sm">
+                      {adminData.role}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
+
+        {/* Logout Button - Moved to bottom on mobile */}
+        <div className={`${isMobile ? 'pt-8 border-t' : ''}`}>
+          <Button 
+            onClick={onLogout} 
+            variant="destructive" 
+            className={`gap-2 ${isMobile ? 'w-full' : ''}`}
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+        </div>
       </div>
     </div>
   );

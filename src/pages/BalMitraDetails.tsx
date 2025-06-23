@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, MapPin, TrendingUp, Calendar, Users, GraduationCap, AlertTriangle, UserX } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BalMitraDetailsProps {
   balMitraId: number | null;
@@ -14,6 +15,8 @@ interface BalMitraDetailsProps {
 
 const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
   const [dateRange, setDateRange] = useState('30days');
+  const [monthFilter, setMonthFilter] = useState('current');
+  const isMobile = useIsMobile();
 
   // Mock Bal Mitra data
   const balMitraData = {
@@ -167,37 +170,45 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="p-3 rounded-lg bg-primary/20 w-fit mx-auto mb-2">
-                  <Users className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+            <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'} gap-6`}>
+              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
+                <div className={`p-3 rounded-lg bg-primary/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
+                  <Users className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-primary`} />
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">Total Surveyed</p>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.totalSurveyed}</p>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Surveyed</p>
+                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.totalSurveyed}</p>
+                </div>
               </div>
 
-              <div className="text-center">
-                <div className="p-3 rounded-lg bg-success/20 w-fit mx-auto mb-2">
-                  <GraduationCap className="h-6 w-6 md:h-8 md:w-8 text-success" />
+              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
+                <div className={`p-3 rounded-lg bg-success/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
+                  <GraduationCap className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-success`} />
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">Enrolled</p>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.enrolled}</p>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Enrolled</p>
+                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.enrolled}</p>
+                </div>
               </div>
 
-              <div className="text-center">
-                <div className="p-3 rounded-lg bg-destructive/20 w-fit mx-auto mb-2">
-                  <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-destructive" />
+              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
+                <div className={`p-3 rounded-lg bg-destructive/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
+                  <AlertTriangle className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-destructive`} />
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">Dropout</p>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.dropout}</p>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Dropout</p>
+                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.dropout}</p>
+                </div>
               </div>
 
-              <div className="text-center">
-                <div className="p-3 rounded-lg bg-warning/20 w-fit mx-auto mb-2">
-                  <UserX className="h-6 w-6 md:h-8 md:w-8 text-warning" />
+              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
+                <div className={`p-3 rounded-lg bg-warning/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
+                  <UserX className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-warning`} />
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">Never Enrolled</p>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{performanceData.neverEnrolled}</p>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Never Enrolled</p>
+                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.neverEnrolled}</p>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -212,28 +223,43 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
                 <Calendar className="h-5 w-5" />
                 Daily Survey Activity
               </CardTitle>
+              {isMobile && (
+                <Select value={monthFilter} onValueChange={setMonthFilter}>
+                  <SelectTrigger className="w-[150px] bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="current">Current Month</SelectItem>
+                    <SelectItem value="previous">Previous Month</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={activityData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={(value) => new Date(value).getDate().toString()}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="surveyed" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    name="Children Surveyed"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="overflow-x-auto">
+                <div style={{ minWidth: isMobile ? '400px' : '100%' }}>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={activityData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="date" 
+                        tickFormatter={(value) => new Date(value).getDate().toString()}
+                      />
+                      <YAxis />
+                      <Tooltip 
+                        labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="surveyed" 
+                        stroke="hsl(var(--primary))" 
+                        strokeWidth={2}
+                        name="Children Surveyed"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -247,18 +273,20 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <ResponsiveContainer width="100%" height={250} minWidth={300}>
-                  <BarChart data={villagePerformance}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="village" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="enrolled" stackId="a" fill="hsl(var(--success))" name="Enrolled" />
-                    <Bar dataKey="dropout" stackId="a" fill="hsl(var(--destructive))" name="Dropout" />
-                    <Bar dataKey="neverEnrolled" stackId="a" fill="hsl(var(--warning))" name="Never Enrolled" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div style={{ minWidth: isMobile ? '500px' : '100%' }}>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={villagePerformance}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="village" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="enrolled" stackId="a" fill="hsl(var(--success))" name="Enrolled" />
+                      <Bar dataKey="dropout" stackId="a" fill="hsl(var(--destructive))" name="Dropout" />
+                      <Bar dataKey="neverEnrolled" stackId="a" fill="hsl(var(--warning))" name="Never Enrolled" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </CardContent>
           </Card>
