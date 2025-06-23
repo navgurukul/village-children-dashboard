@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Calendar } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TrendData {
   month: string;
@@ -20,18 +19,16 @@ interface TrendsChartProps {
 }
 
 const TrendsChart = ({ data, dateRange, onDateRangeChange }: TrendsChartProps) => {
-  const isMobile = useIsMobile();
-
   return (
     <Card className="shadow-card">
-      <CardHeader className={isMobile ? 'pb-3' : ''}>
-        <div className={`flex items-center justify-between ${isMobile ? 'flex-col items-start gap-3' : ''}`}>
-          <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-lg' : ''}`}>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             School Status Trend
           </CardTitle>
           <Select value={dateRange} onValueChange={onDateRangeChange}>
-            <SelectTrigger className={`bg-white ${isMobile ? 'w-full' : 'w-[150px]'}`}>
+            <SelectTrigger className="w-[150px] bg-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -43,7 +40,7 @@ const TrendsChart = ({ data, dateRange, onDateRangeChange }: TrendsChartProps) =
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={isMobile ? 300 : 350}>
+        <ResponsiveContainer width="100%" height={350}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />

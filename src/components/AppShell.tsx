@@ -1,10 +1,6 @@
 
 import React, { useState } from 'react';
-import { Home, Users, FileText, LogOut, MapPin, User, ChevronDown } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Home, Users, FileText, LogOut, MapPin } from 'lucide-react';
 import Dashboard from '../pages/Dashboard';
 import ChildrenRecords from '../pages/ChildrenRecords';
 import UserManagement from '../pages/UserManagement';
@@ -19,14 +15,12 @@ import AddNewVillage from '../pages/AddNewVillage';
 import VillageProfile from '../pages/VillageProfile';
 import BulkUploadVillages from '../pages/BulkUploadVillages';
 import EditVillage from '../pages/EditVillage';
-import Profile from '../pages/Profile';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile' | 'edit-village' | 'profile';
+type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile' | 'edit-village';
 
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -35,7 +29,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedVillageId, setSelectedVillageId] = useState<string | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
-  const isMobile = useIsMobile();
 
   const navigationItems = [
     {
@@ -59,11 +52,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       icon: Users,
     },
   ];
-
-  const getCurrentPageLabel = () => {
-    const item = navigationItems.find(item => item.id === currentPage);
-    return item?.label || 'Dashboard';
-  };
 
   const handleNavigation = (page: Page, data?: any) => {
     setCurrentPage(page);
@@ -152,81 +140,14 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onCancel={() => handleNavigation('users')} 
           onSuccess={() => handleNavigation('users')} 
         />;
-      case 'profile':
-        return <Profile onBack={() => handleNavigation('dashboard')} onLogout={onLogout} />;
       default:
         return <Dashboard />;
     }
   };
 
-  if (isMobile) {
-    return (
-      <div className="min-h-screen bg-background">
-        {/* Mobile Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-          <div className="px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">V</span>
-                </div>
-                <h1 className="text-lg font-bold text-foreground">VCR Portal</h1>
-              </div>
-
-              {/* Mobile Navigation Dropdown */}
-              <div className="flex items-center gap-3">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                      <span>{getCurrentPageLabel()}</span>
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="bottom" className="h-auto">
-                    <div className="grid gap-4 py-4">
-                      {navigationItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = currentPage === item.id;
-                        
-                        return (
-                          <button
-                            key={item.id}
-                            onClick={() => handleNavigation(item.id)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                              isActive
-                                ? 'bg-primary/10 text-primary'
-                                : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                            }`}
-                          >
-                            <Icon className="h-5 w-5" />
-                            <span className="text-base font-medium">{item.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </SheetContent>
-                </Sheet>
-
-                <Avatar className="h-8 w-8 cursor-pointer" onClick={() => handleNavigation('profile')}>
-                  <AvatarImage src="" />
-                  <AvatarFallback className="bg-primary/10 text-primary">A</AvatarFallback>
-                </Avatar>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="pt-16">
-          {renderContent()}
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Desktop Header with Glassmorphism */}
+      {/* Top Header with Glassmorphism */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
@@ -267,25 +188,14 @@ const AppShell = ({ onLogout }: AppShellProps) => {
               </nav>
             </div>
 
-            {/* Right side - Avatar with Profile Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Avatar className="h-8 w-8 cursor-pointer">
-                  <AvatarImage src="" />
-                  <AvatarFallback className="bg-primary/10 text-primary">A</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => handleNavigation('profile')} className="gap-2">
-                  <User className="h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onLogout} className="gap-2 text-destructive">
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Right side - Logout */}
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </header>

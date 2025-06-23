@@ -1,45 +1,121 @@
 
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
+/* Manrope font import */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+/* Village Children Register Design System - Regal Purple Theme */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Base Colors */
+    --background: 240 5% 96%;
     --foreground: 240 10% 3.9%;
+    
+    /* Card Colors */
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
+    
+    /* Popover Colors */
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 263 70% 50%;
+    
+    /* Primary Colors */
+    --primary: 262.1 83.3% 57.8%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --primary-hover: 262.1 83.3% 62.8%;
+    --primary-light: 262.1 83.3% 72.8%;
+    --primary-dark: 262.1 83.3% 47.8%;
+    
+    /* Secondary Colors */
+    --secondary: 260 20% 94%;
+    --secondary-foreground: 260 10% 40%;
+    --secondary-hover: 260 20% 88%;
+    --secondary-light: 260 20% 96%;
+    --secondary-dark: 260 20% 84%;
+    
+    /* Muted Colors */
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 45%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 72% 51%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --muted-light: 240 4.8% 97.9%;
+    --muted-dark: 240 4.8% 89.9%;
+    
+    /* Accent Colors */
+    --accent: 260 20% 97%;
+    --accent-foreground: 260 10% 20%;
+    --accent-light: 260 20% 98%;
+    --accent-dark: 260 20% 92%;
+    --accent-hover: 260 20% 94%;
+    
+    /* Destructive Colors */
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 263 70% 50%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --success: 142 71% 45%;
+    --destructive-hover: 0 84.2% 65.2%;
+    --destructive-light: 0 84.2% 70.2%;
+    --destructive-dark: 0 84.2% 50.2%;
+    
+    /* Success Colors */
+    --success: 142.1 76.2% 46.3%;
     --success-foreground: 0 0% 98%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
+    --success-hover: 142.1 76.2% 51.3%;
+    --success-light: 142.1 76.2% 56.3%;
+    --success-dark: 142.1 76.2% 36.3%;
+    
+    /* Warning Colors */
+    --warning: 40 84.2% 60.2%;
+    --warning-foreground: 40 10% 10%;
+    --warning-hover: 40 84.2% 65.2%;
+    --warning-light: 40 84.2% 70.2%;
+    --warning-dark: 40 84.2% 50.2%;
+    
+    /* Border & Input */
+    --border: 240 5.9% 90%;
+    --border-light: 240 5.9% 94%;
+    --border-dark: 240 5.9% 84%;
+    --input: 240 5.9% 92%;
+    --input-light: 240 5.9% 96%;
+    --input-dark: 240 5.9% 86%;
+    --ring: 262.1 83.3% 57.8%;
+    
+    /* Border Radius */
+    --radius: 0.5rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    
+    /* Status Colors */
+    --status-enrolled-bg: 142.1 70.6% 93.5%;
+    --status-enrolled-fg: 142.1 76.2% 26.3%;
+    --status-enrolled-border: 142.1 70.6% 85%;
+    
+    --status-dropout-bg: 0 84.2% 95%;
+    --status-dropout-fg: 0 84.2% 50.2%;
+    --status-dropout-border: 0 84.2% 87%;
+    
+    --status-never-bg: 40 84.2% 95%;
+    --status-never-fg: 40 84.2% 50.2%;
+    --status-never-border: 40 84.2% 87%;
+    
+    --status-pending-bg: 220 84.2% 95%;
+    --status-pending-fg: 220 84.2% 50.2%;
+    --status-pending-border: 220 84.2% 87%;
+    
+    --status-active-bg: 160 84.2% 95%;
+    --status-active-fg: 160 84.2% 40.2%;
+    --status-active-border: 160 84.2% 87%;
+
+    /* Legacy compatibility */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
@@ -49,8 +125,8 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 263 70% 50%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 0 0% 98%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
@@ -61,16 +137,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 263 70% 50%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 98%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
+    --ring: 262.1 83.3% 57.8%;
   }
 }
 
@@ -78,94 +145,98 @@
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-muted/30 text-foreground;
+    @apply bg-background text-foreground font-manrope;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-manrope;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold;
+  }
+
+  h3 {
+    @apply text-xl font-medium;
+  }
+
+  h4 {
+    @apply text-lg font-medium;
+  }
+
+  .text-body {
+    font-size: 18px;
+  }
+
+  .text-small {
+    font-size: 14px;
+  }
+
+  .text-caption {
+    font-size: 12px;
   }
 }
 
+/* Custom utility classes */
 @layer utilities {
-  .shadow-card {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  }
-  
-  .text-success {
-    color: hsl(var(--success));
-  }
-  
-  .bg-success {
-    background-color: hsl(var(--success));
-  }
-  
-  .text-success-foreground {
-    color: hsl(var(--success-foreground));
-  }
-  
-  .border-success {
-    border-color: hsl(var(--success));
-  }
-  
-  .text-warning {
-    color: hsl(var(--warning));
-  }
-  
-  .bg-warning {
-    background-color: hsl(var(--warning));
-  }
-  
-  .text-warning-foreground {
-    color: hsl(var(--warning-foreground));
-  }
-  
-  .border-warning {
-    border-color: hsl(var(--warning));
+  .text-success-dark {
+    color: hsl(var(--success-dark));
   }
 
-  .no-hover {
-    @apply hover:bg-transparent hover:text-current;
+  .text-destructive-dark {
+    color: hsl(var(--destructive-dark));
   }
 
-  /* Filter chips for mobile */
-  .filter-chips {
-    @apply flex gap-2 overflow-x-auto pb-2;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .filter-chips::-webkit-scrollbar {
-    display: none;
-  }
-
-  .filter-chip {
-    @apply min-w-fit px-3 py-1.5 bg-white border border-border rounded-full text-sm font-medium whitespace-nowrap;
-  }
-
-  .filter-chip.active {
-    @apply bg-primary text-primary-foreground border-primary;
-  }
-
-  /* Status and Role chip colors */
-  .status-enrolled {
-    @apply bg-success/10 text-success border-success/20;
-  }
-
-  .status-dropout {
-    @apply bg-destructive/10 text-destructive border-destructive/20;
-  }
-
-  .status-never-enrolled {
-    @apply bg-warning/10 text-warning border-warning/20;
-  }
-
-  .role-admin {
-    @apply bg-primary/10 text-primary border-primary/20;
-  }
-
-  .role-bal-mitra {
-    @apply bg-blue-500/10 text-blue-700 border-blue-500/20;
-  }
-
-  .role-supervisor {
-    @apply bg-emerald-500/10 text-emerald-700 border-emerald-500/20;
+  .text-warning-dark {
+    color: hsl(var(--warning-dark));
   }
 }
 
+/* Custom status badge styles */
+.status-enrolled {
+  background-color: hsl(var(--status-enrolled-bg));
+  color: hsl(var(--status-enrolled-fg));
+  border: 1px solid hsl(var(--status-enrolled-border));
+}
+
+.status-dropout {
+  background-color: hsl(var(--status-dropout-bg));
+  color: hsl(var(--status-dropout-fg));
+  border: 1px solid hsl(var(--status-dropout-border));
+}
+
+.status-never {
+  background-color: hsl(var(--status-never-bg));
+  color: hsl(var(--status-never-fg));
+  border: 1px solid hsl(var(--status-never-border));
+}
+
+.status-pending {
+  background-color: hsl(var(--status-pending-bg));
+  color: hsl(var(--status-pending-fg));
+  border: 1px solid hsl(var(--status-pending-border));
+}
+
+.status-active {
+  background-color: hsl(var(--status-active-bg));
+  color: hsl(var(--status-active-fg));
+  border: 1px solid hsl(var(--status-active-border));
+}
+
+/* Header hover effect for navigation items */
+nav a:hover {
+  @apply bg-accent text-accent-foreground;
+}
+
+/* Sidebar navigation item hover effect */
+.sidebar-nav-item:hover {
+  @apply bg-sidebar-accent text-sidebar-accent-foreground;
+}

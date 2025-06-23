@@ -7,18 +7,17 @@ import LocationFilters from '../components/dashboard/LocationFilters';
 import RecentSurveyFindings from '../components/dashboard/RecentSurveyFindings';
 import LongDropoutPeriod from '../components/dashboard/LongDropoutPeriod';
 import TrendsChart from '../components/dashboard/TrendsChart';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const Dashboard = () => {
   const [locationFilters, setLocationFilters] = useState({
     block: 'all',
+    cluster: 'all',
     panchayat: 'all',
     village: 'all'
   });
 
   const [recentSurveyDateRange, setRecentSurveyDateRange] = useState('30days');
   const [trendsDateRange, setTrendsDateRange] = useState('6months');
-  const isMobile = useIsMobile();
 
   // Mock data
   const kpiData = {
@@ -54,14 +53,14 @@ const Dashboard = () => {
   };
 
   return (
-    <div className={`p-4 md:p-6 bg-background min-h-screen ${isMobile ? 'pt-4' : ''}`}>
-      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+    <div className="p-6 bg-background min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className={`font-bold text-foreground ${isMobile ? 'text-2xl' : 'text-3xl'}`}>Dashboard</h1>
-          <Button onClick={handleExportPDF} className="gap-2" size={isMobile ? "sm" : "default"}>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <Button onClick={handleExportPDF} className="gap-2">
             <FileText className="h-4 w-4" />
-            {isMobile ? 'Export' : 'Export as PDF'}
+            Export as PDF
           </Button>
         </div>
 
@@ -74,8 +73,8 @@ const Dashboard = () => {
         {/* Row 1: KPI Cards */}
         <KPICards data={kpiData} />
 
-        {/* Row 2: Key Insights */}
-        <div className={`grid gap-4 md:gap-6 mb-8 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
+        {/* Row 2: Key Insights - Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <RecentSurveyFindings 
             findings={recentSurveyFindings}
             dateRange={recentSurveyDateRange}

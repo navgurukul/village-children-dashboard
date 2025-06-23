@@ -1,67 +1,23 @@
 
 import React from 'react';
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search, Plus, Upload } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Search } from 'lucide-react';
 
 interface VillagesSearchAndActionsProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  onAddVillage: () => void;
-  onBulkUpload: () => void;
 }
 
-const VillagesSearchAndActions = ({ searchTerm, onSearchChange, onAddVillage, onBulkUpload }: VillagesSearchAndActionsProps) => {
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return (
-      <div className="space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search villages or personnel..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 bg-white text-base"
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button className="gap-2 flex-1" onClick={onAddVillage}>
-            <Plus className="h-4 w-4" />
-            Add New Village
-          </Button>
-          <Button variant="outline" className="gap-2 flex-1 bg-white" onClick={onBulkUpload}>
-            <Upload className="h-4 w-4" />
-            Bulk Upload
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
+const VillagesSearchAndActions = ({ searchTerm, onSearchChange }: VillagesSearchAndActionsProps) => {
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex-1 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Search villages or personnel..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 bg-white"
-        />
-      </div>
-      <div className="flex gap-2">
-        <Button className="gap-2" onClick={onAddVillage}>
-          <Plus className="h-4 w-4" />
-          Add New Village
-        </Button>
-        <Button variant="outline" className="gap-2 bg-white" onClick={onBulkUpload}>
-          <Upload className="h-4 w-4" />
-          Bulk Upload
-        </Button>
-      </div>
+    <div className="flex-1 relative">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+      <Input
+        placeholder="Search villages or personnel..."
+        value={searchTerm}
+        onChange={(e) => onSearchChange(e.target.value)}
+        className="pl-10 bg-white"
+      />
     </div>
   );
 };
