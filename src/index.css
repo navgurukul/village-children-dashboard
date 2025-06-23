@@ -1,121 +1,44 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Manrope font import */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
-
-/* Village Children Register Design System - Regal Purple Theme */
+* {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
 
 @layer base {
   :root {
-    /* Base Colors */
-    --background: 240 5% 96%;
+    --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
-    
-    /* Card Colors */
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
-    
-    /* Popover Colors */
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    
-    /* Primary Colors */
-    --primary: 262.1 83.3% 57.8%;
+    --primary: 240 5.9% 10%;
     --primary-foreground: 0 0% 98%;
-    --primary-hover: 262.1 83.3% 62.8%;
-    --primary-light: 262.1 83.3% 72.8%;
-    --primary-dark: 262.1 83.3% 47.8%;
-    
-    /* Secondary Colors */
-    --secondary: 260 20% 94%;
-    --secondary-foreground: 260 10% 40%;
-    --secondary-hover: 260 20% 88%;
-    --secondary-light: 260 20% 96%;
-    --secondary-dark: 260 20% 84%;
-    
-    /* Muted Colors */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --muted-light: 240 4.8% 97.9%;
-    --muted-dark: 240 4.8% 89.9%;
-    
-    /* Accent Colors */
-    --accent: 260 20% 97%;
-    --accent-foreground: 260 10% 20%;
-    --accent-light: 260 20% 98%;
-    --accent-dark: 260 20% 92%;
-    --accent-hover: 260 20% 94%;
-    
-    /* Destructive Colors */
-    --destructive: 0 84.2% 60.2%;
+    --muted-foreground: 240 3.8% 45%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --destructive-hover: 0 84.2% 65.2%;
-    --destructive-light: 0 84.2% 70.2%;
-    --destructive-dark: 0 84.2% 50.2%;
-    
-    /* Success Colors */
-    --success: 142.1 76.2% 46.3%;
-    --success-foreground: 0 0% 98%;
-    --success-hover: 142.1 76.2% 51.3%;
-    --success-light: 142.1 76.2% 56.3%;
-    --success-dark: 142.1 76.2% 36.3%;
-    
-    /* Warning Colors */
-    --warning: 40 84.2% 60.2%;
-    --warning-foreground: 40 10% 10%;
-    --warning-hover: 40 84.2% 65.2%;
-    --warning-light: 40 84.2% 70.2%;
-    --warning-dark: 40 84.2% 50.2%;
-    
-    /* Border & Input */
     --border: 240 5.9% 90%;
-    --border-light: 240 5.9% 94%;
-    --border-dark: 240 5.9% 84%;
-    --input: 240 5.9% 92%;
-    --input-light: 240 5.9% 96%;
-    --input-dark: 240 5.9% 86%;
-    --ring: 262.1 83.3% 57.8%;
-    
-    /* Border Radius */
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --radius-sm: 0.25rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-    
-    /* Status Colors */
-    --status-enrolled-bg: 142.1 70.6% 93.5%;
-    --status-enrolled-fg: 142.1 76.2% 26.3%;
-    --status-enrolled-border: 142.1 70.6% 85%;
-    
-    --status-dropout-bg: 0 84.2% 95%;
-    --status-dropout-fg: 0 84.2% 50.2%;
-    --status-dropout-border: 0 84.2% 87%;
-    
-    --status-never-bg: 40 84.2% 95%;
-    --status-never-fg: 40 84.2% 50.2%;
-    --status-never-border: 40 84.2% 87%;
-    
-    --status-pending-bg: 220 84.2% 95%;
-    --status-pending-fg: 220 84.2% 50.2%;
-    --status-pending-border: 220 84.2% 87%;
-    
-    --status-active-bg: 160 84.2% 95%;
-    --status-active-fg: 160 84.2% 40.2%;
-    --status-active-border: 160 84.2% 87%;
-
-    /* Legacy compatibility */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
   }
 
   .dark {
@@ -125,8 +48,8 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
@@ -137,7 +60,16 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 262.1 83.3% 57.8%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
   }
 }
 
@@ -145,196 +77,94 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground font-manrope;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-manrope;
-    line-height: 1.5;
-  }
-
-  /* Desktop Typography (Base: 18px) */
-  body {
-    font-size: 18px;
-    line-height: 1.7;
-  }
-
-  h1 {
-    font-size: 96px; /* 6rem */
-  }
-
-  h2 {
-    font-size: 72px; /* 4.5rem */
-  }
-
-  h3 {
-    font-size: 56px; /* 3.5rem */
-  }
-
-  h4 {
-    font-size: 42px; /* 2.625rem */
-  }
-
-  h5 {
-    font-size: 32px; /* 2rem */
-  }
-
-  h6 {
-    font-size: 24px; /* 1.5rem */
-  }
-
-  .text-body {
-    font-size: 18px;
-    line-height: 1.7;
-  }
-
-  .text-small {
-    font-size: 14px;
-    line-height: 1.7;
-  }
-
-  .text-caption {
-    font-size: 12px;
-    line-height: 1.7;
-  }
-
-  /* Mobile Typography (Base: 16px) */
-  @media (max-width: 768px) {
-    body {
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    h1 {
-      font-size: 80px; /* 5rem */
-    }
-
-    h2 {
-      font-size: 64px; /* 4rem */
-    }
-
-    h3 {
-      font-size: 48px; /* 3rem */
-    }
-
-    h4 {
-      font-size: 32px; /* 2rem */
-    }
-
-    h5 {
-      font-size: 24px; /* 1.5rem */
-    }
-
-    h6 {
-      font-size: 20px; /* 1.25rem */
-    }
-
-    .text-body {
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    .text-small {
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .text-caption {
-      font-size: 12px;
-      line-height: 1.7;
-    }
+    @apply bg-background text-foreground;
   }
 }
 
-/* Custom utility classes */
 @layer utilities {
-  .text-success-dark {
-    color: hsl(var(--success-dark));
-  }
-
-  .text-destructive-dark {
-    color: hsl(var(--destructive-dark));
-  }
-
-  .text-warning-dark {
-    color: hsl(var(--warning-dark));
-  }
-
   .shadow-card {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+  
+  .text-success {
+    color: hsl(var(--success));
+  }
+  
+  .bg-success {
+    background-color: hsl(var(--success));
+  }
+  
+  .text-success-foreground {
+    color: hsl(var(--success-foreground));
+  }
+  
+  .border-success {
+    border-color: hsl(var(--success));
+  }
+  
+  .text-warning {
+    color: hsl(var(--warning));
+  }
+  
+  .bg-warning {
+    background-color: hsl(var(--warning));
+  }
+  
+  .text-warning-foreground {
+    color: hsl(var(--warning-foreground));
+  }
+  
+  .border-warning {
+    border-color: hsl(var(--warning));
+  }
+
+  .no-hover {
+    @apply hover:bg-transparent hover:text-current;
+  }
+
+  /* Mobile Typography */
+  @media (max-width: 768px) {
+    .text-base { font-size: 1rem; line-height: 1.7; }
+    .text-lg { font-size: 1.25rem; line-height: 1.5; }
+    .text-xl { font-size: 1.5rem; line-height: 1.5; }
+    .text-2xl { font-size: 2rem; line-height: 1.5; }
+    .text-3xl { font-size: 3rem; line-height: 1.5; }
+    .text-4xl { font-size: 4rem; line-height: 1.5; }
+    .text-5xl { font-size: 5rem; line-height: 1.5; }
+    .text-sm { font-size: 0.875rem; line-height: 1.7; }
+    .text-xs { font-size: 0.75rem; line-height: 1.7; }
+  }
+
+  /* Desktop Typography */
+  @media (min-width: 769px) {
+    .text-base { font-size: 1.125rem; line-height: 1.7; }
+    .text-lg { font-size: 1.5rem; line-height: 1.5; }
+    .text-xl { font-size: 2rem; line-height: 1.5; }
+    .text-2xl { font-size: 2.625rem; line-height: 1.5; }
+    .text-3xl { font-size: 3.5rem; line-height: 1.5; }
+    .text-4xl { font-size: 4.5rem; line-height: 1.5; }
+    .text-5xl { font-size: 6rem; line-height: 1.5; }
+    .text-sm { font-size: 0.875rem; line-height: 1.7; }
+    .text-xs { font-size: 0.75rem; line-height: 1.7; }
   }
 }
 
-/* Custom status badge styles */
-.status-enrolled {
-  background-color: hsl(var(--status-enrolled-bg));
-  color: hsl(var(--status-enrolled-fg));
-  border: 1px solid hsl(var(--status-enrolled-border));
+/* Filter chips for mobile */
+.filter-chips {
+  @apply flex gap-2 overflow-x-auto pb-2;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.status-dropout {
-  background-color: hsl(var(--status-dropout-bg));
-  color: hsl(var(--status-dropout-fg));
-  border: 1px solid hsl(var(--status-dropout-border));
+.filter-chips::-webkit-scrollbar {
+  display: none;
 }
 
-.status-never {
-  background-color: hsl(var(--status-never-bg));
-  color: hsl(var(--status-never-fg));
-  border: 1px solid hsl(var(--status-never-border));
+.filter-chip {
+  @apply min-w-fit px-3 py-1.5 bg-white border border-border rounded-full text-sm font-medium whitespace-nowrap;
 }
 
-.status-pending {
-  background-color: hsl(var(--status-pending-bg));
-  color: hsl(var(--status-pending-fg));
-  border: 1px solid hsl(var(--status-pending-border));
-}
-
-.status-active {
-  background-color: hsl(var(--status-active-bg));
-  color: hsl(var(--status-active-fg));
-  border: 1px solid hsl(var(--status-active-border));
-}
-
-/* Header hover effect for navigation items */
-nav a:hover {
-  @apply bg-accent text-accent-foreground;
-}
-
-/* Sidebar navigation item hover effect */
-.sidebar-nav-item:hover {
-  @apply bg-sidebar-accent text-sidebar-accent-foreground;
-}
-
-/* Mobile Card List Styles */
-@media (max-width: 768px) {
-  .mobile-card {
-    @apply bg-card border border-border rounded-lg p-4 space-y-2;
-  }
-
-  .mobile-card-header {
-    @apply flex items-center justify-between;
-  }
-
-  .mobile-card-title {
-    @apply font-semibold text-base;
-  }
-
-  .mobile-card-subtitle {
-    @apply text-sm text-muted-foreground;
-  }
-
-  .mobile-card-content {
-    @apply space-y-1;
-  }
-
-  .mobile-card-row {
-    @apply flex items-center justify-between text-sm;
-  }
-
-  .mobile-card-actions {
-    @apply flex justify-end pt-2;
-  }
+.filter-chip.active {
+  @apply bg-primary text-primary-foreground border-primary;
 }

@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Village {
   id: string;
   name: string;
   block: string;
-  cluster: string;
   panchayat: string;
   totalChildren: number;
   enrolled: number;
@@ -28,6 +29,88 @@ interface VillagesTableProps {
 }
 
 const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillage }: VillagesTableProps) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {villages.map((village) => (
+          <Card key={village.id} className="shadow-card cursor-pointer" onClick={() => onVillageClick(village.id)}>
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                {/* First row - Village name */}
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-base">{village.name}</h3>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation();
+                        onEditVillage(village.id);
+                      }}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem 
+                            className="text-destructive focus:text-destructive"
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the village "{village.name}" and all associated data.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => onDeleteVillage(village.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Second row - Statistics */}
+                <div className="flex items-center gap-4 text-sm flex-wrap">
+                  <span className="text-muted-foreground">Total: {village.totalChildren}</span>
+                  <Badge className="bg-success/10 text-success border-success/20">
+                    Enrolled: {village.enrolled}
+                  </Badge>
+                  <Badge className="bg-destructive/10 text-destructive border-destructive/20">
+                    Dropout: {village.dropout}
+                  </Badge>
+                </div>
+
+                {/* Third row - Location and Personnel */}
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <div>Assigned Bal Mitra: {village.assignedBalMitra}</div>
+                  <div>Block: {village.block} • Panchayat: {village.panchayat}</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <Card className="shadow-card">
       <CardContent className="p-0">
@@ -37,12 +120,11 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
               <TableRow>
                 <TableHead className="font-bold">Village Name</TableHead>
                 <TableHead className="font-bold">Block</TableHead>
-                <TableHead className="font-bold">Cluster</TableHead>
                 <TableHead className="font-bold">Panchayat</TableHead>
                 <TableHead className="font-bold">Total Children</TableHead>
                 <TableHead className="font-bold">Enrolled Children</TableHead>
                 <TableHead className="font-bold">Dropout Children</TableHead>
-                <TableHead className="font-bold">Assigned Personnel</TableHead>
+                <TableHead className="font-bold">Assigned Bal Mitra</TableHead>
                 <TableHead className="font-bold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -55,16 +137,15 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                 >
                   <TableCell className="font-medium">{village.name}</TableCell>
                   <TableCell>{village.block}</TableCell>
-                  <TableCell>{village.cluster}</TableCell>
                   <TableCell>{village.panchayat}</TableCell>
                   <TableCell>{village.totalChildren}</TableCell>
                   <TableCell>
-                    <Badge className="bg-success/10 text-success border-success/20">
+                    <Badge className="bg-success/10 text-success border-success/20 no-hover">
                       {village.enrolled}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge className="bg-destructive/10 text-destructive border-destructive/20">
+                    <Badge className="bg-destructive/10 text-destructive border-destructive/20 no-hover">
                       {village.dropout}
                     </Badge>
                   </TableCell>
