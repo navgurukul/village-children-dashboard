@@ -1,4 +1,5 @@
 
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
@@ -16,7 +17,7 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
+    --primary: 263 70% 50%;
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -28,7 +29,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
+    --ring: 263 70% 50%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -48,7 +49,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
+    --primary: 263 70% 50%;
     --primary-foreground: 240 5.9% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -60,7 +61,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --ring: 263 70% 50%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -78,7 +79,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-muted/30 text-foreground;
   }
 }
 
@@ -141,4 +142,30 @@
   .filter-chip.active {
     @apply bg-primary text-primary-foreground border-primary;
   }
+
+  /* Status and Role chip colors */
+  .status-enrolled {
+    @apply bg-success/10 text-success border-success/20;
+  }
+
+  .status-dropout {
+    @apply bg-destructive/10 text-destructive border-destructive/20;
+  }
+
+  .status-never-enrolled {
+    @apply bg-warning/10 text-warning border-warning/20;
+  }
+
+  .role-admin {
+    @apply bg-primary/10 text-primary border-primary/20;
+  }
+
+  .role-bal-mitra {
+    @apply bg-blue-500/10 text-blue-700 border-blue-500/20;
+  }
+
+  .role-supervisor {
+    @apply bg-emerald-500/10 text-emerald-700 border-emerald-500/20;
+  }
 }
+
