@@ -3,8 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Manrope font import */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+/* Poppins font import */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 /* Village Children Register Design System - Regal Purple Theme */
 
@@ -147,7 +147,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-manrope;
+    @apply bg-background text-foreground font-poppins;
     font-size: 18px;
     line-height: 1.6;
   }
@@ -180,7 +180,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-manrope;
+    @apply font-poppins;
   }
 
   h1 {
