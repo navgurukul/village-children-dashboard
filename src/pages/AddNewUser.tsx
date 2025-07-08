@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
+import { apiClient } from '../lib/api';
+import { useToast } from "@/hooks/use-toast";
 
 interface AddNewUserProps {
   onCancel: () => void;
@@ -22,11 +24,46 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
     panchayat: '',
     villages: [] as string[]
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Creating user:', formData);
-    onSuccess();
+    setIsLoading(true);
+    
+    try {
+      const userData = {
+        name: formData.fullName,
+        email: formData.email,
+        mobile: formData.mobile,
+        role: formData.role,
+        ...(formData.role === 'balMitra' && {
+          block: formData.block,
+          cluster: formData.cluster,
+          panchayat: formData.panchayat,
+        }),
+      };
+
+      const response = await apiClient.createUser(userData);
+      
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "User created successfully",
+        });
+        onSuccess();
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleVillageSelection = (village: string) => {
@@ -107,8 +144,8 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                 <input
                   type="radio"
                   name="role"
-                  value="Admin"
-                  checked={formData.role === 'Admin'}
+                  value="admin"
+                  checked={formData.role === 'admin'}
                   onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                   className="text-primary"
                 />
@@ -118,8 +155,8 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                 <input
                   type="radio"
                   name="role"
-                  value="Bal Mitra"
-                  checked={formData.role === 'Bal Mitra'}
+                  value="balMitra"
+                  checked={formData.role === 'balMitra'}
                   onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                   className="text-primary"
                 />
@@ -129,7 +166,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
           </div>
 
           {/* Conditional Bal Mitra Fields */}
-          {formData.role === 'Bal Mitra' && (
+          {formData.role === 'balMitra' && (
             <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/20">
               <h3 className="font-medium text-foreground">Village Assignment</h3>
               
@@ -204,8 +241,8 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">
-              Add User
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Creating...' : 'Add User'}
             </Button>
           </div>
         </form>

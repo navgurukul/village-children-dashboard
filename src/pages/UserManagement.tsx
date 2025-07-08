@@ -1,87 +1,75 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Edit, Trash2, Copy, Plus, Upload, Search } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Edit, Trash2, Copy, Plus, Upload, Search } from 'lucide-react';
 import FilterChips from '../components/FilterChips';
 import UsersCardList from '../components/users/UsersCardList';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { apiClient, User } from '../lib/api';
+import { useToast } from "@/hooks/use-toast";
 
-interface User {
-  id: number;
-  name: string;
-  role: string;
-  assignedTo: string;
-  username: string;
-  password: string;
-  createdOn: string;
-  villages: string[];
-}
 
 interface UserManagementProps {
   onAddUser: () => void;
   onBulkUpload: () => void;
-  onBalMitraClick: (balMitraId: number) => void;
-  onEditUser: (userId: number) => void;
+  onBalMitraClick: (balMitraId: string) => void;
+  onEditUser: (userId: string) => void;
 }
 
 const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 20;
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
-  // Mock users data
-  const usersData: User[] = [
-    {
-      id: 1,
-      name: 'Admin User',
-      role: 'Admin',
-      assignedTo: 'All Blocks',
-      username: 'admin@portal',
-      password: 'admin123',
-      createdOn: '2024-01-15',
-      villages: []
-    },
-    {
-      id: 2,
-      name: 'Priya Sharma',
-      role: 'Bal Mitra',
-      assignedTo: 'Block A - Gram Panchayat 1',
-      username: 'priya.sharma',
-      password: 'ps@2024',
-      createdOn: '2024-02-10',
-      villages: ['Haripur', 'Rampur', 'Lakshmipur']
-    },
-    {
-      id: 3,
-      name: 'Ravi Kumar',
-      role: 'Bal Mitra',
-      assignedTo: 'Block B - Gram Panchayat 2',
-      username: 'ravi.kumar',
-      password: 'rk@2024',
-      createdOn: '2024-02-15',
-      villages: ['Govindpur', 'Shantipur']
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage, roleFilter]);
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiClient.getUsers({
+        role: roleFilter === 'all' ? undefined : roleFilter,
+        page: currentPage,
+        limit: itemsPerPage,
+      });
+      
+      if (response.success) {
+        setUsers(response.data.items);
+        setTotalCount(response.data.pagination.totalCount);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch users",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
 
   // Filter data
   const filteredData = useMemo(() => {
-    return usersData.filter(user => {
+    return users.filter(user => {
       const matchesSearch = searchTerm === '' || 
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
+        user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-
-      return matchesSearch && matchesRole;
+      return matchesSearch;
     });
-  }, [searchTerm, roleFilter]);
+  }, [users, searchTerm]);
 
   // Paginated data
   const paginatedData = useMemo(() => {
@@ -89,21 +77,24 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredData, currentPage]);
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleDeleteUser = (userId: number) => {
+  const handleDeleteUser = (userId: string) => {
     console.log('Delete user:', userId);
   };
 
-  const handleCopyLoginDetails = (username: string, password: string) => {
-    const loginDetails = `Username: ${username}\nPassword: ${password}`;
+  const handleCopyLoginDetails = (username: string, mobile: string) => {
+    const loginDetails = `Username: ${username}\nPassword: ${mobile}`;
     navigator.clipboard.writeText(loginDetails).then(() => {
-      console.log('Login details copied to clipboard');
+      toast({
+        title: "Copied!",
+        description: "Login details copied to clipboard",
+      });
     });
   };
 
   const handleUserClick = (user: User) => {
-    if (user.role === 'Bal Mitra') {
+    if (user.role === 'balMitra') {
       onBalMitraClick(user.id);
     }
   };
@@ -111,6 +102,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'role') {
       setRoleFilter(value);
+      setCurrentPage(1);
     }
   };
 
@@ -120,8 +112,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
       value: roleFilter,
       options: [
         { label: 'All Roles', value: 'all' },
-        { label: 'Admin', value: 'Admin' },
-        { label: 'Bal Mitra', value: 'Bal Mitra' }
+        { label: 'Admin', value: 'admin' },
+        { label: 'Bal Mitra', value: 'balMitra' }
       ]
     }
   ];
@@ -219,8 +211,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Bal Mitra">Bal Mitra</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="balMitra">Bal Mitra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -247,19 +239,19 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                   {paginatedData.map((user, index) => (
                     <TableRow 
                       key={user.id} 
-                      className={`${index % 2 === 0 ? "bg-muted/30" : ""} ${user.role === 'Bal Mitra' ? 'cursor-pointer hover:bg-accent' : ''}`}
-                      onClick={() => user.role === 'Bal Mitra' ? handleUserClick(user) : undefined}
+                      className={`${index % 2 === 0 ? "bg-muted/30" : ""} ${user.role === 'balMitra' ? 'cursor-pointer hover:bg-accent' : ''}`}
+                      onClick={() => user.role === 'balMitra' ? handleUserClick(user) : undefined}
                     >
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>
-                        <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
-                          {user.role}
+                        <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                          {user.role === 'admin' ? 'Admin' : 'Bal Mitra'}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-sm">{user.username}</TableCell>
-                      <TableCell className="font-mono text-sm">{user.password}</TableCell>
-                      <TableCell>{user.assignedTo}</TableCell>
-                      <TableCell>{formatDate(user.createdOn)}</TableCell>
+                      <TableCell className="font-mono text-sm">{user.mobile}</TableCell>
+                      <TableCell>{user.block ? `${user.block} - ${user.panchayat}` : 'All Blocks'}</TableCell>
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
@@ -268,7 +260,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                             className="h-8 w-8 p-0"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleCopyLoginDetails(user.username, user.password);
+                              handleCopyLoginDetails(user.username, user.mobile);
                             }}
                             title="Copy Login Details"
                           >

@@ -7,32 +7,22 @@ import { Separator } from "@/components/ui/separator";
 import { MoreHorizontal, Edit, Trash2, Copy } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-
-interface User {
-  id: number;
-  name: string;
-  role: string;
-  assignedTo: string;
-  username: string;
-  password: string;
-  createdOn: string;
-  villages: string[];
-}
+import { User } from '../../lib/api';
 
 interface UsersCardListProps {
   users: User[];
   onUserClick: (user: User) => void;
-  onEditUser: (userId: number) => void;
-  onDeleteUser: (userId: number) => void;
-  onCopyLoginDetails: (username: string, password: string) => void;
+  onEditUser: (userId: string) => void;
+  onDeleteUser: (userId: string) => void;
+  onCopyLoginDetails: (username: string, mobile: string) => void;
 }
 
 const UsersCardList = ({ users, onUserClick, onEditUser, onDeleteUser, onCopyLoginDetails }: UsersCardListProps) => {
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
-  const handleDeleteClick = (userId: number) => {
+  const handleDeleteClick = (userId: string) => {
     setUserToDelete(userId);
     setDeleteDialogOpen(true);
     setActiveSheet(null);
@@ -46,8 +36,8 @@ const UsersCardList = ({ users, onUserClick, onEditUser, onDeleteUser, onCopyLog
     setDeleteDialogOpen(false);
   };
 
-  const handleCopyClick = (username: string, password: string) => {
-    onCopyLoginDetails(username, password);
+  const handleCopyClick = (username: string, mobile: string) => {
+    onCopyLoginDetails(username, mobile);
     toast({
       title: "Login details copied",
       description: "Username and password have been copied to clipboard",
@@ -74,24 +64,24 @@ const UsersCardList = ({ users, onUserClick, onEditUser, onDeleteUser, onCopyLog
               <div className="flex-1 cursor-pointer">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium text-base">{user.name}</h3>
-                  <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'} className="text-xs">
-                    {user.role}
+                  <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
+                    {user.role === 'admin' ? 'Admin' : 'Bal Mitra'}
                   </Badge>
                 </div>
                 
                 <div className="text-sm text-muted-foreground mb-2">
-                  {user.username} • Password: {user.password}
+                  {user.username} • Password: {user.mobile}
                 </div>
                 
                 <div className="text-sm text-muted-foreground">
-                  <div>Created: {formatDate(user.createdOn)}</div>
-                  <div>Assigned to: {user.assignedTo}</div>
+                  <div>Created: {formatDate(user.createdAt)}</div>
+                  <div>Assigned to: {user.block ? `${user.block} - ${user.panchayat}` : 'All Blocks'}</div>
                 </div>
               </div>
               
-              <Sheet 
-                open={activeSheet === user.id.toString()} 
-                onOpenChange={(open) => setActiveSheet(open ? user.id.toString() : null)}
+                <Sheet 
+                open={activeSheet === user.id} 
+                onOpenChange={(open) => setActiveSheet(open ? user.id : null)}
               >
                 <SheetTrigger asChild>
                   <Button 
@@ -111,7 +101,7 @@ const UsersCardList = ({ users, onUserClick, onEditUser, onDeleteUser, onCopyLog
                     <Button
                       variant="ghost"
                       className="justify-start gap-2 h-12"
-                      onClick={() => handleCopyClick(user.username, user.password)}
+                      onClick={() => handleCopyClick(user.username, user.mobile)}
                     >
                       <Copy className="h-4 w-4" />
                       Copy Login Details

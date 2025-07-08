@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 interface LoginProps {
   onLogin: (credentials: { username: string; password: string }) => void;
   error: string;
+  isLoading?: boolean;
 }
 
-const Login = ({ onLogin, error }: LoginProps) => {
+const Login = ({ onLogin, error, isLoading = false }: LoginProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -59,8 +60,8 @@ const Login = ({ onLogin, error }: LoginProps) => {
                 {error}
               </div>
             )}
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
