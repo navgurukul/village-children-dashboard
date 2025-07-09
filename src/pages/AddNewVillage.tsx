@@ -28,8 +28,31 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('Form submitted with data:', formData);
+    
+    // Check if required fields are filled
+    if (!formData.villageName || !formData.block || !formData.cluster || !formData.panchayat) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       setLoading(true);
+      console.log('Calling API with payload:', {
+        name: formData.villageName,
+        district: formData.district,
+        state: formData.state,
+        block: formData.block,
+        cluster: formData.cluster,
+        panchayat: formData.panchayat,
+        population: parseInt(formData.population) || 0
+      });
+      
       const response = await apiClient.createVillage({
         name: formData.villageName,
         district: formData.district,
@@ -39,6 +62,8 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
         panchayat: formData.panchayat,
         population: parseInt(formData.population) || 0
       });
+
+      console.log('API Response:', response);
 
       if (response.success) {
         toast({
