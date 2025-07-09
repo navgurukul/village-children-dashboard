@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
+import { apiClient } from '../lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface AddNewVillageProps {
   onCancel: () => void;
@@ -14,15 +16,47 @@ interface AddNewVillageProps {
 const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
   const [formData, setFormData] = useState({
     villageName: '',
+    district: 'Dhanbad',
+    state: 'Jharkhand',
     block: '',
     cluster: '',
-    panchayat: ''
+    panchayat: '',
+    population: ''
   });
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Creating village:', formData);
-    onSuccess();
+    try {
+      setLoading(true);
+      const response = await apiClient.createVillage({
+        name: formData.villageName,
+        district: formData.district,
+        state: formData.state,
+        block: formData.block,
+        cluster: formData.cluster,
+        panchayat: formData.panchayat,
+        population: parseInt(formData.population) || 0
+      });
+
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Village created successfully",
+        });
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Error creating village:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create village",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,9 +97,9 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="block1">Block 1</SelectItem>
-                <SelectItem value="block2">Block 2</SelectItem>
-                <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
+                <SelectItem value="Jharia">Jharia</SelectItem>
+                <SelectItem value="Rajgangpur">Rajgangpur</SelectItem>
+                <SelectItem value="Block 3">Block 3</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -99,11 +133,23 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
                 <SelectValue placeholder="Select Panchayat" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="panchayat1">Panchayat 1</SelectItem>
-                <SelectItem value="panchayat2">Panchayat 2</SelectItem>
-                <SelectItem value="panchayat3">Panchayat 3</SelectItem>
+                <SelectItem value="Sijua">Sijua</SelectItem>
+                <SelectItem value="Panchayat 2">Panchayat 2</SelectItem>
+                <SelectItem value="Panchayat 3">Panchayat 3</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="population">Population</Label>
+            <Input
+              id="population"
+              type="number"
+              value={formData.population}
+              onChange={(e) => setFormData(prev => ({ ...prev, population: e.target.value }))}
+              placeholder="Enter population"
+              className="bg-white"
+            />
           </div>
 
           {/* Actions */}
@@ -111,8 +157,8 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">
-              Add Village
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Adding...' : 'Add Village'}
             </Button>
           </div>
         </form>

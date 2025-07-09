@@ -1,10 +1,11 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
+import { apiClient, Village } from '../lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface EditVillageProps {
   villageId: string | null;
@@ -14,16 +15,84 @@ interface EditVillageProps {
 
 const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
   const [formData, setFormData] = useState({
-    villageName: 'Haripur',
-    block: 'rajgangpur',
-    cluster: 'cluster1',
-    panchayat: 'panchayat1'
+    villageName: '',
+    district: '',
+    state: '',
+    block: '',
+    cluster: '',
+    panchayat: '',
+    population: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load village data when component mounts
+  useEffect(() => {
+    if (villageId) {
+      loadVillageData();
+    }
+  }, [villageId]);
+
+  const loadVillageData = async () => {
+    try {
+      setLoadingData(true);
+      // Since we don't have a get single village endpoint, we'll use mock data
+      // In a real app, you'd have an endpoint like GET /villages/:id
+      setFormData({
+        villageName: 'Haripur',
+        district: 'Dhanbad',
+        state: 'Jharkhand',
+        block: 'Jharia',
+        cluster: 'Sijua-1',
+        panchayat: 'Sijua',
+        population: '2500'
+      });
+    } catch (error) {
+      console.error('Error loading village data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load village data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Updating village:', formData);
-    onSuccess();
+    if (!villageId) return;
+
+    try {
+      setLoading(true);
+      const response = await apiClient.updateVillage(villageId, {
+        name: formData.villageName,
+        district: formData.district,
+        state: formData.state,
+        block: formData.block,
+        cluster: formData.cluster,
+        panchayat: formData.panchayat,
+        population: parseInt(formData.population) || 0
+      });
+
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Village updated successfully",
+        });
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Error updating village:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update village",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!villageId) {
@@ -31,6 +100,16 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-2xl mx-auto">
           <p className="text-muted-foreground">No village selected</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadingData) {
+    return (
+      <div className="p-6 bg-background min-h-screen">
+        <div className="max-w-2xl mx-auto">
+          <p className="text-muted-foreground">Loading village data...</p>
         </div>
       </div>
     );
@@ -74,9 +153,9 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="block1">Block 1</SelectItem>
-                <SelectItem value="block2">Block 2</SelectItem>
-                <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
+                <SelectItem value="Jharia">Jharia</SelectItem>
+                <SelectItem value="Rajgangpur">Rajgangpur</SelectItem>
+                <SelectItem value="Block 3">Block 3</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -92,9 +171,9 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
                 <SelectValue placeholder="Select Cluster" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="cluster1">Cluster 1</SelectItem>
-                <SelectItem value="cluster2">Cluster 2</SelectItem>
-                <SelectItem value="cluster3">Cluster 3</SelectItem>
+                <SelectItem value="Sijua-1">Sijua-1</SelectItem>
+                <SelectItem value="Cluster 2">Cluster 2</SelectItem>
+                <SelectItem value="Cluster 3">Cluster 3</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -110,11 +189,23 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
                 <SelectValue placeholder="Select Panchayat" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="panchayat1">Panchayat 1</SelectItem>
-                <SelectItem value="panchayat2">Panchayat 2</SelectItem>
-                <SelectItem value="panchayat3">Panchayat 3</SelectItem>
+                <SelectItem value="Sijua">Sijua</SelectItem>
+                <SelectItem value="Panchayat 2">Panchayat 2</SelectItem>
+                <SelectItem value="Panchayat 3">Panchayat 3</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="population">Population</Label>
+            <Input
+              id="population"
+              type="number"
+              value={formData.population}
+              onChange={(e) => setFormData(prev => ({ ...prev, population: e.target.value }))}
+              placeholder="Enter population"
+              className="bg-white"
+            />
           </div>
 
           {/* Actions */}
@@ -122,8 +213,8 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">
-              Update Village
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Updating...' : 'Update Village'}
             </Button>
           </div>
         </form>

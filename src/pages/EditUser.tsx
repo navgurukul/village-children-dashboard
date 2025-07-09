@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
+import { apiClient } from '../lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface EditUserProps {
   userId: number | null;
@@ -17,17 +19,48 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
     fullName: 'Priya Sharma',
     email: 'priya@example.com',
     mobile: '9876543210',
-    role: 'Bal Mitra',
-    block: 'rajgangpur',
-    cluster: 'cluster1',
-    panchayat: 'panchayat1',
+    role: 'balMitra',
+    block: 'Jharia',
+    cluster: 'Sijua-1',
+    panchayat: 'Sijua',
     villages: ['Haripur', 'Rampur', 'Lakshmipur']
   });
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Updating user:', formData);
-    onSuccess();
+    if (!userId) return;
+
+    try {
+      setLoading(true);
+      const response = await apiClient.updateUser(userId.toString(), {
+        name: formData.fullName,
+        email: formData.email,
+        mobile: formData.mobile,
+        role: formData.role,
+        block: formData.block,
+        cluster: formData.cluster,
+        panchayat: formData.panchayat
+      });
+
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "User updated successfully",
+        });
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVillageSelection = (village: string) => {
@@ -115,8 +148,8 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
                 <input
                   type="radio"
                   name="role"
-                  value="Admin"
-                  checked={formData.role === 'Admin'}
+                  value="admin"
+                  checked={formData.role === 'admin'}
                   onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                   className="text-primary"
                 />
@@ -126,8 +159,8 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
                 <input
                   type="radio"
                   name="role"
-                  value="Bal Mitra"
-                  checked={formData.role === 'Bal Mitra'}
+                  value="balMitra"
+                  checked={formData.role === 'balMitra'}
                   onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                   className="text-primary"
                 />
@@ -209,8 +242,8 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
 
           {/* Actions */}
           <div className="flex gap-4 pt-4">
-            <Button type="submit">
-              Update User Details
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Updating...' : 'Update User Details'}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel

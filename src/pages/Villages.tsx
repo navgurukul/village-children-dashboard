@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import VillagesHeader from '../components/villages/VillagesHeader';
 import VillagesSearchAndActions from '../components/villages/VillagesSearchAndActions';
@@ -7,8 +7,10 @@ import FilterChips from '../components/FilterChips';
 import VillagesTable from '../components/villages/VillagesTable';
 import VillagesCardList from '../components/villages/VillagesCardList';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { apiClient, Village as ApiVillage } from '../lib/api';
+import { useToast } from '@/hooks/use-toast';
 
-interface Village {
+interface VillageDisplayData {
   id: string;
   name: string;
   block: string;
@@ -33,80 +35,71 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   const [blockFilter, setBlockFilter] = useState('all');
   const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [villages, setVillages] = useState<ApiVillage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 20;
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
-  // Mock villages data with 5 villages
-  const villagesData: Village[] = [
-    {
-      id: '1',
-      name: 'Haripur',
-      block: 'Block C',
-      gramPanchayat: 'Gram Panchayat 1',
-      totalChildren: 245,
-      enrolled: 189,
-      dropout: 42,
-      neverEnrolled: 14,
-      assignedBalMitra: 'Ravi Kumar'
-    },
-    {
-      id: '2',
-      name: 'Rampur',
-      block: 'Block A',
-      gramPanchayat: 'Gram Panchayat 2',
-      totalChildren: 198,
-      enrolled: 156,
-      dropout: 28,
-      neverEnrolled: 14,
-      assignedBalMitra: 'Priya Sharma'
-    },
-    {
-      id: '3',
-      name: 'Lakshmipur',
-      block: 'Block B',
-      gramPanchayat: 'Gram Panchayat 1',
-      totalChildren: 167,
-      enrolled: 134,
-      dropout: 23,
-      neverEnrolled: 10,
-      assignedBalMitra: 'Amit Singh'
-    },
-    {
-      id: '4',
-      name: 'Govindpur',
-      block: 'Block C',
-      gramPanchayat: 'Gram Panchayat 3',
-      totalChildren: 213,
-      enrolled: 178,
-      dropout: 25,
-      neverEnrolled: 10,
-      assignedBalMitra: 'Sunita Devi'
-    },
-    {
-      id: '5',
-      name: 'Shantipur',
-      block: 'Block A',
-      gramPanchayat: 'Gram Panchayat 2',
-      totalChildren: 156,
-      enrolled: 125,
-      dropout: 21,
-      neverEnrolled: 10,
-      assignedBalMitra: 'Rajesh Kumar'
+  // Load villages from API
+  useEffect(() => {
+    loadVillages();
+  }, [currentPage, blockFilter, gramPanchayatFilter]);
+
+  const loadVillages = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.getVillages({
+        page: currentPage,
+        limit: itemsPerPage,
+        district: 'Dhanbad', // Default district
+        panchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined
+      });
+
+      if (response.success) {
+        setVillages(response.data.items);
+        setTotalCount(response.data.pagination.totalCount);
+      }
+    } catch (error) {
+      console.error('Error loading villages:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load villages",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  // Convert API villages to display format
+  const villageDisplayData: VillageDisplayData[] = useMemo(() => {
+    return villages.map(village => ({
+      id: village.id,
+      name: village.name,
+      block: village.block,
+      gramPanchayat: village.panchayat,
+      totalChildren: Math.floor(village.population * 0.15), // Rough estimate
+      enrolled: Math.floor(village.population * 0.12),
+      dropout: Math.floor(village.population * 0.02),
+      neverEnrolled: Math.floor(village.population * 0.01),
+      assignedBalMitra: 'Bal Mitra Name' // This would come from actual assignment data
+    }));
+  }, [villages]);
 
   // Get unique blocks and gram panchayats for filters
   const blocks = useMemo(() => {
-    return [...new Set(villagesData.map(village => village.block))];
-  }, []);
+    return [...new Set(villageDisplayData.map(village => village.block))];
+  }, [villageDisplayData]);
 
   const gramPanchayats = useMemo(() => {
-    return [...new Set(villagesData.map(village => village.gramPanchayat))];
-  }, []);
+    return [...new Set(villageDisplayData.map(village => village.gramPanchayat))];
+  }, [villageDisplayData]);
 
   // Filter data
   const filteredData = useMemo(() => {
-    return villagesData.filter(village => {
+    return villageDisplayData.filter(village => {
       const matchesSearch = searchTerm === '' || 
         village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         village.block.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -118,15 +111,9 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
 
       return matchesSearch && matchesBlock && matchesGramPanchayat;
     });
-  }, [searchTerm, blockFilter, gramPanchayatFilter]);
+  }, [villageDisplayData, searchTerm, blockFilter, gramPanchayatFilter]);
 
-  // Paginated data
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredData, currentPage]);
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'block') {
@@ -134,6 +121,28 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     } else if (filterId === 'gram panchayat') {
       setGramPanchayatFilter(value);
     }
+    setCurrentPage(1);
+  };
+
+  const handleDeleteVillage = async (villageId: string) => {
+    try {
+      const response = await apiClient.deleteVillage(villageId);
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Village deleted successfully",
+        });
+        loadVillages();
+      }
+    } catch (error) {
+      console.error('Error deleting village:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete village",
+        variant: "destructive",
+      });
+    }
+    onDeleteVillage(villageId);
   };
 
   const filterOptions = [
@@ -154,6 +163,18 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       ]
     }
   ];
+
+  if (loading && villages.length === 0) {
+    return (
+      <div className="p-6 bg-background min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading villages...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -180,15 +201,15 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             />
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} villages
+              Showing {filteredData.length} of {totalCount} villages
             </div>
 
             {/* Villages Card List */}
             <VillagesCardList
-              villages={paginatedData}
+              villages={filteredData}
               onVillageClick={onVillageClick}
               onEditVillage={onEditVillage}
-              onDeleteVillage={onDeleteVillage}
+              onDeleteVillage={handleDeleteVillage}
             />
           </div>
         ) : (
@@ -210,14 +231,14 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             />
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} villages
+              Showing {filteredData.length} of {totalCount} villages
             </div>
 
             <VillagesTable
-              villages={paginatedData}
+              villages={filteredData}
               onVillageClick={onVillageClick}
               onEditVillage={onEditVillage}
-              onDeleteVillage={onDeleteVillage}
+              onDeleteVillage={handleDeleteVillage}
             />
           </>
         )}
@@ -225,8 +246,8 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2">
             <Button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1 || loading}
               variant="outline"
             >
               Previous
@@ -235,8 +256,8 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               Page {currentPage} of {totalPages}
             </span>
             <Button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage === totalPages || loading}
               variant="outline"
             >
               Next
