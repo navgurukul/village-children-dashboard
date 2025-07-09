@@ -114,6 +114,58 @@ interface UpdateVillagePayload {
   population?: number;
 }
 
+interface DashboardOverview {
+  totalChildren: number;
+  enrolled: number;
+  dropout: number;
+  neverEnrolled: number;
+  enrollmentRate: number;
+  dropoutRate: number;
+  genderBreakdown: {
+    total: {
+      boys: number;
+      girls: number;
+      others: number;
+    };
+    enrolled: {
+      boys: number;
+      girls: number;
+    };
+    dropout: {
+      boys: number;
+      girls: number;
+    };
+    neverEnrolled: {
+      boys: number;
+      girls: number;
+    };
+  };
+  ageGroupBreakdown: {
+    [key: string]: {
+      total: number;
+      enrolled: number;
+      dropout: number;
+      neverEnrolled: number;
+    };
+  };
+  casteBreakdown: {
+    [key: string]: {
+      total: number;
+      enrolled: number;
+      dropout: number;
+      neverEnrolled: number;
+    };
+  };
+  vulnerableChildren: number;
+  childrenWithDisability: number;
+  recentSurveys: number;
+  timeRange: {
+    startDate: string;
+    endDate: string;
+    period: string;
+  };
+}
+
 class ApiClient {
   private token: string | null = null;
 
@@ -167,6 +219,25 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
+  }
+
+  async getDashboardOverview(params: {
+    period?: string;
+    block?: string;
+    panchayat?: string;
+    caste?: string;
+    hasDisability?: boolean;
+  } = {}): Promise<ApiResponse<DashboardOverview>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.period) searchParams.append('period', params.period);
+    if (params.block) searchParams.append('block', params.block);
+    if (params.panchayat) searchParams.append('panchayat', params.panchayat);
+    if (params.caste) searchParams.append('caste', params.caste);
+    if (params.hasDisability !== undefined) searchParams.append('hasDisability', params.hasDisability.toString());
+
+    const endpoint = `/dashboard/overview${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<DashboardOverview>(endpoint);
   }
 
   async getUsers(params: {
@@ -246,5 +317,6 @@ export type {
   Village,
   VillagesResponse,
   CreateVillagePayload,
-  UpdateVillagePayload
+  UpdateVillagePayload,
+  DashboardOverview
 };
