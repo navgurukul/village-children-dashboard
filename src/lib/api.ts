@@ -114,6 +114,26 @@ interface UpdateVillagePayload {
   population?: number;
 }
 
+interface UpdateChildPayload {
+  currentClass?: string;
+  attendanceStatus?: string;
+  age?: number;
+  name?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  block?: string;
+  village?: string;
+  fatherName?: string;
+  motherName?: string;
+  familyIncome?: string;
+  caste?: string;
+  medicalIssues?: string;
+  schoolStatus?: string;
+  school?: string;
+  dropoutReason?: string;
+  lastAttended?: string;
+}
+
 interface DashboardOverview {
   totalChildren: number;
   enrolled: number;
@@ -305,6 +325,19 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
+    return this.request<any>(`/children/${childId}`, {
+      method: 'PUT',
+      body: JSON.stringify(childData),
+    });
+  }
+
+  async deleteChild(childId: string): Promise<ApiResponse<void>> {
+    return this.request<void>(`/children/${childId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();
@@ -318,5 +351,6 @@ export type {
   VillagesResponse,
   CreateVillagePayload,
   UpdateVillagePayload,
+  UpdateChildPayload,
   DashboardOverview
 };

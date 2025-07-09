@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, User, School, Home, Heart } from 'lucide-react';
+import { apiClient } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface EditChildDetailsProps {
   childId: string | null;
@@ -15,6 +17,8 @@ interface EditChildDetailsProps {
 }
 
 const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false }: EditChildDetailsProps) => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     id: "1234567890123456",
     name: "Rahul Kumar",
@@ -34,10 +38,73 @@ const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false
     lastAttended: "2024-08-15"
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Updating child details:', formData);
-    onSuccess();
+    if (!childId) return;
+
+    setIsLoading(true);
+    try {
+      const updatePayload = {
+        name: formData.name,
+        age: parseInt(formData.age),
+        gender: formData.gender,
+        dateOfBirth: formData.dateOfBirth,
+        block: formData.block,
+        village: formData.village,
+        fatherName: formData.fatherName,
+        motherName: formData.motherName,
+        familyIncome: formData.familyIncome,
+        caste: formData.caste,
+        medicalIssues: formData.medicalIssues,
+        schoolStatus: formData.schoolStatus,
+        school: formData.school,
+        dropoutReason: formData.dropoutReason,
+        lastAttended: formData.lastAttended
+      };
+
+      await apiClient.updateChild(childId, updatePayload);
+      toast({
+        title: "Success",
+        description: "Child details updated successfully",
+      });
+      onSuccess();
+    } catch (error) {
+      console.error('Error updating child:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update child details. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!childId) return;
+    
+    if (!window.confirm('Are you sure you want to delete this child record? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await apiClient.deleteChild(childId);
+      toast({
+        title: "Success",
+        description: "Child record deleted successfully",
+      });
+      onSuccess();
+    } catch (error) {
+      console.error('Error deleting child:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete child record. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!childId) {
@@ -283,11 +350,14 @@ const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false
 
           {/* Actions */}
           <div className="flex justify-center gap-4 max-w-md mx-auto">
-            <Button type="button" variant="outline" onClick={onBack}>
+            <Button type="button" variant="outline" onClick={onBack} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit">
-              Update Child Details
+            <Button type="button" variant="destructive" onClick={handleDelete} disabled={isLoading}>
+              Delete Record
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Updating...' : 'Update Child Details'}
             </Button>
           </div>
         </form>
