@@ -184,8 +184,9 @@ const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="लड़का">लड़का</SelectItem>
+                    <SelectItem value="लड़की">लड़की</SelectItem>
+                    <SelectItem value="अन्य">अन्य</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
