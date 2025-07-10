@@ -130,6 +130,11 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     
     if (!shouldDelete) return;
 
+    toast({
+      title: "Deleting...",
+      description: "Please wait while we delete the village",
+    });
+
     try {
       const response = await apiClient.deleteVillage(villageId);
       if (response.success) {
