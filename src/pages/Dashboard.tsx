@@ -12,6 +12,7 @@ import TrendsChart from '../components/dashboard/TrendsChart';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { apiClient, DashboardOverview } from '../lib/api';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const Dashboard = () => {
   const [locationFilters, setLocationFilters] = useState({
@@ -69,95 +70,123 @@ const Dashboard = () => {
     fetchDashboardData();
   }, [locationFilters, recentSurveyDateRange]);
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     try {
-      const pdf = new jsPDF();
-      const pageWidth = pdf.internal.pageSize.width;
-      const margin = 20;
-      let currentY = margin;
-
-      // Helper function to add text with automatic line wrapping
-      const addText = (text: string, fontSize: number = 12, isBold: boolean = false) => {
-        pdf.setFontSize(fontSize);
-        if (isBold) {
-          pdf.setFont('helvetica', 'bold');
-        } else {
-          pdf.setFont('helvetica', 'normal');
-        }
-        
-        const textLines = pdf.splitTextToSize(text, pageWidth - 2 * margin);
-        pdf.text(textLines, margin, currentY);
-        currentY += (textLines.length * fontSize * 0.6) + 5;
-      };
-
-      // Title
-      addText('Village Children Register - Dashboard Report', 18, true);
-      currentY += 10;
-
-      // Export date and filters
-      const now = new Date();
-      addText(`Generated on: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`);
-      
-      // Applied filters
-      addText('Applied Filters:', 14, true);
-      addText(`Block: ${locationFilters.block === 'all' ? 'All Blocks' : locationFilters.block}`);
-      addText(`Gram Panchayat: ${locationFilters.gramPanchayat === 'all' ? 'All Gram Panchayats' : locationFilters.gramPanchayat}`);
-      addText(`Village: ${locationFilters.village === 'all' ? 'All Villages' : locationFilters.village}`);
-      addText(`Survey Period: ${recentSurveyDateRange.replace('days', ' days').replace('30', '30')}`);
-      currentY += 10;
-
-      // KPI Summary
-      addText('Key Performance Indicators', 16, true);
-      addText(`Total Children: ${kpiData.totalChildren}`);
-      addText(`Enrolled: ${kpiData.enrolled}`);
-      addText(`Dropout: ${kpiData.dropout}`);
-      addText(`Never Enrolled: ${kpiData.neverEnrolled}`);
-      currentY += 10;
-
-      // Recent Survey Findings
-      addText('Recent Survey Findings', 16, true);
-      recentSurveyFindings.forEach(finding => {
-        addText(`${finding.type}: ${finding.count} (${finding.breakdown})`);
-      });
-      currentY += 10;
-
-      // Long Dropout Period
-      addText('Children with Long Dropout Period', 16, true);
-      longDropoutData.forEach(dropout => {
-        addText(`${dropout.period}: ${dropout.count} children`);
+      // Show loading state
+      toast({
+        title: "Generating PDF",
+        description: "Capturing dashboard content...",
       });
 
-      // Check if we need a new page
-      if (currentY > pdf.internal.pageSize.height - 40) {
-        pdf.addPage();
-        currentY = margin;
+      // Find the dashboard content (excluding header with export button)
+      const dashboardContent = document.querySelector('.dashboard-content');
+      if (!dashboardContent) {
+        throw new Error('Dashboard content not found');
       }
 
-      // Trends Summary
-      currentY += 10;
-      addText('Trends Summary (Sample Data)', 16, true);
-      addText('Based on the selected time period, here are the key metrics:');
-      addText(`Average Enrolled: ${kpiData.enrolled}`);
-      addText(`Average Dropout: ${kpiData.dropout}`);
-      addText(`Average Never Enrolled: ${kpiData.neverEnrolled}`);
+      // Generate canvas from the dashboard content
+      const canvas = await html2canvas(dashboardContent as HTMLElement, {
+        height: dashboardContent.scrollHeight,
+        width: dashboardContent.scrollWidth,
+        scale: 2, // Higher quality
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          // Remove any animations or hover states from the cloned document
+          const clonedElement = clonedDoc.querySelector('.dashboard-content');
+          if (clonedElement) {
+            clonedElement.classList.add('print-mode');
+          }
+        }
+      });
 
-      // Footer
-      currentY = pdf.internal.pageSize.height - 30;
-      addText('This report was generated automatically from the Village Children Register system.', 10);
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Calculate dimensions to fit the image properly
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+
+      // Calculate scale to fit content while maintaining aspect ratio
+      const widthScale = pdfWidth / (canvasWidth * 0.264583); // Convert px to mm
+      const heightScale = pdfHeight / (canvasHeight * 0.264583);
+      const scale = Math.min(widthScale, heightScale, 1); // Don't scale up
+
+      const scaledWidth = (canvasWidth * 0.264583) * scale;
+      const scaledHeight = (canvasHeight * 0.264583) * scale;
+
+      // Center the image on the page
+      const xOffset = (pdfWidth - scaledWidth) / 2;
+      const yOffset = Math.max(10, (pdfHeight - scaledHeight) / 2); // Minimum 10mm from top
+
+      // Add header with title and timestamp
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Village Children Register - Dashboard', pdfWidth / 2, 15, { align: 'center' });
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      const now = new Date();
+      pdf.text(`Generated on: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`, pdfWidth / 2, 25, { align: 'center' });
+
+      // Add the dashboard image
+      const imgData = canvas.toDataURL('image/png');
+      
+      if (scaledHeight > pdfHeight - 40) {
+        // If content is too tall, we might need multiple pages
+        let currentY = 35;
+        const maxHeightPerPage = pdfHeight - 50;
+        let remainingHeight = scaledHeight;
+        let sourceY = 0;
+        
+        while (remainingHeight > 0) {
+          const heightForThisPage = Math.min(remainingHeight, maxHeightPerPage);
+          const sourceHeight = (heightForThisPage / scale) / 0.264583;
+          
+          // Create a cropped canvas for this page
+          const tempCanvas = document.createElement('canvas');
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCanvas.width = canvasWidth;
+          tempCanvas.height = sourceHeight;
+          
+          if (tempCtx) {
+            tempCtx.drawImage(canvas, 0, sourceY, canvasWidth, sourceHeight, 0, 0, canvasWidth, sourceHeight);
+            const tempImgData = tempCanvas.toDataURL('image/png');
+            pdf.addImage(tempImgData, 'PNG', xOffset, currentY, scaledWidth, heightForThisPage);
+          }
+          
+          sourceY += sourceHeight;
+          remainingHeight -= heightForThisPage;
+          
+          if (remainingHeight > 0) {
+            pdf.addPage();
+            currentY = 10;
+          }
+        }
+      } else {
+        // Content fits on one page
+        pdf.addImage(imgData, 'PNG', xOffset, 35, scaledWidth, scaledHeight);
+      }
 
       // Download the PDF
-      const fileName = `VCR_Dashboard_Report_${now.toISOString().split('T')[0]}.pdf`;
+      const fileName = `VCR_Dashboard_${now.toISOString().split('T')[0]}.pdf`;
       pdf.save(fileName);
 
       toast({
         title: "Success",
-        description: "Dashboard report exported successfully",
+        description: "Dashboard exported successfully as PDF",
       });
     } catch (error) {
       console.error('Error exporting PDF:', error);
       toast({
         title: "Error",
-        description: "Failed to export dashboard report",
+        description: "Failed to export dashboard. Please try again.",
         variant: "destructive",
       });
     }
@@ -284,38 +313,41 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Location Filters */}
-        {isMobile ? (
-          <FilterChips
-            filters={filterOptions}
-            onFilterChange={handleFilterChange}
-          />
-        ) : (
-          <LocationFilters 
-            filters={locationFilters} 
-            onFiltersChange={setLocationFilters} 
-          />
-        )}
+        {/* Dashboard Content for PDF Export */}
+        <div className="dashboard-content space-y-6">
+          {/* Location Filters */}
+          {isMobile ? (
+            <FilterChips
+              filters={filterOptions}
+              onFilterChange={handleFilterChange}
+            />
+          ) : (
+            <LocationFilters 
+              filters={locationFilters} 
+              onFiltersChange={setLocationFilters} 
+            />
+          )}
 
-        {/* Row 1: KPI Cards */}
-        <KPICards data={kpiData} />
+          {/* Row 1: KPI Cards */}
+          <KPICards data={kpiData} />
 
-        {/* Row 2: Key Insights - Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <RecentSurveyFindings 
-            findings={recentSurveyFindings}
-            dateRange={recentSurveyDateRange}
-            onDateRangeChange={setRecentSurveyDateRange}
+          {/* Row 2: Key Insights - Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <RecentSurveyFindings 
+              findings={recentSurveyFindings}
+              dateRange={recentSurveyDateRange}
+              onDateRangeChange={setRecentSurveyDateRange}
+            />
+            <LongDropoutPeriod data={longDropoutData} />
+          </div>
+
+          {/* Row 3: Overall Trend Chart */}
+          <TrendsChart 
+            data={trendsData}
+            dateRange={trendsDateRange}
+            onDateRangeChange={setTrendsDateRange}
           />
-          <LongDropoutPeriod data={longDropoutData} />
         </div>
-
-        {/* Row 3: Overall Trend Chart */}
-        <TrendsChart 
-          data={trendsData}
-          dateRange={trendsDateRange}
-          onDateRangeChange={setTrendsDateRange}
-        />
       </div>
     </div>
   );
