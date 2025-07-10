@@ -30,7 +30,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedVillageId, setSelectedVillageId] = useState<string | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
   const isMobile = useIsMobile();

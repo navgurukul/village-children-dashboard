@@ -1,32 +1,74 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
-import { apiClient } from '../lib/api';
+import { apiClient, User } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditUserProps {
-  userId: number | null;
+  userId: string | null;
   onCancel: () => void;
   onSuccess: () => void;
 }
 
 const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
   const [formData, setFormData] = useState({
-    fullName: 'Priya Sharma',
-    email: 'priya@example.com',
-    mobile: '9876543210',
-    role: 'balMitra',
-    block: 'Jharia',
-    cluster: 'Sijua-1',
-    panchayat: 'Sijua',
-    villages: ['Haripur', 'Rampur', 'Lakshmipur']
+    fullName: '',
+    email: '',
+    mobile: '',
+    role: '',
+    block: '',
+    cluster: '',
+    panchayat: '',
+    villages: [] as string[]
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [userData, setUserData] = useState<User | null>(null);
   const { toast } = useToast();
+
+  // Fetch user data when component mounts
+  useEffect(() => {
+    if (userId) {
+      fetchUserData();
+    }
+  }, [userId]);
+
+  const fetchUserData = async () => {
+    if (!userId) return;
+    
+    try {
+      setInitialLoading(true);
+      const response = await apiClient.getUserById(userId);
+      
+      if (response.success) {
+        const user = response.data;
+        setUserData(user);
+        setFormData({
+          fullName: user.name || '',
+          email: user.email || '',
+          mobile: user.mobile || '',
+          role: user.role || '',
+          block: user.block || '',
+          cluster: user.cluster || '',
+          panchayat: user.panchayat || '',
+          villages: [] // Villages will need to be fetched separately if needed
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load user data",
+        variant: "destructive",
+      });
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +76,7 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
 
     try {
       setLoading(true);
-      const response = await apiClient.updateUser(userId.toString(), {
+      const response = await apiClient.updateUser(userId, {
         name: formData.fullName,
         email: formData.email,
         mobile: formData.mobile,
@@ -79,6 +121,16 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-2xl mx-auto">
           <p className="text-muted-foreground">No user selected</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (initialLoading) {
+    return (
+      <div className="p-6 bg-background min-h-screen">
+        <div className="max-w-2xl mx-auto">
+          <p className="text-muted-foreground">Loading user data...</p>
         </div>
       </div>
     );
@@ -170,32 +222,34 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
           </div>
 
           {/* Conditional Bal Mitra Fields */}
-          {formData.role === 'Bal Mitra' && (
+          {formData.role === 'balMitra' && (
             <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/20">
               <h3 className="font-medium text-foreground">Village Assignment</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="block">Block *</Label>
+                  <Label htmlFor="block">Block</Label>
                   <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Block" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="Jharia">Jharia</SelectItem>
+                      <SelectItem value="Rajgangpur">Rajgangpur</SelectItem>
                       <SelectItem value="block1">Block 1</SelectItem>
                       <SelectItem value="block2">Block 2</SelectItem>
-                      <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cluster">Cluster *</Label>
+                  <Label htmlFor="cluster">Cluster</Label>
                   <Select value={formData.cluster} onValueChange={(value) => setFormData(prev => ({ ...prev, cluster: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Cluster" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="Sijua-1">Sijua-1</SelectItem>
                       <SelectItem value="cluster1">Cluster 1</SelectItem>
                       <SelectItem value="cluster2">Cluster 2</SelectItem>
                     </SelectContent>
@@ -203,12 +257,13 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="panchayat">Panchayat *</Label>
+                  <Label htmlFor="panchayat">Panchayat</Label>
                   <Select value={formData.panchayat} onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Panchayat" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="Sijua">Sijua</SelectItem>
                       <SelectItem value="panchayat1">Panchayat 1</SelectItem>
                       <SelectItem value="panchayat2">Panchayat 2</SelectItem>
                     </SelectContent>
