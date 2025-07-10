@@ -209,7 +209,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               villages={filteredData}
               onVillageClick={onVillageClick}
               onEditVillage={(villageId) => {
-                const village = filteredData.find(v => v.id === villageId);
+                const village = villages.find(v => v.id === villageId);
                 if (village) onEditVillage(village);
               }}
               onDeleteVillage={handleDeleteVillage}
@@ -241,7 +241,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               villages={filteredData}
               onVillageClick={onVillageClick}
               onEditVillage={(villageId) => {
-                const village = filteredData.find(v => v.id === villageId);
+                const village = villages.find(v => v.id === villageId);
                 if (village) onEditVillage(village);
               }}
               onDeleteVillage={handleDeleteVillage}

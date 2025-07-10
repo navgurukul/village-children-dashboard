@@ -31,11 +31,11 @@ const EditVillage = ({ village, onCancel, onSuccess }: EditVillageProps) => {
     if (village) {
       setFormData({
         villageName: village.name || '',
-        district: 'Dhanbad',
-        state: 'Jharkhand',
+        district: village.district || 'Dhanbad',
+        state: village.state || 'Jharkhand',
         block: village.block || '',
-        panchayat: village.gramPanchayat || '',
-        population: String(village.totalChildren * 6.67) || ''
+        panchayat: village.panchayat || '',
+        population: String(village.population || '')
       });
       setLoadingData(false);
     }
