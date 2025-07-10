@@ -79,8 +79,27 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleDeleteUser = (userId: string) => {
-    console.log('Delete user:', userId);
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await apiClient.deleteUser(userId);
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+      // Refresh the user list after deletion
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCopyLoginDetails = (username: string, mobile: string) => {
