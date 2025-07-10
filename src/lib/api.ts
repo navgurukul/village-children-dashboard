@@ -99,7 +99,6 @@ interface CreateVillagePayload {
   district: string;
   panchayat: string;
   block: string;
-  cluster: string;
   state: string;
   population: number;
 }

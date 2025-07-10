@@ -19,7 +19,6 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
     district: 'Dhanbad',
     state: 'Jharkhand',
     block: '',
-    cluster: '',
     panchayat: '',
     population: ''
   });
@@ -32,7 +31,7 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
     console.log('Form submitted with data:', formData);
     
     // Check if required fields are filled
-    if (!formData.villageName || !formData.block || !formData.cluster || !formData.panchayat) {
+    if (!formData.villageName || !formData.block || !formData.panchayat) {
       toast({
         title: "Validation Error",
         description: "Please fill all required fields",
@@ -48,7 +47,6 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
         district: formData.district,
         state: formData.state,
         block: formData.block,
-        cluster: formData.cluster,
         panchayat: formData.panchayat,
         population: parseInt(formData.population) || 0
       });
@@ -58,7 +56,6 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
         district: formData.district,
         state: formData.state,
         block: formData.block,
-        cluster: formData.cluster,
         panchayat: formData.panchayat,
         population: parseInt(formData.population) || 0
       });
@@ -117,7 +114,7 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="block" className="font-bold">Block *</Label>
-            <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value, cluster: '', panchayat: '' }))}>
+            <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value, panchayat: '' }))}>
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
@@ -130,29 +127,11 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cluster" className="font-bold">Cluster *</Label>
-            <Select 
-              value={formData.cluster} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, cluster: value, panchayat: '' }))}
-              disabled={!formData.block}
-            >
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Cluster" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cluster1">Cluster 1</SelectItem>
-                <SelectItem value="cluster2">Cluster 2</SelectItem>
-                <SelectItem value="cluster3">Cluster 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="panchayat" className="font-bold">Panchayat *</Label>
             <Select 
               value={formData.panchayat} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}
-              disabled={!formData.cluster}
+              disabled={!formData.block}
             >
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Panchayat" />

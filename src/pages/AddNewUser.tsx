@@ -20,9 +20,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
     mobile: '',
     role: '',
     block: '',
-    cluster: '',
-    panchayat: '',
-    villages: [] as string[]
+    panchayat: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -39,7 +37,6 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
         role: formData.role,
         ...(formData.role === 'balMitra' && {
           block: formData.block,
-          cluster: formData.cluster,
           panchayat: formData.panchayat,
         }),
       };
@@ -66,16 +63,6 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
     }
   };
 
-  const handleVillageSelection = (village: string) => {
-    setFormData(prev => ({
-      ...prev,
-      villages: prev.villages.includes(village)
-        ? prev.villages.filter(v => v !== village)
-        : [...prev.villages, village]
-    }));
-  };
-
-  const mockVillages = ['Haripur', 'Rampur', 'Lakshmipur', 'Govindpur', 'Shantipur', 'Village A', 'Village B'];
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -170,7 +157,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
             <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/20">
               <h3 className="font-medium text-foreground">Village Assignment</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="block" className="font-bold">Block *</Label>
                   <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value }))}>
@@ -181,19 +168,6 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                       <SelectItem value="block1">Block 1</SelectItem>
                       <SelectItem value="block2">Block 2</SelectItem>
                       <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cluster" className="font-bold">Cluster *</Label>
-                  <Select value={formData.cluster} onValueChange={(value) => setFormData(prev => ({ ...prev, cluster: value }))}>
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Select Cluster" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cluster1">Cluster 1</SelectItem>
-                      <SelectItem value="cluster2">Cluster 2</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -210,28 +184,6 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="font-bold">Villages (Multi-select) *</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border border-border rounded-lg p-3 bg-white">
-                  {mockVillages.map((village) => (
-                    <label key={village} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={formData.villages.includes(village)}
-                        onChange={() => handleVillageSelection(village)}
-                        className="text-primary"
-                      />
-                      <span>{village}</span>
-                    </label>
-                  ))}
-                </div>
-                {formData.villages.length > 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    Selected: {formData.villages.join(', ')}
-                  </p>
-                )}
               </div>
             </div>
           )}
