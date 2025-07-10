@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface Child {
   id: string;
@@ -31,8 +30,6 @@ interface ChildrenCardListProps {
 
 const ChildrenCardList = ({ data, onChildClick, onEditChild, onDeleteChild }: ChildrenCardListProps) => {
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [childToDelete, setChildToDelete] = useState<string | null>(null);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -43,19 +40,6 @@ const ChildrenCardList = ({ data, onChildClick, onEditChild, onDeleteChild }: Ch
     }
   };
 
-  const handleDeleteClick = (childId: string) => {
-    setChildToDelete(childId);
-    setDeleteDialogOpen(true);
-    setActiveSheet(null);
-  };
-
-  const confirmDelete = () => {
-    if (childToDelete) {
-      onDeleteChild(childToDelete);
-      setChildToDelete(null);
-    }
-    setDeleteDialogOpen(false);
-  };
 
   return (
     <>
@@ -116,7 +100,10 @@ const ChildrenCardList = ({ data, onChildClick, onEditChild, onDeleteChild }: Ch
                     <Button
                       variant="ghost"
                       className="justify-start gap-2 h-12 text-destructive"
-                      onClick={() => handleDeleteClick(child.id)}
+                      onClick={() => {
+                        onDeleteChild(child.id);
+                        setActiveSheet(null);
+                      }}
                     >
                       <Trash2 className="h-4 w-4" />
                       Delete Child
@@ -129,23 +116,6 @@ const ChildrenCardList = ({ data, onChildClick, onEditChild, onDeleteChild }: Ch
           </div>
         ))}
       </div>
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Child Record</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this child record? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };
