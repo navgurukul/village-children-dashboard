@@ -37,8 +37,10 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
 
       const response = await apiClient.getChildren(params);
-      setApiChildren(response.data.items);
-      setTotalCount(response.data.pagination.totalCount);
+      // Filter out deleted children
+      const activeChildren = response.data.items.filter(child => !child.isDeleted);
+      setApiChildren(activeChildren);
+      setTotalCount(activeChildren.length);
     } catch (error) {
       console.error('Error fetching children:', error);
       toast({
