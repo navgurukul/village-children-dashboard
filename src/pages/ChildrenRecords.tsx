@@ -1,8 +1,10 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { mockStudentData } from '../data/mockData';
 import ChildrenRecordsHeader from '../components/children-records/ChildrenRecordsHeader';
 import ChildrenRecordsContent from '../components/children-records/ChildrenRecordsContent';
+import { apiClient, Child } from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string) => void;
@@ -10,44 +12,72 @@ interface ChildrenRecordsProps {
 }
 
 const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [blockFilter, setBlockFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [apiChildren, setApiChildren] = useState<Child[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 20;
 
-  // Get unique blocks for filter
+  // Fetch children data from API
+  const fetchChildren = async () => {
+    setLoading(true);
+    try {
+      const params: any = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+
+      if (blockFilter !== 'all') params.block = blockFilter;
+      if (statusFilter !== 'all') params.educationStatus = statusFilter;
+
+      const response = await apiClient.getChildren(params);
+      setApiChildren(response.data.items);
+      setTotalCount(response.data.pagination.totalCount);
+    } catch (error) {
+      console.error('Error fetching children:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch children data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchChildren();
+  }, [currentPage, blockFilter, statusFilter]);
+
+  // Get unique blocks for filter from API data
   const blocks = useMemo(() => {
-    return [...new Set(mockStudentData.map(student => student.block))];
-  }, []);
+    return [...new Set(apiChildren.map(child => child.block))];
+  }, [apiChildren]);
 
-  // Transform mockStudentData to match Child interface with populated school names
+  // Transform API data to match expected interface for components
   const childrenData = useMemo(() => {
-    const schools = [
-      'Primary School Haripur',
-      'Government High School',
-      'Anganwadi Center 1',
-      'Anganwadi Center 2',
-      'St. Mary\'s School',
-      'Government Primary School'
-    ];
-    
-    return mockStudentData.map((student, index) => ({
-      id: student.id,
-      name: student.name,
-      age: student.age,
-      gender: student.gender,
-      village: student.village,
-      aadhaar: 'N/A', // Not available in StudentData
-      schoolName: student.school || schools[index % schools.length],
-      schoolStatus: student.schoolStatus,
-      block: student.block,
-      gramPanchayat: student.panchayat || 'N/A'
+    return apiChildren.map(child => ({
+      id: child.id,
+      name: child.fullName,
+      age: child.age,
+      gender: child.gender,
+      village: child.para,
+      aadhaar: child.aadhaarNumber,
+      schoolName: child.schoolName,
+      schoolStatus: child.educationStatus,
+      block: child.block,
+      gramPanchayat: child.panchayat
     }));
-  }, []);
+  }, [apiChildren]);
 
-  // Filter data
+  // Filter data (client-side filtering for search)
   const filteredData = useMemo(() => {
+    if (!searchTerm) return childrenData;
+    
     return childrenData.filter(child => {
       const matchesSearch = searchTerm === '' || 
         child.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,18 +85,12 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         child.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
         child.block.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesBlock = blockFilter === 'all' || child.block === blockFilter;
-      const matchesStatus = statusFilter === 'all' || child.schoolStatus === statusFilter;
-
-      return matchesSearch && matchesBlock && matchesStatus;
+      return matchesSearch;
     });
-  }, [childrenData, searchTerm, blockFilter, statusFilter]);
+  }, [childrenData, searchTerm]);
 
-  // Paginated data
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredData, currentPage]);
+  // Use API data directly for pagination
+  const paginatedData = filteredData;
 
   const handleExportCSV = () => {
     console.log('Exporting CSV...');
@@ -76,8 +100,27 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     console.log('Exporting PDF...');
   };
 
-  const handleDeleteChild = (childId: string) => {
-    console.log('Deleting child:', childId);
+  const handleDeleteChild = async (childId: string) => {
+    if (!window.confirm('Are you sure you want to delete this child record? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await apiClient.deleteChild(childId);
+      toast({
+        title: "Success",
+        description: "Child record deleted successfully",
+      });
+      // Refresh the data after deletion
+      fetchChildren();
+    } catch (error) {
+      console.error('Error deleting child:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete child record. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFilterChange = (filterId: string, value: string) => {

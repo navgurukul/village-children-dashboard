@@ -114,11 +114,63 @@ interface UpdateVillagePayload {
   population?: number;
 }
 
+interface Child {
+  id: string;
+  fullName: string;
+  age: number;
+  gender: string;
+  block: string;
+  panchayat: string;
+  cluster: string;
+  para: string;
+  villageId: string;
+  motherName: string;
+  fatherName: string;
+  currentClass: string;
+  educationStatus: string;
+  schoolName: string;
+  attendanceStatus: string;
+  aadhaarNumber: string;
+  caste: string;
+  ageGroup: string;
+  familyOccupation: string;
+  motherTongue: string;
+  schoolPara: string;
+  fatherEducated: boolean;
+  motherEducated: boolean;
+  hasAadhaar: boolean;
+  hasCasteCertificate: boolean;
+  hasResidenceCertificate: boolean;
+  hasDisability: boolean;
+  isVulnerable: boolean;
+  goesToSchool: boolean;
+  parentsStatus: string;
+  livesWithWhom: string;
+  surveyedBy: string;
+  surveyedAt: string;
+  surveyVersion: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  searchText: string;
+}
+
+interface ChildrenResponse {
+  items: Child[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    hasMore: boolean;
+    queryTimeMs?: number;
+  };
+}
+
 interface UpdateChildPayload {
   currentClass?: string;
   attendanceStatus?: string;
   age?: number;
-  name?: string;
+  fullName?: string;
   gender?: string;
   dateOfBirth?: string;
   block?: string;
@@ -128,8 +180,8 @@ interface UpdateChildPayload {
   familyIncome?: string;
   caste?: string;
   medicalIssues?: string;
-  schoolStatus?: string;
-  school?: string;
+  educationStatus?: string;
+  schoolName?: string;
   dropoutReason?: string;
   lastAttended?: string;
 }
@@ -289,6 +341,41 @@ class ApiClient {
     });
   }
 
+  async deleteUser(userId: string): Promise<ApiResponse<void>> {
+    return this.request<void>(`/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getChildren(params: {
+    block?: string;
+    panchayat?: string;
+    cluster?: string;
+    villageId?: string;
+    surveyedBy?: string;
+    educationStatus?: string;
+    gender?: string;
+    caste?: string;
+    page?: number;
+    limit?: number;
+  } = {}): Promise<ApiResponse<ChildrenResponse>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.block) searchParams.append('block', params.block);
+    if (params.panchayat) searchParams.append('panchayat', params.panchayat);
+    if (params.cluster) searchParams.append('cluster', params.cluster);
+    if (params.villageId) searchParams.append('villageId', params.villageId);
+    if (params.surveyedBy) searchParams.append('surveyedBy', params.surveyedBy);
+    if (params.educationStatus) searchParams.append('educationStatus', params.educationStatus);
+    if (params.gender) searchParams.append('gender', params.gender);
+    if (params.caste) searchParams.append('caste', params.caste);
+    if (params.page) searchParams.append('page', params.page.toString());
+    if (params.limit) searchParams.append('limit', params.limit.toString());
+
+    const endpoint = `/children${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<ChildrenResponse>(endpoint);
+  }
+
   async getVillages(params: {
     district?: string;
     panchayat?: string;
@@ -351,6 +438,8 @@ export type {
   VillagesResponse,
   CreateVillagePayload,
   UpdateVillagePayload,
+  Child,
+  ChildrenResponse,
   UpdateChildPayload,
   DashboardOverview
 };
