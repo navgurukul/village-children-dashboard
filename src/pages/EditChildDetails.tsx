@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ArrowLeft, User, School, Home, Heart } from 'lucide-react';
 import { apiClient } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,7 @@ interface EditChildDetailsProps {
 const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false }: EditChildDetailsProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     id: "1234567890123456",
     name: "Rahul Kumar",
@@ -80,12 +82,12 @@ const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
     if (!childId) return;
-    
-    if (!window.confirm('Are you sure you want to delete this child record? This action cannot be undone.')) {
-      return;
-    }
 
     setIsLoading(true);
     try {
@@ -104,6 +106,7 @@ const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false
       });
     } finally {
       setIsLoading(false);
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -362,6 +365,27 @@ const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false
           </div>
         </form>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Child Record</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this child record? This action cannot be undone and will permanently remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

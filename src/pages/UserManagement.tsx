@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Edit, Trash2, Copy, Plus, Upload, Search } from 'lucide-react';
 import FilterChips from '../components/FilterChips';
 import UsersCardList from '../components/users/UsersCardList';
@@ -26,6 +27,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const itemsPerPage = 20;
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -79,18 +82,20 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
+  const handleDeleteUser = (userId: string) => {
+    setUserToDelete(userId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
 
     try {
-      await apiClient.deleteUser(userId);
+      await apiClient.deleteUser(userToDelete);
       toast({
         title: "Success",
         description: "User deleted successfully",
       });
-      // Refresh the user list after deletion
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -99,6 +104,9 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
         description: "Failed to delete user. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setUserToDelete(null);
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -342,6 +350,27 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this user? This action cannot be undone and will permanently remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteUser}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete User
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

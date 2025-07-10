@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { mockStudentData } from '../data/mockData';
 import ChildrenRecordsHeader from '../components/children-records/ChildrenRecordsHeader';
 import ChildrenRecordsContent from '../components/children-records/ChildrenRecordsContent';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 
@@ -20,6 +21,8 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [apiChildren, setApiChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [childToDelete, setChildToDelete] = useState<string | null>(null);
   const itemsPerPage = 20;
 
   // Fetch children data from API
@@ -100,18 +103,20 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     console.log('Exporting PDF...');
   };
 
-  const handleDeleteChild = async (childId: string) => {
-    if (!window.confirm('Are you sure you want to delete this child record? This action cannot be undone.')) {
-      return;
-    }
+  const handleDeleteChild = (childId: string) => {
+    setChildToDelete(childId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteChild = async () => {
+    if (!childToDelete) return;
 
     try {
-      await apiClient.deleteChild(childId);
+      await apiClient.deleteChild(childToDelete);
       toast({
         title: "Success",
         description: "Child record deleted successfully",
       });
-      // Refresh the data after deletion
       fetchChildren();
     } catch (error) {
       console.error('Error deleting child:', error);
@@ -120,6 +125,9 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         description: "Failed to delete child record. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setChildToDelete(null);
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -178,6 +186,27 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           filterOptions={filterOptions}
         />
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Child Record</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this child record? This action cannot be undone and will permanently remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteChild}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
