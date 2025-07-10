@@ -8,7 +8,7 @@ import { useToast } from '../hooks/use-toast';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string) => void;
-  onEditChild?: (childId: string) => void;
+  onEditChild?: (childId: string, childData?: any) => void;
 }
 
 const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) => {
@@ -141,6 +141,14 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     }
   };
 
+  const handleEditChild = (childId: string) => {
+    // Find the child data from apiChildren (original API data)
+    const childData = apiChildren.find(child => child.id === childId);
+    if (onEditChild) {
+      onEditChild(childId, childData);
+    }
+  };
+
   const filterOptions = [
     {
       label: 'Block',
@@ -180,7 +188,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           onChildClick={onChildClick}
-          onEditChild={onEditChild}
+          onEditChild={handleEditChild}
           onDeleteChild={handleDeleteChild}
           handleExportCSV={handleExportCSV}
           handleExportPDF={handleExportPDF}

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,35 +10,81 @@ import { ArrowLeft, User, School, Home, Heart } from 'lucide-react';
 import { apiClient } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
+interface Child {
+  id: string;
+  fullName: string;
+  age: number;
+  gender: string;
+  block: string;
+  panchayat: string;
+  para: string;
+  motherName: string;
+  fatherName: string;
+  educationStatus: string;
+  schoolName: string;
+  aadhaarNumber: string;
+  caste: string;
+}
+
 interface EditChildDetailsProps {
   childId: string | null;
+  childData?: Child | null;
   onBack: () => void;
   onSuccess: () => void;
   fromChildDetails?: boolean;
 }
 
-const EditChildDetails = ({ childId, onBack, onSuccess, fromChildDetails = false }: EditChildDetailsProps) => {
+const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDetails = false }: EditChildDetailsProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    id: "1234567890123456",
-    name: "Rahul Kumar",
-    age: "12",
-    gender: "Male",
-    dateOfBirth: "2012-03-15",
-    block: "Rajgangpur",
-    village: "Haripur",
-    fatherName: "Ramesh Kumar",
-    motherName: "Sunita Devi",
-    familyIncome: "₹50,000 - ₹1,00,000",
-    caste: "OBC",
-    medicalIssues: "None",
-    schoolStatus: "Dropout",
-    school: "Government Primary School, Haripur",
-    dropoutReason: "Family financial issues and need to work for family income",
-    lastAttended: "2024-08-15"
+    id: "",
+    name: "",
+    age: "",
+    gender: "",
+    dateOfBirth: "",
+    block: "",
+    village: "",
+    fatherName: "",
+    motherName: "",
+    familyIncome: "",
+    caste: "",
+    medicalIssues: "",
+    schoolStatus: "",
+    school: "",
+    dropoutReason: "",
+    lastAttended: ""
   });
+
+  // Show loading initially since we don't have child data
+  useEffect(() => {
+    if (childData) {
+      setFormData({
+        id: childData.aadhaarNumber || "",
+        name: childData.fullName || "",
+        age: childData.age?.toString() || "",
+        gender: childData.gender || "",
+        dateOfBirth: "", 
+        block: childData.block || "",
+        village: childData.para || "",
+        fatherName: childData.fatherName || "",
+        motherName: childData.motherName || "",
+        familyIncome: "", 
+        caste: childData.caste || "",
+        medicalIssues: "", 
+        schoolStatus: childData.educationStatus || "",
+        school: childData.schoolName || "",
+        dropoutReason: "", 
+        lastAttended: "" 
+      });
+      setIsLoadingData(false);
+    } else if (childId) {
+      // For now, show message that data will be populated from API in future
+      setIsLoadingData(false);
+    }
+  }, [childData, childId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

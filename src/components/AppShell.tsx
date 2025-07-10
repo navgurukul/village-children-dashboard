@@ -29,6 +29,7 @@ type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [selectedChildData, setSelectedChildData] = useState<any | null>(null);
   const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [selectedVillage, setSelectedVillage] = useState<any | null>(null);
@@ -65,6 +66,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     }
     if (page === 'edit-child-details' && data?.childId) {
       setSelectedChildId(data.childId);
+      setSelectedChildData(data?.childData || null);
       setEditChildFromDetails(data?.fromDetails || false);
     }
     if (page === 'bal-mitra-details' && data?.balMitraId) {
@@ -88,7 +90,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'children':
         return <ChildrenRecords 
           onChildClick={(childId) => handleNavigation('child-details', { childId })}
-          onEditChild={(childId) => handleNavigation('edit-child-details', { childId, fromDetails: false })}
+          onEditChild={(childId, childData) => handleNavigation('edit-child-details', { childId, childData, fromDetails: false })}
         />;
       case 'villages':
         return <Villages 
@@ -122,6 +124,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'edit-child-details':
         return <EditChildDetails 
           childId={selectedChildId} 
+          childData={selectedChildData}
           fromChildDetails={editChildFromDetails}
           onBack={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
           onSuccess={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
