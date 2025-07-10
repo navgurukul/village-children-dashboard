@@ -11,6 +11,7 @@ import LongDropoutPeriod from '../components/dashboard/LongDropoutPeriod';
 import TrendsChart from '../components/dashboard/TrendsChart';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { apiClient, DashboardOverview } from '../lib/api';
+import jsPDF from 'jspdf';
 
 const Dashboard = () => {
   const [locationFilters, setLocationFilters] = useState({
@@ -69,7 +70,97 @@ const Dashboard = () => {
   }, [locationFilters, recentSurveyDateRange]);
 
   const handleExportPDF = () => {
-    console.log('Exporting dashboard as PDF...');
+    try {
+      const pdf = new jsPDF();
+      const pageWidth = pdf.internal.pageSize.width;
+      const margin = 20;
+      let currentY = margin;
+
+      // Helper function to add text with automatic line wrapping
+      const addText = (text: string, fontSize: number = 12, isBold: boolean = false) => {
+        pdf.setFontSize(fontSize);
+        if (isBold) {
+          pdf.setFont('helvetica', 'bold');
+        } else {
+          pdf.setFont('helvetica', 'normal');
+        }
+        
+        const textLines = pdf.splitTextToSize(text, pageWidth - 2 * margin);
+        pdf.text(textLines, margin, currentY);
+        currentY += (textLines.length * fontSize * 0.6) + 5;
+      };
+
+      // Title
+      addText('Village Children Register - Dashboard Report', 18, true);
+      currentY += 10;
+
+      // Export date and filters
+      const now = new Date();
+      addText(`Generated on: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`);
+      
+      // Applied filters
+      addText('Applied Filters:', 14, true);
+      addText(`Block: ${locationFilters.block === 'all' ? 'All Blocks' : locationFilters.block}`);
+      addText(`Gram Panchayat: ${locationFilters.gramPanchayat === 'all' ? 'All Gram Panchayats' : locationFilters.gramPanchayat}`);
+      addText(`Village: ${locationFilters.village === 'all' ? 'All Villages' : locationFilters.village}`);
+      addText(`Survey Period: ${recentSurveyDateRange.replace('days', ' days').replace('30', '30')}`);
+      currentY += 10;
+
+      // KPI Summary
+      addText('Key Performance Indicators', 16, true);
+      addText(`Total Children: ${kpiData.totalChildren}`);
+      addText(`Enrolled: ${kpiData.enrolled}`);
+      addText(`Dropout: ${kpiData.dropout}`);
+      addText(`Never Enrolled: ${kpiData.neverEnrolled}`);
+      currentY += 10;
+
+      // Recent Survey Findings
+      addText('Recent Survey Findings', 16, true);
+      recentSurveyFindings.forEach(finding => {
+        addText(`${finding.type}: ${finding.count} (${finding.breakdown})`);
+      });
+      currentY += 10;
+
+      // Long Dropout Period
+      addText('Children with Long Dropout Period', 16, true);
+      longDropoutData.forEach(dropout => {
+        addText(`${dropout.period}: ${dropout.count} children`);
+      });
+
+      // Check if we need a new page
+      if (currentY > pdf.internal.pageSize.height - 40) {
+        pdf.addPage();
+        currentY = margin;
+      }
+
+      // Trends Summary
+      currentY += 10;
+      addText('Trends Summary (Sample Data)', 16, true);
+      addText('Based on the selected time period, here are the key metrics:');
+      addText(`Average Enrolled: ${kpiData.enrolled}`);
+      addText(`Average Dropout: ${kpiData.dropout}`);
+      addText(`Average Never Enrolled: ${kpiData.neverEnrolled}`);
+
+      // Footer
+      currentY = pdf.internal.pageSize.height - 30;
+      addText('This report was generated automatically from the Village Children Register system.', 10);
+
+      // Download the PDF
+      const fileName = `VCR_Dashboard_Report_${now.toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+      toast({
+        title: "Success",
+        description: "Dashboard report exported successfully",
+      });
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export dashboard report",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFilterChange = (filterId: string, value: string) => {
