@@ -1,6 +1,5 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { mockStudentData } from '../data/mockData';
 import ChildrenRecordsHeader from '../components/children-records/ChildrenRecordsHeader';
 import ChildrenRecordsContent from '../components/children-records/ChildrenRecordsContent';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -23,7 +22,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [totalCount, setTotalCount] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
-  const itemsPerPage = 20;
+  const itemsPerPage = 50;
 
   // Fetch children data from API
   const fetchChildren = async () => {
