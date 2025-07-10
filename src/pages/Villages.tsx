@@ -26,7 +26,7 @@ interface VillagesProps {
   onAddVillage: () => void;
   onBulkUpload: () => void;
   onVillageClick: (villageId: string) => void;
-  onEditVillage: (villageId: string) => void;
+  onEditVillage: (village: any) => void;
   onDeleteVillage: (villageId: string) => void;
 }
 
@@ -208,7 +208,10 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             <VillagesCardList
               villages={filteredData}
               onVillageClick={onVillageClick}
-              onEditVillage={onEditVillage}
+              onEditVillage={(villageId) => {
+                const village = filteredData.find(v => v.id === villageId);
+                if (village) onEditVillage(village);
+              }}
               onDeleteVillage={handleDeleteVillage}
             />
           </div>
@@ -237,7 +240,10 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             <VillagesTable
               villages={filteredData}
               onVillageClick={onVillageClick}
-              onEditVillage={onEditVillage}
+              onEditVillage={(villageId) => {
+                const village = filteredData.find(v => v.id === villageId);
+                if (village) onEditVillage(village);
+              }}
               onDeleteVillage={handleDeleteVillage}
             />
           </>

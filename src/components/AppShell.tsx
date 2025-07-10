@@ -31,7 +31,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
-  const [selectedVillageId, setSelectedVillageId] = useState<string | null>(null);
+  const [selectedVillage, setSelectedVillage] = useState<any | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
   const isMobile = useIsMobile();
 
@@ -74,10 +74,10 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       setSelectedUser(data.user);
     }
     if (page === 'village-profile' && data?.villageId) {
-      setSelectedVillageId(data.villageId);
+      setSelectedVillage({ id: data.villageId });
     }
-    if (page === 'edit-village' && data?.villageId) {
-      setSelectedVillageId(data.villageId);
+    if (page === 'edit-village' && data?.village) {
+      setSelectedVillage(data.village);
     }
   };
 
@@ -95,7 +95,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onAddVillage={() => handleNavigation('add-village')}
           onBulkUpload={() => handleNavigation('bulk-upload-villages')}
           onVillageClick={(villageId) => handleNavigation('village-profile', { villageId })}
-          onEditVillage={(villageId) => handleNavigation('edit-village', { villageId })}
+          onEditVillage={(village) => handleNavigation('edit-village', { village })}
           onDeleteVillage={(villageId) => console.log('Delete village:', villageId)}
         />;
       case 'users':
@@ -128,12 +128,12 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         />;
       case 'village-profile':
         return <VillageProfile 
-          villageId={selectedVillageId} 
+          villageId={selectedVillage?.id} 
           onBack={() => handleNavigation('villages')} 
         />;
       case 'edit-village':
         return <EditVillage 
-          villageId={selectedVillageId} 
+          village={selectedVillage} 
           onCancel={() => handleNavigation('villages')} 
           onSuccess={() => handleNavigation('villages')} 
         />;

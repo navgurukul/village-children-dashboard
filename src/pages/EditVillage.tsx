@@ -8,18 +8,17 @@ import { apiClient, Village } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditVillageProps {
-  villageId: string | null;
+  village: any | null;
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
+const EditVillage = ({ village, onCancel, onSuccess }: EditVillageProps) => {
   const [formData, setFormData] = useState({
     villageName: '',
     district: '',
     state: '',
     block: '',
-    cluster: '',
     panchayat: '',
     population: ''
   });
@@ -29,49 +28,30 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
 
   // Load village data when component mounts
   useEffect(() => {
-    if (villageId) {
-      loadVillageData();
-    }
-  }, [villageId]);
-
-  const loadVillageData = async () => {
-    try {
-      setLoadingData(true);
-      // Since we don't have a get single village endpoint, we'll use mock data
-      // In a real app, you'd have an endpoint like GET /villages/:id
+    if (village) {
       setFormData({
-        villageName: 'Haripur',
+        villageName: village.name || '',
         district: 'Dhanbad',
         state: 'Jharkhand',
-        block: 'Jharia',
-        cluster: 'Sijua-1',
-        panchayat: 'Sijua',
-        population: '2500'
+        block: village.block || '',
+        panchayat: village.gramPanchayat || '',
+        population: String(village.totalChildren * 6.67) || ''
       });
-    } catch (error) {
-      console.error('Error loading village data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load village data",
-        variant: "destructive",
-      });
-    } finally {
       setLoadingData(false);
     }
-  };
+  }, [village]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!villageId) return;
+    if (!village) return;
 
     try {
       setLoading(true);
-      const response = await apiClient.updateVillage(villageId, {
+      const response = await apiClient.updateVillage(village.id, {
         name: formData.villageName,
         district: formData.district,
         state: formData.state,
         block: formData.block,
-        cluster: formData.cluster,
         panchayat: formData.panchayat,
         population: parseInt(formData.population) || 0
       });
@@ -95,7 +75,7 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
     }
   };
 
-  if (!villageId) {
+  if (!village) {
     return (
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-2xl mx-auto">
@@ -148,7 +128,7 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="block">Block *</Label>
-            <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value, cluster: '', panchayat: '' }))}>
+            <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value, panchayat: '' }))}>
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
@@ -160,30 +140,13 @@ const EditVillage = ({ villageId, onCancel, onSuccess }: EditVillageProps) => {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cluster">Cluster *</Label>
-            <Select 
-              value={formData.cluster} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, cluster: value, panchayat: '' }))}
-              disabled={!formData.block}
-            >
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Cluster" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Sijua-1">Sijua-1</SelectItem>
-                <SelectItem value="Cluster 2">Cluster 2</SelectItem>
-                <SelectItem value="Cluster 3">Cluster 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="panchayat">Panchayat *</Label>
             <Select 
               value={formData.panchayat} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}
-              disabled={!formData.cluster}
+              disabled={!formData.block}
             >
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select Panchayat" />

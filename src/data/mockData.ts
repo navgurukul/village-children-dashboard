@@ -86,7 +86,5 @@ function generateMockStudent(id: number): StudentData {
   };
 }
 
-// Generate 500 mock students
-export const mockStudentData: StudentData[] = Array.from({ length: 500 }, (_, i) => 
-  generateMockStudent(i + 1)
-);
+// Generate 0 mock students - using real API data now
+export const mockStudentData: StudentData[] = [];
