@@ -9,12 +9,12 @@ import { apiClient, User } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditUserProps {
-  userId: string | null;
+  userData: User | null;
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
+const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -26,57 +26,31 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
     villages: [] as string[]
   });
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [userData, setUserData] = useState<User | null>(null);
   const { toast } = useToast();
 
-  // Fetch user data when component mounts
+  // Pre-populate form with user data when component mounts
   useEffect(() => {
-    if (userId) {
-      fetchUserData();
-    }
-  }, [userId]);
-
-  const fetchUserData = async () => {
-    if (!userId) return;
-    
-    try {
-      setInitialLoading(true);
-      const response = await apiClient.getUserById(userId);
-      
-      if (response.success) {
-        const user = response.data;
-        setUserData(user);
-        setFormData({
-          fullName: user.name || '',
-          email: user.email || '',
-          mobile: user.mobile || '',
-          role: user.role || '',
-          block: user.block || '',
-          cluster: user.cluster || '',
-          panchayat: user.panchayat || '',
-          villages: [] // Villages will need to be fetched separately if needed
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load user data",
-        variant: "destructive",
+    if (userData) {
+      setFormData({
+        fullName: userData.name || '',
+        email: userData.email || '',
+        mobile: userData.mobile || '',
+        role: userData.role || '',
+        block: userData.block || '',
+        cluster: userData.cluster || '',
+        panchayat: userData.panchayat || '',
+        villages: [] // Villages will need to be fetched separately if needed
       });
-    } finally {
-      setInitialLoading(false);
     }
-  };
+  }, [userData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) return;
+    if (!userData) return;
 
     try {
       setLoading(true);
-      const response = await apiClient.updateUser(userId, {
+      const response = await apiClient.updateUser(userData.id, {
         name: formData.fullName,
         email: formData.email,
         mobile: formData.mobile,
@@ -116,21 +90,11 @@ const EditUser = ({ userId, onCancel, onSuccess }: EditUserProps) => {
 
   const mockVillages = ['Haripur', 'Rampur', 'Lakshmipur', 'Govindpur', 'Shantipur', 'Village A', 'Village B'];
 
-  if (!userId) {
+  if (!userData) {
     return (
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-2xl mx-auto">
           <p className="text-muted-foreground">No user selected</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (initialLoading) {
-    return (
-      <div className="p-6 bg-background min-h-screen">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-muted-foreground">Loading user data...</p>
         </div>
       </div>
     );

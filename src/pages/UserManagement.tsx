@@ -17,7 +17,7 @@ interface UserManagementProps {
   onAddUser: () => void;
   onBulkUpload: () => void;
   onBalMitraClick: (balMitraId: string) => void;
-  onEditUser: (userId: string) => void;
+  onEditUser: (user: User) => void;
 }
 
 const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
@@ -299,7 +299,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                             className="h-8 w-8 p-0"
                             onClick={(e) => {
                               e.stopPropagation();
-                              onEditUser(user.id);
+                              onEditUser(user);
                             }}
                             title="Edit"
                           >

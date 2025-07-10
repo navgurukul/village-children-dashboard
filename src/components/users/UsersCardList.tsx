@@ -12,7 +12,7 @@ import { User } from '../../lib/api';
 interface UsersCardListProps {
   users: User[];
   onUserClick: (user: User) => void;
-  onEditUser: (userId: string) => void;
+  onEditUser: (user: User) => void;
   onDeleteUser: (userId: string) => void;
   onCopyLoginDetails: (username: string, mobile: string) => void;
 }
@@ -110,7 +110,7 @@ const UsersCardList = ({ users, onUserClick, onEditUser, onDeleteUser, onCopyLog
                       variant="ghost"
                       className="justify-start gap-2 h-12"
                       onClick={() => {
-                        onEditUser(user.id);
+                        onEditUser(user);
                         setActiveSheet(null);
                       }}
                     >

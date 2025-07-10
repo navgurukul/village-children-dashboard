@@ -30,7 +30,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [selectedVillageId, setSelectedVillageId] = useState<string | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
   const isMobile = useIsMobile();
@@ -70,8 +70,8 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     if (page === 'bal-mitra-details' && data?.balMitraId) {
       setSelectedBalMitraId(data.balMitraId);
     }
-    if (page === 'edit-user' && data?.userId) {
-      setSelectedUserId(data.userId);
+    if (page === 'edit-user' && data?.user) {
+      setSelectedUser(data.user);
     }
     if (page === 'village-profile' && data?.villageId) {
       setSelectedVillageId(data.villageId);
@@ -103,7 +103,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onAddUser={() => handleNavigation('add-user')}
           onBulkUpload={() => handleNavigation('bulk-upload')}
           onBalMitraClick={(balMitraId) => handleNavigation('bal-mitra-details', { balMitraId })}
-          onEditUser={(userId) => handleNavigation('edit-user', { userId })}
+          onEditUser={(user) => handleNavigation('edit-user', { user })}
         />;
       case 'add-user':
         return <AddNewUser onCancel={() => handleNavigation('users')} onSuccess={() => handleNavigation('users')} />;
@@ -141,7 +141,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <BalMitraDetails balMitraId={selectedBalMitraId} onBack={() => handleNavigation('users')} />;
       case 'edit-user':
         return <EditUser 
-          userId={selectedUserId} 
+          userData={selectedUser} 
           onCancel={() => handleNavigation('users')} 
           onSuccess={() => handleNavigation('users')} 
         />;

@@ -327,10 +327,6 @@ class ApiClient {
     return this.request<UsersResponse>(endpoint);
   }
 
-  async getUserById(userId: string): Promise<ApiResponse<User>> {
-    return this.request<User>(`/users/${userId}`);
-  }
-
   async createUser(userData: CreateUserPayload): Promise<ApiResponse<User>> {
     return this.request<User>('/users', {
       method: 'POST',
