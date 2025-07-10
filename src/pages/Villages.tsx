@@ -125,6 +125,11 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   };
 
   const handleDeleteVillage = async (villageId: string) => {
+    const village = villages.find(v => v.id === villageId);
+    const shouldDelete = window.confirm(`Are you sure you want to delete "${village?.name}"? This action cannot be undone.`);
+    
+    if (!shouldDelete) return;
+
     try {
       const response = await apiClient.deleteVillage(villageId);
       if (response.success) {
@@ -132,7 +137,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
           title: "Success",
           description: "Village deleted successfully",
         });
-        loadVillages();
+        await loadVillages(); // Reload the data
       }
     } catch (error) {
       console.error('Error deleting village:', error);
@@ -142,7 +147,6 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
         variant: "destructive",
       });
     }
-    onDeleteVillage(villageId);
   };
 
   const filterOptions = [
