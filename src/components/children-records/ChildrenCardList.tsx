@@ -15,6 +15,7 @@ interface Child {
   gender: string;
   village: string;
   aadhaar: string;
+  aadhaarNumber: string;
   schoolName: string;
   schoolStatus: string;
   block: string;
@@ -75,7 +76,7 @@ const ChildrenCardList = ({ data, onChildClick, onEditChild, onDeleteChild }: Ch
                 </div>
                 
                 <div className="text-sm text-muted-foreground">
-                  <div>Aadhaar: {child.aadhaar}</div>
+                  <div>Aadhaar: {child.aadhaarNumber}</div>
                   <div>School: {child.schoolName}</div>
                 </div>
               </div>

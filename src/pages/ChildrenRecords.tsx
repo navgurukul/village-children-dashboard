@@ -70,6 +70,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       gender: child.gender,
       village: child.para,
       aadhaar: child.aadhaarNumber,
+      aadhaarNumber: child.aadhaarNumber,
       schoolName: child.schoolName,
       schoolStatus: child.educationStatus,
       block: child.block,

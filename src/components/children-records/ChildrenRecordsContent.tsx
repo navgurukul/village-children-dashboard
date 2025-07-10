@@ -15,6 +15,7 @@ interface Child {
   gender: string;
   village: string;
   aadhaar: string;
+  aadhaarNumber: string;
   schoolName: string;
   schoolStatus: string;
   block: string;
