@@ -64,9 +64,6 @@ const Login = ({ onLogin, error, isLoading = false }: LoginProps) => {
               {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Demo credentials: admin / password
-          </div>
         </CardContent>
       </Card>
     </div>
