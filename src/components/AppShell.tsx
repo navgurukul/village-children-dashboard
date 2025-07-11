@@ -89,6 +89,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <Dashboard />;
       case 'children':
         return <ChildrenRecords 
+          key={`children-${Date.now()}`}
           onChildClick={(childId) => handleNavigation('child-details', { childId })}
           onEditChild={(childId, childData) => handleNavigation('edit-child-details', { childId, childData, fromDetails: false })}
         />;

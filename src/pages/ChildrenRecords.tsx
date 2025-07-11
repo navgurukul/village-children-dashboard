@@ -149,6 +149,11 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     }
   };
 
+  const handleEditSuccess = () => {
+    // Refresh the children data after successful edit
+    fetchChildren();
+  };
+
   const filterOptions = [
     {
       label: 'Block',
