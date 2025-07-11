@@ -38,6 +38,8 @@ interface User {
   loginAttempts: number;
   createdAt: string;
   updatedAt: string;
+  isDeleted?: boolean;
+  deletedAt?: string;
 }
 
 interface UsersResponse {

@@ -47,8 +47,10 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
       });
       
       if (response.success) {
-        setUsers(response.data.items);
-        setTotalCount(response.data.pagination.totalCount);
+        // Filter out deleted users
+        const activeUsers = response.data.items.filter(user => !user.isDeleted);
+        setUsers(activeUsers);
+        setTotalCount(activeUsers.length);
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
