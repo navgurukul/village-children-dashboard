@@ -95,6 +95,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         />;
       case 'villages':
         return <Villages 
+          key={`villages-${Date.now()}`}
           onAddVillage={() => handleNavigation('add-village')}
           onBulkUpload={() => handleNavigation('bulk-upload-villages')}
           onVillageClick={(villageId) => handleNavigation('village-profile', { villageId })}
