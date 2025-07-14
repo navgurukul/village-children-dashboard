@@ -427,6 +427,16 @@ class ApiClient {
     });
   }
 
+  async bulkUploadUsers(formData: FormData): Promise<ApiResponse<any>> {
+    return this.request<any>('/users/bulk-upload/balmitra', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Don't set Content-Type header, let browser set it with boundary
+      },
+    });
+  }
+
   async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
     return this.request<any>(`/children/${childId}`, {
       method: 'PUT',
