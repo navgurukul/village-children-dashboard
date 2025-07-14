@@ -414,6 +414,13 @@ class ApiClient {
     });
   }
 
+  async bulkUploadVillages(villages: CreateVillagePayload[]): Promise<ApiResponse<Village[]>> {
+    return this.request<Village[]>('/villages/bulk-upload', {
+      method: 'POST',
+      body: JSON.stringify(villages),
+    });
+  }
+
   async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
     return this.request<any>(`/children/${childId}`, {
       method: 'PUT',

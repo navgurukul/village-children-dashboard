@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Upload, Download, FileText, CheckCircle } from 'lucide-react';
+import { apiClient } from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 
 interface BulkUploadVillagesProps {
   onComplete: () => void;
@@ -13,6 +15,7 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
+  const { toast } = useToast();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -25,15 +28,57 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
     if (!file) return;
     
     setIsUploading(true);
-    // Simulate upload process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsUploading(false);
-    setUploadComplete(true);
     
-    // Auto-complete after 2 seconds
-    setTimeout(() => {
-      onComplete();
-    }, 2000);
+    try {
+      // Parse CSV file
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      const headers = lines[0].split(',').map(h => h.trim());
+      
+      // Convert CSV to village objects
+      const villages = lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        const village: any = {};
+        
+        headers.forEach((header, index) => {
+          const key = header.toLowerCase();
+          if (key === 'population') {
+            village[key] = parseInt(values[index]) || 0;
+          } else {
+            village[key] = values[index] || '';
+          }
+        });
+        
+        return village;
+      });
+
+      // Call API
+      const response = await apiClient.bulkUploadVillages(villages);
+      
+      if (response.success) {
+        setUploadComplete(true);
+        toast({
+          title: "Success",
+          description: `Successfully uploaded ${villages.length} villages`,
+        });
+        
+        // Auto-complete after 2 seconds
+        setTimeout(() => {
+          onComplete();
+        }, 2000);
+      } else {
+        throw new Error(response.message || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to upload villages",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const downloadTemplate = () => {
