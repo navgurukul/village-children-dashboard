@@ -305,12 +305,6 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          {!isMobile && (
-            <Button onClick={handleExportPDF} className="gap-2">
-              <FileText className="h-4 w-4" />
-              Export as PDF
-            </Button>
-          )}
         </div>
 
         {/* Dashboard Content for PDF Export */}

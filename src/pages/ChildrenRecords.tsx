@@ -196,7 +196,6 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           onEditChild={handleEditChild}
           onDeleteChild={handleDeleteChild}
           handleExportCSV={handleExportCSV}
-          handleExportPDF={handleExportPDF}
           handleFilterChange={handleFilterChange}
           filterOptions={filterOptions}
         />

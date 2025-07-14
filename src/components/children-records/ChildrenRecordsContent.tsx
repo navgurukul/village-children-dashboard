@@ -38,7 +38,6 @@ interface ChildrenRecordsContentProps {
   onEditChild?: (childId: string) => void;
   onDeleteChild: (childId: string) => void;
   handleExportCSV: () => void;
-  handleExportPDF: () => void;
   handleFilterChange: (filterId: string, value: string) => void;
   filterOptions: Array<{
     label: string;
@@ -63,7 +62,6 @@ const ChildrenRecordsContent = ({
   onEditChild,
   onDeleteChild,
   handleExportCSV,
-  handleExportPDF,
   handleFilterChange,
   filterOptions
 }: ChildrenRecordsContentProps) => {
@@ -80,7 +78,6 @@ const ChildrenRecordsContent = ({
               searchTerm={searchTerm}
               onSearchChange={onSearchChange}
               onExportCSV={handleExportCSV}
-              onExportPDF={handleExportPDF}
               isMobile={true}
             />
           </div>
@@ -107,7 +104,6 @@ const ChildrenRecordsContent = ({
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
             onExportCSV={handleExportCSV}
-            onExportPDF={handleExportPDF}
           />
 
           <FiltersRow

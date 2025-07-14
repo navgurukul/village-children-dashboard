@@ -2,21 +2,19 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Download, FileText } from 'lucide-react';
+import { Search, Download } from 'lucide-react';
 
 interface SearchAndExportBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onExportCSV: () => void;
-  onExportPDF: () => void;
   isMobile?: boolean;
 }
 
 const SearchAndExportBar = ({ 
   searchTerm, 
   onSearchChange, 
-  onExportCSV, 
-  onExportPDF,
+  onExportCSV,
   isMobile = false 
 }: SearchAndExportBarProps) => {
   return (
@@ -32,13 +30,6 @@ const SearchAndExportBar = ({
       </div>
       
       <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
-        <Button 
-          onClick={onExportPDF} 
-          className={`gap-2 ${isMobile ? 'flex-1' : ''}`}
-        >
-          <FileText className="h-4 w-4" />
-          Export PDF
-        </Button>
         <Button 
           onClick={onExportCSV} 
           variant="outline" 
