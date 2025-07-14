@@ -55,7 +55,6 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
         email: formData.email,
         mobile: formData.mobile,
         role: formData.role,
-        cluster: formData.cluster,
         panchayat: formData.panchayat
       });
 
