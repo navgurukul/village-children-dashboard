@@ -5,6 +5,7 @@ import ChildrenRecordsContent from '../components/children-records/ChildrenRecor
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
+import { downloadChildrenCSV } from '../utils/exportUtils';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string) => void;
@@ -98,7 +99,14 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const paginatedData = filteredData;
 
   const handleExportCSV = () => {
-    console.log('Exporting CSV...');
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `children_records_${timestamp}`;
+    downloadChildrenCSV(filteredData, filename);
+    
+    toast({
+      title: "Success",
+      description: "Children records exported successfully",
+    });
   };
 
   const handleExportPDF = () => {

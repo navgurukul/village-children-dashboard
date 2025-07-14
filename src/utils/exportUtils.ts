@@ -1,6 +1,54 @@
 
 import { StudentData } from '@/data/mockData';
 
+// Type for children data from API
+interface ChildData {
+  id: string;
+  name: string;
+  age: number;
+  gender: string;
+  village: string;
+  aadhaar: string;
+  aadhaarNumber: string;
+  schoolName: string;
+  schoolStatus: string;
+  block: string;
+  gramPanchayat: string;
+}
+
+export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
+  const headers = [
+    'ID', 'Name', 'Age', 'Gender', 'Village', 'Block', 'Gram Panchayat', 
+    'School Status', 'School Name', 'Aadhaar Number'
+  ];
+
+  const csvContent = [
+    headers.join(','),
+    ...data.map(child => [
+      child.id,
+      `"${child.name}"`,
+      child.age,
+      `"${child.gender}"`,
+      `"${child.village}"`,
+      `"${child.block}"`,
+      `"${child.gramPanchayat}"`,
+      `"${child.schoolStatus}"`,
+      child.schoolName ? `"${child.schoolName}"` : '',
+      child.aadhaarNumber || ''
+    ].join(','))
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `${filename}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export const downloadCSV = (data: StudentData[], filename: string) => {
   const headers = [
     'ID', 'Name', 'Age', 'Gender', 'Block', 'Cluster', 'Village', 
