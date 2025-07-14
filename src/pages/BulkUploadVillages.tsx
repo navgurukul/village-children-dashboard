@@ -30,36 +30,18 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
     setIsUploading(true);
     
     try {
-      // Parse CSV file
-      const text = await file.text();
-      const lines = text.split('\n').filter(line => line.trim());
-      const headers = lines[0].split(',').map(h => h.trim());
-      
-      // Convert CSV to village objects
-      const villages = lines.slice(1).map(line => {
-        const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-        const village: any = {};
-        
-        headers.forEach((header, index) => {
-          const key = header.toLowerCase();
-          if (key === 'population') {
-            village[key] = parseInt(values[index]) || 0;
-          } else {
-            village[key] = values[index] || '';
-          }
-        });
-        
-        return village;
-      });
+      // Create FormData and append the file
+      const formData = new FormData();
+      formData.append('file', file);
 
-      // Call API
-      const response = await apiClient.bulkUploadVillages(villages);
+      // Call API with file upload
+      const response = await apiClient.bulkUploadVillages(formData);
       
       if (response.success) {
         setUploadComplete(true);
         toast({
           title: "Success",
-          description: `Successfully uploaded ${villages.length} villages`,
+          description: "Successfully uploaded villages",
         });
         
         // Auto-complete after 2 seconds

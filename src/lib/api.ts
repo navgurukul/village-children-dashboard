@@ -414,10 +414,13 @@ class ApiClient {
     });
   }
 
-  async bulkUploadVillages(villages: CreateVillagePayload[]): Promise<ApiResponse<Village[]>> {
-    return this.request<Village[]>('/villages/bulk-upload', {
+  async bulkUploadVillages(formData: FormData): Promise<ApiResponse<any>> {
+    return this.request<any>('/villages/bulk-upload', {
       method: 'POST',
-      body: JSON.stringify(villages),
+      body: formData,
+      headers: {
+        // Don't set Content-Type header, let browser set it with boundary
+      },
     });
   }
 
