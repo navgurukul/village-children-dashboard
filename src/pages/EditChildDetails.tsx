@@ -40,48 +40,71 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
+    fullName: "",
     age: "",
     gender: "",
-    dateOfBirth: "",
+    para: "",
+    panchayat: "",
+    cluster: "",
     block: "",
-    village: "",
-    fatherName: "",
+    motherTongue: "",
     motherName: "",
-    familyIncome: "",
+    fatherName: "",
+    motherEducated: false,
+    fatherEducated: false,
+    familyOccupation: "",
     caste: "",
-    medicalIssues: "",
-    schoolStatus: "",
-    school: "",
-    dropoutReason: "",
-    lastAttended: ""
+    parentsStatus: "",
+    livesWithWhom: "",
+    goesToSchool: true,
+    schoolName: "",
+    schoolPara: "",
+    currentClass: "",
+    attendanceStatus: "",
+    educationStatus: "",
+    hasCasteCertificate: false,
+    hasResidenceCertificate: false,
+    hasAadhaar: false,
+    aadhaarNumber: "",
+    hasDisability: false
   });
 
   // Show loading initially since we don't have child data
   useEffect(() => {
     if (childData) {
+      // Map from API response to form data
+      const data = childData as any; // Cast to access additional fields
       setFormData({
-        id: childData.aadhaarNumber || "",
-        name: childData.fullName || "",
-        age: childData.age?.toString() || "",
-        gender: childData.gender || "",
-        dateOfBirth: "", 
-        block: childData.block || "",
-        village: childData.para || "",
-        fatherName: childData.fatherName || "",
-        motherName: childData.motherName || "",
-        familyIncome: "", 
-        caste: childData.caste || "",
-        medicalIssues: "", 
-        schoolStatus: childData.educationStatus || "",
-        school: childData.schoolName || "",
-        dropoutReason: "", 
-        lastAttended: "" 
+        fullName: data.fullName || "",
+        age: data.age?.toString() || "",
+        gender: data.gender || "",
+        para: data.para || "",
+        panchayat: data.panchayat || "",
+        cluster: data.cluster || "",
+        block: data.block || "",
+        motherTongue: data.motherTongue || "",
+        motherName: data.motherName || "",
+        fatherName: data.fatherName || "",
+        motherEducated: data.motherEducated || false,
+        fatherEducated: data.fatherEducated || false,
+        familyOccupation: data.familyOccupation || "",
+        caste: data.caste || "",
+        parentsStatus: data.parentsStatus || "",
+        livesWithWhom: data.livesWithWhom || "",
+        goesToSchool: data.goesToSchool !== undefined ? data.goesToSchool : true,
+        schoolName: data.schoolName || "",
+        schoolPara: data.schoolPara || "",
+        currentClass: data.currentClass || "",
+        attendanceStatus: data.attendanceStatus || "",
+        educationStatus: data.educationStatus || "",
+        hasCasteCertificate: data.hasCasteCertificate || false,
+        hasResidenceCertificate: data.hasResidenceCertificate || false,
+        hasAadhaar: data.hasAadhaar || false,
+        aadhaarNumber: data.aadhaarNumber || "",
+        hasDisability: data.hasDisability || false
       });
       setIsLoadingData(false);
     } else if (childId) {
-      // For now, show message that data will be populated from API in future
       setIsLoadingData(false);
     }
   }, [childData, childId]);
@@ -93,21 +116,33 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
     setIsLoading(true);
     try {
       const updatePayload = {
-        name: formData.name,
+        fullName: formData.fullName,
         age: parseInt(formData.age),
         gender: formData.gender,
-        dateOfBirth: formData.dateOfBirth,
+        para: formData.para,
+        panchayat: formData.panchayat,
+        cluster: formData.cluster,
         block: formData.block,
-        village: formData.village,
-        fatherName: formData.fatherName,
+        motherTongue: formData.motherTongue,
         motherName: formData.motherName,
-        familyIncome: formData.familyIncome,
+        fatherName: formData.fatherName,
+        motherEducated: formData.motherEducated,
+        fatherEducated: formData.fatherEducated,
+        familyOccupation: formData.familyOccupation,
         caste: formData.caste,
-        medicalIssues: formData.medicalIssues,
-        schoolStatus: formData.schoolStatus,
-        school: formData.school,
-        dropoutReason: formData.dropoutReason,
-        lastAttended: formData.lastAttended
+        parentsStatus: formData.parentsStatus,
+        livesWithWhom: formData.livesWithWhom,
+        goesToSchool: formData.goesToSchool,
+        schoolName: formData.schoolName,
+        schoolPara: formData.schoolPara,
+        currentClass: formData.currentClass,
+        attendanceStatus: formData.attendanceStatus,
+        educationStatus: formData.educationStatus,
+        hasCasteCertificate: formData.hasCasteCertificate,
+        hasResidenceCertificate: formData.hasResidenceCertificate,
+        hasAadhaar: formData.hasAadhaar,
+        aadhaarNumber: formData.aadhaarNumber,
+        hasDisability: formData.hasDisability
       };
 
       await apiClient.updateChild(childId, updatePayload);
@@ -191,23 +226,12 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="id">Aadhar Number</Label>
+                <Label htmlFor="fullName">Full Name</Label>
                 <Input
-                  id="id"
+                  id="fullName"
                   type="text"
-                  value={formData.id}
-                  onChange={(e) => setFormData(prev => ({ ...prev, id: e.target.value }))}
-                  className="bg-white"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  value={formData.fullName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
                   className="bg-white"
                   required
                 />
@@ -237,29 +261,38 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                <Input
-                  id="dateOfBirth"
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                  className="bg-white"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="caste">Caste</Label>
                 <Select value={formData.caste} onValueChange={(value) => setFormData(prev => ({ ...prev, caste: value }))}>
                   <SelectTrigger className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="General">General</SelectItem>
+                    <SelectItem value="GEN">General</SelectItem>
                     <SelectItem value="OBC">OBC</SelectItem>
                     <SelectItem value="SC">SC</SelectItem>
                     <SelectItem value="ST">ST</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="aadhaarNumber">Aadhaar Number</Label>
+                <Input
+                  id="aadhaarNumber"
+                  type="text"
+                  value={formData.aadhaarNumber}
+                  onChange={(e) => setFormData(prev => ({ ...prev, aadhaarNumber: e.target.value }))}
+                  className="bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="motherTongue">Mother Tongue</Label>
+                <Input
+                  id="motherTongue"
+                  type="text"
+                  value={formData.motherTongue}
+                  onChange={(e) => setFormData(prev => ({ ...prev, motherTongue: e.target.value }))}
+                  className="bg-white"
+                />
               </div>
             </div>
           </div>
@@ -270,7 +303,7 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
               <Home className="h-5 w-5" />
               <h2 className="text-xl font-semibold">Family Information</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="fatherName">Father's Name</Label>
                 <Input
@@ -279,7 +312,6 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
                   value={formData.fatherName}
                   onChange={(e) => setFormData(prev => ({ ...prev, fatherName: e.target.value }))}
                   className="bg-white"
-                  required
                 />
               </div>
               <div className="space-y-2">
@@ -290,33 +322,105 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
                   value={formData.motherName}
                   onChange={(e) => setFormData(prev => ({ ...prev, motherName: e.target.value }))}
                   className="bg-white"
-                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="familyIncome">Family Income Range</Label>
-                <Select value={formData.familyIncome} onValueChange={(value) => setFormData(prev => ({ ...prev, familyIncome: value }))}>
+                <Label htmlFor="familyOccupation">Family Occupation</Label>
+                <Input
+                  id="familyOccupation"
+                  type="text"
+                  value={formData.familyOccupation}
+                  onChange={(e) => setFormData(prev => ({ ...prev, familyOccupation: e.target.value }))}
+                  className="bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="parentsStatus">Parents Status</Label>
+                <Select value={formData.parentsStatus} onValueChange={(value) => setFormData(prev => ({ ...prev, parentsStatus: value }))}>
                   <SelectTrigger className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Below ₹25,000">Below ₹25,000</SelectItem>
-                    <SelectItem value="₹25,000 - ₹50,000">₹25,000 - ₹50,000</SelectItem>
-                    <SelectItem value="₹50,000 - ₹1,00,000">₹50,000 - ₹1,00,000</SelectItem>
-                    <SelectItem value="Above ₹1,00,000">Above ₹1,00,000</SelectItem>
+                    <SelectItem value="दोनों जीवित हैं">दोनों जीवित हैं</SelectItem>
+                    <SelectItem value="केवल माता जीवित">केवल माता जीवित</SelectItem>
+                    <SelectItem value="केवल पिता जीवित">केवल पिता जीवित</SelectItem>
+                    <SelectItem value="दोनों नहीं हैं">दोनों नहीं हैं</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="village">Village</Label>
+                <Label htmlFor="livesWithWhom">Lives With</Label>
+                <Select value={formData.livesWithWhom} onValueChange={(value) => setFormData(prev => ({ ...prev, livesWithWhom: value }))}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="माता-पिता के साथ">माता-पिता के साथ</SelectItem>
+                    <SelectItem value="हॉस्टल">हॉस्टल</SelectItem>
+                    <SelectItem value="रिश्तेदारों के साथ">रिश्तेदारों के साथ</SelectItem>
+                    <SelectItem value="अकेले">अकेले</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="para">Para/Ward</Label>
                 <Input
-                  id="village"
+                  id="para"
                   type="text"
-                  value={formData.village}
-                  onChange={(e) => setFormData(prev => ({ ...prev, village: e.target.value }))}
+                  value={formData.para}
+                  onChange={(e) => setFormData(prev => ({ ...prev, para: e.target.value }))}
                   className="bg-white"
-                  required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="panchayat">Panchayat</Label>
+                <Input
+                  id="panchayat"
+                  type="text"
+                  value={formData.panchayat}
+                  onChange={(e) => setFormData(prev => ({ ...prev, panchayat: e.target.value }))}
+                  className="bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="block">Block</Label>
+                <Input
+                  id="block"
+                  type="text"
+                  value={formData.block}
+                  onChange={(e) => setFormData(prev => ({ ...prev, block: e.target.value }))}
+                  className="bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cluster">Cluster</Label>
+                <Input
+                  id="cluster"
+                  type="text"
+                  value={formData.cluster}
+                  onChange={(e) => setFormData(prev => ({ ...prev, cluster: e.target.value }))}
+                  className="bg-white"
+                />
+              </div>
+              <div className="flex items-center space-x-2 pt-6">
+                <input
+                  type="checkbox"
+                  id="motherEducated"
+                  checked={formData.motherEducated}
+                  onChange={(e) => setFormData(prev => ({ ...prev, motherEducated: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="motherEducated">Mother Educated</Label>
+              </div>
+              <div className="flex items-center space-x-2 pt-6">
+                <input
+                  type="checkbox"
+                  id="fatherEducated"
+                  checked={formData.fatherEducated}
+                  onChange={(e) => setFormData(prev => ({ ...prev, fatherEducated: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="fatherEducated">Father Educated</Label>
               </div>
             </div>
           </div>
@@ -325,17 +429,49 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <Heart className="h-5 w-5" />
-              <h2 className="text-xl font-semibold">Medical Information</h2>
+              <h2 className="text-xl font-semibold">Medical & Certificate Information</h2>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="medicalIssues">Medical Issues</Label>
-              <Textarea
-                id="medicalIssues"
-                value={formData.medicalIssues}
-                onChange={(e) => setFormData(prev => ({ ...prev, medicalIssues: e.target.value }))}
-                className="bg-white"
-                placeholder="Describe any medical issues..."
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="hasDisability"
+                  checked={formData.hasDisability}
+                  onChange={(e) => setFormData(prev => ({ ...prev, hasDisability: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="hasDisability">Has Disability</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="hasCasteCertificate"
+                  checked={formData.hasCasteCertificate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, hasCasteCertificate: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="hasCasteCertificate">Has Caste Certificate</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="hasResidenceCertificate"
+                  checked={formData.hasResidenceCertificate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, hasResidenceCertificate: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="hasResidenceCertificate">Has Residence Certificate</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="hasAadhaar"
+                  checked={formData.hasAadhaar}
+                  onChange={(e) => setFormData(prev => ({ ...prev, hasAadhaar: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="hasAadhaar">Has Aadhaar</Label>
+              </div>
             </div>
           </div>
 
@@ -343,58 +479,79 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <School className="h-5 w-5" />
-              <h2 className="text-xl font-semibold">School Status</h2>
+              <h2 className="text-xl font-semibold">Education Information</h2>
             </div>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="schoolStatus">Current Status</Label>
-                <Select value={formData.schoolStatus} onValueChange={(value) => setFormData(prev => ({ ...prev, schoolStatus: value }))}>
+                <Label htmlFor="educationStatus">Education Status</Label>
+                <Select value={formData.educationStatus} onValueChange={(value) => setFormData(prev => ({ ...prev, educationStatus: value }))}>
                   <SelectTrigger className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Enrolled">Enrolled</SelectItem>
-                    <SelectItem value="Dropout">Dropout</SelectItem>
-                    <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
+                    <SelectItem value="enrolled">Enrolled</SelectItem>
+                    <SelectItem value="dropout">Dropout</SelectItem>
+                    <SelectItem value="never_enrolled">Never Enrolled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="school">School</Label>
+                <Label htmlFor="schoolName">School Name</Label>
                 <Input
-                  id="school"
+                  id="schoolName"
                   type="text"
-                  value={formData.school}
-                  onChange={(e) => setFormData(prev => ({ ...prev, school: e.target.value }))}
+                  value={formData.schoolName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, schoolName: e.target.value }))}
                   className="bg-white"
                 />
               </div>
 
-              {formData.schoolStatus === 'Dropout' && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastAttended">Last Attended</Label>
-                    <Input
-                      id="lastAttended"
-                      type="date"
-                      value={formData.lastAttended}
-                      onChange={(e) => setFormData(prev => ({ ...prev, lastAttended: e.target.value }))}
-                      className="bg-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dropoutReason">Dropout Reason</Label>
-                    <Textarea
-                      id="dropoutReason"
-                      value={formData.dropoutReason}
-                      onChange={(e) => setFormData(prev => ({ ...prev, dropoutReason: e.target.value }))}
-                      className="bg-white"
-                      placeholder="Explain the reason for dropout..."
-                    />
-                  </div>
-                </>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="schoolPara">School Para/Ward</Label>
+                <Input
+                  id="schoolPara"
+                  type="text"
+                  value={formData.schoolPara}
+                  onChange={(e) => setFormData(prev => ({ ...prev, schoolPara: e.target.value }))}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="currentClass">Current Class</Label>
+                <Input
+                  id="currentClass"
+                  type="text"
+                  value={formData.currentClass}
+                  onChange={(e) => setFormData(prev => ({ ...prev, currentClass: e.target.value }))}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="attendanceStatus">Attendance Status</Label>
+                <Select value={formData.attendanceStatus} onValueChange={(value) => setFormData(prev => ({ ...prev, attendanceStatus: value }))}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="नियमित">नियमित</SelectItem>
+                    <SelectItem value="अनियमित">अनियमित</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2 pt-6">
+                <input
+                  type="checkbox"
+                  id="goesToSchool"
+                  checked={formData.goesToSchool}
+                  onChange={(e) => setFormData(prev => ({ ...prev, goesToSchool: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="goesToSchool">Goes to School</Label>
+              </div>
             </div>
           </div>
 
