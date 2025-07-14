@@ -53,8 +53,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
       const response = await apiClient.updateUser(userData.id, {
         name: formData.fullName,
         email: formData.email,
-        mobile: formData.mobile,
-        role: formData.role
+        mobile: formData.mobile
       });
 
       if (response.success) {
