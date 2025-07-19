@@ -1,4 +1,4 @@
-const BASE_URL = 'https://2595l28oa8.execute-api.ap-south-1.amazonaws.com/dev/api/v1';
+const BASE_URL = 'https://jq3kxcburc.execute-api.ap-south-1.amazonaws.com/dev/api/v1';
 
 interface ApiResponse<T = any> {
   success: boolean;
