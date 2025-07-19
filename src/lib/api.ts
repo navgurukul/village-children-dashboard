@@ -76,9 +76,7 @@ interface Village {
   id: string;
   name: string;
   district: string;
-  panchayat: string;
-  block: string;
-  cluster: string;
+  gramPanchayat: string;
   state: string;
   population: number;
   isActive: boolean;

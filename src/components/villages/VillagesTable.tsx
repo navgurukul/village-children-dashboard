@@ -9,7 +9,7 @@ import { Edit, Trash2 } from 'lucide-react';
 interface Village {
   id: string;
   name: string;
-  block: string;
+  district: string;
   gramPanchayat: string;
   totalChildren: number;
   enrolled: number;
@@ -34,7 +34,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
             <TableHeader>
               <TableRow>
                 <TableHead className="font-bold">Village Name</TableHead>
-                <TableHead className="font-bold">Block</TableHead>
+                <TableHead className="font-bold">District</TableHead>
                 <TableHead className="font-bold">Gram Panchayat</TableHead>
                 <TableHead className="font-bold">Total Children</TableHead>
                 <TableHead className="font-bold">Enrolled Children</TableHead>
@@ -51,7 +51,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                   onClick={() => onVillageClick(village.id)}
                 >
                   <TableCell className="font-medium">{village.name}</TableCell>
-                  <TableCell>{village.block}</TableCell>
+                  <TableCell>{village.district}</TableCell>
                   <TableCell>{village.gramPanchayat}</TableCell>
                   <TableCell>{village.totalChildren}</TableCell>
                   <TableCell>

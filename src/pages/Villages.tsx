@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 interface VillageDisplayData {
   id: string;
   name: string;
-  block: string;
+  district: string;
   gramPanchayat: string;
   totalChildren: number;
   enrolled: number;
@@ -32,7 +32,7 @@ interface VillagesProps {
 
 const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, onDeleteVillage }: VillagesProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [blockFilter, setBlockFilter] = useState('all');
+  const [districtFilter, setDistrictFilter] = useState('all');
   const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [villages, setVillages] = useState<ApiVillage[]>([]);
@@ -45,7 +45,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   // Load villages from API
   useEffect(() => {
     loadVillages();
-  }, [currentPage, blockFilter, gramPanchayatFilter]);
+  }, [currentPage, districtFilter, gramPanchayatFilter]);
 
   const loadVillages = async () => {
     try {
@@ -78,8 +78,8 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     return villages.map(village => ({
       id: village.id,
       name: village.name,
-      block: village.block,
-      gramPanchayat: village.panchayat,
+      district: village.district,
+      gramPanchayat: village.gramPanchayat,
       totalChildren: Math.floor(village.population * 0.15), // Rough estimate
       enrolled: Math.floor(village.population * 0.12),
       dropout: Math.floor(village.population * 0.02),
@@ -88,9 +88,9 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     }));
   }, [villages]);
 
-  // Get unique blocks and gram panchayats for filters
-  const blocks = useMemo(() => {
-    return [...new Set(villageDisplayData.map(village => village.block))];
+  // Get unique districts and gram panchayats for filters
+  const districts = useMemo(() => {
+    return [...new Set(villageDisplayData.map(village => village.district))];
   }, [villageDisplayData]);
 
   const gramPanchayats = useMemo(() => {
@@ -102,22 +102,22 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     return villageDisplayData.filter(village => {
       const matchesSearch = searchTerm === '' || 
         village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        village.block.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        village.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
         village.gramPanchayat.toLowerCase().includes(searchTerm.toLowerCase()) ||
         village.assignedBalMitra.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesBlock = blockFilter === 'all' || village.block === blockFilter;
+      const matchesDistrict = districtFilter === 'all' || village.district === districtFilter;
       const matchesGramPanchayat = gramPanchayatFilter === 'all' || village.gramPanchayat === gramPanchayatFilter;
 
-      return matchesSearch && matchesBlock && matchesGramPanchayat;
+      return matchesSearch && matchesDistrict && matchesGramPanchayat;
     });
-  }, [villageDisplayData, searchTerm, blockFilter, gramPanchayatFilter]);
+  }, [villageDisplayData, searchTerm, districtFilter, gramPanchayatFilter]);
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleFilterChange = (filterId: string, value: string) => {
-    if (filterId === 'block') {
-      setBlockFilter(value);
+    if (filterId === 'district') {
+      setDistrictFilter(value);
     } else if (filterId === 'gram panchayat') {
       setGramPanchayatFilter(value);
     }
@@ -156,11 +156,11 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
 
   const filterOptions = [
     {
-      label: 'Block',
-      value: blockFilter,
+      label: 'District',
+      value: districtFilter,
       options: [
-        { label: 'All Blocks', value: 'all' },
-        ...blocks.map(block => ({ label: block, value: block }))
+        { label: 'All Districts', value: 'all' },
+        ...districts.map(district => ({ label: district, value: district }))
       ]
     },
     {
@@ -234,11 +234,11 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             />
 
             <VillagesFilters
-              blockFilter={blockFilter}
+              districtFilter={districtFilter}
               gramPanchayatFilter={gramPanchayatFilter}
-              blocks={blocks}
+              districts={districts}
               gramPanchayats={gramPanchayats}
-              onBlockFilterChange={setBlockFilter}
+              onDistrictFilterChange={setDistrictFilter}
               onGramPanchayatFilterChange={setGramPanchayatFilter}
             />
 

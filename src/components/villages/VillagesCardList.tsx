@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 interface Village {
   id: string;
   name: string;
-  block: string;
+  district: string;
   gramPanchayat: string;
   totalChildren: number;
   enrolled: number;
