@@ -37,7 +37,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
         role: formData.role,
         ...(formData.role === 'balMitra' && {
           block: formData.block,
-          panchayat: formData.panchayat,
+          gramPanchayat: formData.panchayat,
         }),
       };
 
