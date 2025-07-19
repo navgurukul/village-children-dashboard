@@ -39,7 +39,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
 
       const response = await apiClient.getChildren(params);
       // Filter out deleted children
-      const activeChildren = response.data.items.filter(child => !child.isDeleted);
+      const activeChildren = response.data.children.filter(child => !child.auditInfo.isDeleted);
       setApiChildren(activeChildren);
       setTotalCount(activeChildren.length);
     } catch (error) {
@@ -60,23 +60,23 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
 
   // Get unique blocks for filter from API data
   const blocks = useMemo(() => {
-    return [...new Set(apiChildren.map(child => child.block))];
+    return [...new Set(apiChildren.map(child => child.basicInfo.block))];
   }, [apiChildren]);
 
   // Transform API data to match expected interface for components
   const childrenData = useMemo(() => {
     return apiChildren.map(child => ({
       id: child.id,
-      name: child.fullName,
-      age: child.age,
-      gender: child.gender,
-      village: child.para,
-      aadhaar: child.aadhaarNumber,
-      aadhaarNumber: child.aadhaarNumber,
-      schoolName: child.schoolName,
-      schoolStatus: child.educationStatus,
-      block: child.block,
-      gramPanchayat: child.panchayat
+      name: child.basicInfo.fullName,
+      age: child.basicInfo.age,
+      gender: child.basicInfo.gender,
+      village: child.basicInfo.para,
+      aadhaar: child.documentsInfo.aadhaarNumber,
+      aadhaarNumber: child.documentsInfo.aadhaarNumber,
+      schoolName: child.educationInfo.schoolName,
+      schoolStatus: child.educationInfo.educationStatus,
+      block: child.basicInfo.block,
+      gramPanchayat: child.basicInfo.gramPanchayat || ''
     }));
   }, [apiChildren]);
 

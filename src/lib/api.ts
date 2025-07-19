@@ -117,51 +117,79 @@ interface UpdateVillagePayload {
 
 interface Child {
   id: string;
-  fullName: string;
-  age: number;
-  gender: string;
-  block: string;
-  panchayat: string;
-  cluster: string;
-  para: string;
-  villageId: string;
-  motherName: string;
-  fatherName: string;
-  currentClass: string;
-  educationStatus: string;
-  schoolName: string;
-  attendanceStatus: string;
-  aadhaarNumber: string;
-  caste: string;
-  ageGroup: string;
-  familyOccupation: string;
-  motherTongue: string;
-  schoolPara: string;
-  fatherEducated: boolean;
-  motherEducated: boolean;
-  hasAadhaar: boolean;
-  hasCasteCertificate: boolean;
-  hasResidenceCertificate: boolean;
-  hasDisability: boolean;
-  isVulnerable: boolean;
-  goesToSchool: boolean;
-  parentsStatus: string;
-  livesWithWhom: string;
-  surveyedBy: string;
-  surveyedAt: string;
-  surveyVersion: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  searchText: string;
+  basicInfo: {
+    fullName: string;
+    age: number;
+    dateOfBirth?: string;
+    gender: string;
+    para: string;
+    gramPanchayat?: string;
+    cluster: string;
+    block: string;
+    motherTongue: string;
+  };
+  familyInfo: {
+    motherName: string;
+    fatherName: string;
+    motherEducated: boolean;
+    fatherEducated: boolean;
+    familyOccupation: string;
+    caste: string;
+    parentsStatus: string;
+    livesWithWhom: string;
+  };
+  economicInfo: {
+    rationCardType?: string;
+    rationCardNumber?: string;
+    economicStatus?: string;
+  };
+  educationInfo: {
+    goesToSchool: boolean;
+    schoolName: string;
+    currentClass: string;
+    attendanceStatus: string;
+    educationStatus: string;
+  };
+  documentsInfo: {
+    hasCasteCertificate: boolean;
+    hasResidenceCertificate: boolean;
+    hasAadhaar: boolean;
+    aadhaarNumber: string;
+  };
+  healthInfo: {
+    hasDisability: boolean;
+  };
+  derivedFields: {
+    educationStatus: string;
+    isVulnerable: boolean;
+    ageGroup: string;
+    riskFactors?: string[];
+    priorityLevel?: string;
+    economicStatus?: string;
+    searchText: string;
+  };
+  surveyMeta: {
+    villageId: string;
+    surveyedBy: string;
+    surveyedAt: string;
+    surveyVersion: string;
+    lastUpdatedAt: string;
+    lastUpdatedBy: string;
+  };
+  auditInfo: {
+    isDeleted: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 interface ChildrenResponse {
-  items: Child[];
+  children: Child[];
   pagination: {
-    page: number;
-    limit: number;
-    totalCount: number;
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    totalRecords: number;
     hasMore: boolean;
     queryTimeMs?: number;
   };
