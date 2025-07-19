@@ -52,10 +52,19 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
       } else {
         throw new Error(response.message);
       }
-    } catch (error) {
+    } catch (error: any) {
+      let errorMessage = "Failed to create user";
+      
+      // Check if it's an API error with specific message
+      if (error.response?.data?.error?.message) {
+        errorMessage = error.response.data.error.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to create user",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
