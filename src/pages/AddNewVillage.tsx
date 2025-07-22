@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
-import { apiClient } from '../lib/api';
+import { apiClient, type BlockGramPanchayatData } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface AddNewVillageProps {
@@ -23,7 +23,32 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
     population: ''
   });
   const [loading, setLoading] = useState(false);
+  const [blocksData, setBlocksData] = useState<BlockGramPanchayatData[]>([]);
+  const [loadingBlocks, setLoadingBlocks] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchBlocksData = async () => {
+      try {
+        setLoadingBlocks(true);
+        const response = await apiClient.getBlocksGramPanchayats();
+        if (response.success) {
+          setBlocksData(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching blocks data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load blocks data",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingBlocks(false);
+      }
+    };
+
+    fetchBlocksData();
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +81,7 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
         district: formData.district,
         state: formData.state,
         block: formData.block,
-        panchayat: formData.panchayat,
+        gramPanchayat: formData.panchayat,
         population: parseInt(formData.population) || 0
       });
 
@@ -114,32 +139,44 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="block" className="font-bold">Block *</Label>
-            <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value, panchayat: '' }))}>
+            <Select 
+              value={formData.block} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, block: value, panchayat: '' }))}
+              disabled={loadingBlocks}
+            >
               <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Block" />
+                <SelectValue placeholder={loadingBlocks ? "Loading blocks..." : "Select Block"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Jharia">Jharia</SelectItem>
-                <SelectItem value="Rajgangpur">Rajgangpur</SelectItem>
-                <SelectItem value="Block 3">Block 3</SelectItem>
+                {blocksData.map((blockData) => (
+                  <SelectItem key={blockData.block} value={blockData.block}>
+                    {blockData.block}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="panchayat" className="font-bold">Panchayat *</Label>
+            <Label htmlFor="panchayat" className="font-bold">Gram Panchayat *</Label>
             <Select 
               value={formData.panchayat} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}
               disabled={!formData.block}
             >
               <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select Panchayat" />
+                <SelectValue placeholder={!formData.block ? "Select Block first" : "Select Gram Panchayat"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Sijua">Sijua</SelectItem>
-                <SelectItem value="Panchayat 2">Panchayat 2</SelectItem>
-                <SelectItem value="Panchayat 3">Panchayat 3</SelectItem>
+                {formData.block && 
+                  blocksData
+                    .find(blockData => blockData.block === formData.block)
+                    ?.gramPanchayat.map((panchayat) => (
+                      <SelectItem key={panchayat} value={panchayat}>
+                        {panchayat}
+                      </SelectItem>
+                    ))
+                }
               </SelectContent>
             </Select>
           </div>

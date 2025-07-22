@@ -84,6 +84,11 @@ interface Village {
   updatedAt: string;
 }
 
+interface BlockGramPanchayatData {
+  block: string;
+  gramPanchayat: string[];
+}
+
 interface VillagesResponse {
   items: Village[];
   pagination: {
@@ -97,7 +102,7 @@ interface VillagesResponse {
 interface CreateVillagePayload {
   name: string;
   district: string;
-  panchayat: string;
+  gramPanchayat: string;
   block: string;
   state: string;
   population: number;
@@ -463,6 +468,10 @@ class ApiClient {
     });
   }
 
+  async getBlocksGramPanchayats(): Promise<ApiResponse<BlockGramPanchayatData[]>> {
+    return this.request<BlockGramPanchayatData[]>('/villages/blocks-gramPanchayats');
+  }
+
   async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
     return this.request<any>(`/children/${childId}`, {
       method: 'PUT',
@@ -491,5 +500,6 @@ export type {
   Child,
   ChildrenResponse,
   UpdateChildPayload,
-  DashboardOverview
+  DashboardOverview,
+  BlockGramPanchayatData
 };
