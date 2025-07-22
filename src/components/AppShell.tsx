@@ -63,6 +63,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     setCurrentPage(page);
     if (page === 'child-details' && data?.childId) {
       setSelectedChildId(data.childId);
+      setSelectedChildData(data?.childData || null);
     }
     if (page === 'edit-child-details' && data?.childId) {
       setSelectedChildId(data.childId);
@@ -90,7 +91,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'children':
         return <ChildrenRecords 
           key={`children-${Date.now()}`}
-          onChildClick={(childId) => handleNavigation('child-details', { childId })}
+          onChildClick={(childId, childData) => handleNavigation('child-details', { childId, childData })}
           onEditChild={(childId, childData) => handleNavigation('edit-child-details', { childId, childData, fromDetails: false })}
         />;
       case 'villages':
@@ -120,8 +121,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'child-details':
         return <ChildDetails 
           childId={selectedChildId} 
+          childData={selectedChildData}
           onBack={() => handleNavigation('children')} 
-          onEdit={(childId) => handleNavigation('edit-child-details', { childId, fromDetails: true })}
+          onEdit={(childId) => handleNavigation('edit-child-details', { childId, childData: selectedChildData, fromDetails: true })}
         />;
       case 'edit-child-details':
         return <EditChildDetails 

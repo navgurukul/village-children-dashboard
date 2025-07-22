@@ -8,7 +8,7 @@ import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
 
 interface ChildrenRecordsProps {
-  onChildClick: (childId: string) => void;
+  onChildClick: (childId: string, childData?: any) => void;
   onEditChild?: (childId: string, childData?: any) => void;
 }
 
@@ -200,7 +200,10 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           filteredData={filteredData}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          onChildClick={onChildClick}
+          onChildClick={(childId: string) => {
+            const childData = apiChildren.find(child => child.id === childId);
+            onChildClick(childId, childData);
+          }}
           onEditChild={handleEditChild}
           onDeleteChild={handleDeleteChild}
           handleExportCSV={handleExportCSV}

@@ -4,33 +4,57 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, School, Home, Heart, Edit } from 'lucide-react';
+import { Child } from '@/lib/api';
 
 interface ChildDetailsProps {
   childId: string | null;
+  childData?: Child | null;
   onBack: () => void;
   onEdit?: (childId: string) => void;
 }
 
-const ChildDetails = ({ childId, onBack, onEdit }: ChildDetailsProps) => {
-  // Mock child data - in real app, fetch by childId
-  const childData = {
-    id: "1234567890123456",
-    name: "Rahul Kumar",
-    age: 12,
-    gender: "Male",
-    dateOfBirth: "2012-03-15",
-    block: "Rajgangpur",
-    village: "Haripur",
-    fatherName: "Ramesh Kumar",
-    motherName: "Sunita Devi",
-    familyIncome: "₹50,000 - ₹1,00,000",
-    caste: "OBC",
-    medicalIssues: "None",
-    schoolStatus: "Dropout",
-    school: "Government Primary School, Haripur",
-    dropoutReason: "Family financial issues and need to work for family income",
-    lastAttended: "2024-08-15"
-  };
+const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: ChildDetailsProps) => {
+  // Transform API child data to display format
+  const transformedData = propChildData ? {
+    id: propChildData.documentsInfo?.aadhaarNumber || propChildData.id,
+    name: propChildData.basicInfo?.fullName || 'N/A',
+    age: propChildData.basicInfo?.age || 'N/A',
+    gender: propChildData.basicInfo?.gender || 'N/A',
+    dateOfBirth: propChildData.basicInfo?.dateOfBirth || 'N/A',
+    block: propChildData.basicInfo?.block || 'N/A',
+    village: propChildData.basicInfo?.para || 'N/A',
+    gramPanchayat: propChildData.basicInfo?.gramPanchayat || 'N/A',
+    cluster: propChildData.basicInfo?.cluster || 'N/A',
+    motherTongue: propChildData.basicInfo?.motherTongue || 'N/A',
+    fatherName: propChildData.familyInfo?.fatherName || 'N/A',
+    motherName: propChildData.familyInfo?.motherName || 'N/A',
+    caste: propChildData.familyInfo?.caste || 'N/A',
+    familyOccupation: propChildData.familyInfo?.familyOccupation || 'N/A',
+    parentsStatus: propChildData.familyInfo?.parentsStatus || 'N/A',
+    livesWithWhom: propChildData.familyInfo?.livesWithWhom || 'N/A',
+    motherEducated: propChildData.familyInfo?.motherEducated ? 'Yes' : 'No',
+    fatherEducated: propChildData.familyInfo?.fatherEducated ? 'Yes' : 'No',
+    economicStatus: propChildData.economicInfo?.economicStatus || propChildData.derivedFields?.economicStatus || 'N/A',
+    rationCardType: propChildData.economicInfo?.rationCardType || 'N/A',
+    rationCardNumber: propChildData.economicInfo?.rationCardNumber || 'N/A',
+    schoolStatus: propChildData.educationInfo?.educationStatus || propChildData.derivedFields?.educationStatus || 'N/A',
+    school: propChildData.educationInfo?.schoolName || 'N/A',
+    currentClass: propChildData.educationInfo?.currentClass || 'N/A',
+    attendanceStatus: propChildData.educationInfo?.attendanceStatus || 'N/A',
+    goesToSchool: propChildData.educationInfo?.goesToSchool ? 'Yes' : 'No',
+    hasDisability: propChildData.healthInfo?.hasDisability ? 'Yes' : 'No',
+    hasCasteCertificate: propChildData.documentsInfo?.hasCasteCertificate ? 'Yes' : 'No',
+    hasResidenceCertificate: propChildData.documentsInfo?.hasResidenceCertificate ? 'Yes' : 'No',
+    hasAadhaar: propChildData.documentsInfo?.hasAadhaar ? 'Yes' : 'No',
+    isVulnerable: propChildData.derivedFields?.isVulnerable ? 'Yes' : 'No',
+    ageGroup: propChildData.derivedFields?.ageGroup || 'N/A',
+    priorityLevel: propChildData.derivedFields?.priorityLevel || 'N/A',
+    riskFactors: propChildData.derivedFields?.riskFactors?.join(', ') || 'None',
+    surveyedBy: propChildData.surveyMeta?.surveyedBy || 'N/A',
+    surveyedAt: propChildData.surveyMeta?.surveyedAt ? new Date(propChildData.surveyMeta.surveyedAt).toLocaleDateString() : 'N/A',
+    lastUpdatedAt: propChildData.surveyMeta?.lastUpdatedAt ? new Date(propChildData.surveyMeta.lastUpdatedAt).toLocaleDateString() : 'N/A',
+    lastUpdatedBy: propChildData.surveyMeta?.lastUpdatedBy || 'N/A'
+  } : null;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -45,11 +69,11 @@ const ChildDetails = ({ childId, onBack, onEdit }: ChildDetailsProps) => {
     }
   };
 
-  if (!childId) {
+  if (!childId || !transformedData) {
     return (
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-4xl mx-auto">
-          <p className="text-muted-foreground">No child selected</p>
+          <p className="text-muted-foreground">No child selected or child data not available</p>
         </div>
       </div>
     );
@@ -91,27 +115,35 @@ const ChildDetails = ({ childId, onBack, onEdit }: ChildDetailsProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Aadhar Number</label>
-                <p className="text-lg font-medium">{childData.id}</p>
+                <p className="text-lg font-medium">{transformedData.id}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Name</label>
-                <p className="text-lg font-medium">{childData.name}</p>
+                <p className="text-lg font-medium">{transformedData.name}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Age</label>
-                <p className="text-lg font-medium">{childData.age} years</p>
+                <p className="text-lg font-medium">{transformedData.age} years</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Gender</label>
-                <p className="text-lg font-medium">{childData.gender}</p>
+                <p className="text-lg font-medium">{transformedData.gender}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
-                <p className="text-lg font-medium">{childData.dateOfBirth}</p>
+                <p className="text-lg font-medium">{transformedData.dateOfBirth}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Caste</label>
-                <p className="text-lg font-medium">{childData.caste}</p>
+                <p className="text-lg font-medium">{transformedData.caste}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Mother Tongue</label>
+                <p className="text-lg font-medium">{transformedData.motherTongue}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Cluster</label>
+                <p className="text-lg font-medium">{transformedData.cluster}</p>
               </div>
             </div>
           </CardContent>
@@ -126,39 +158,119 @@ const ChildDetails = ({ childId, onBack, onEdit }: ChildDetailsProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Father's Name</label>
-                <p className="text-lg font-medium">{childData.fatherName}</p>
+                <p className="text-lg font-medium">{transformedData.fatherName}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Mother's Name</label>
-                <p className="text-lg font-medium">{childData.motherName}</p>
+                <p className="text-lg font-medium">{transformedData.motherName}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Family Income Range</label>
-                <p className="text-lg font-medium">{childData.familyIncome}</p>
+                <label className="text-sm font-medium text-muted-foreground">Father Educated</label>
+                <p className="text-lg font-medium">{transformedData.fatherEducated}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Mother Educated</label>
+                <p className="text-lg font-medium">{transformedData.motherEducated}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Family Occupation</label>
+                <p className="text-lg font-medium">{transformedData.familyOccupation}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Parents Status</label>
+                <p className="text-lg font-medium">{transformedData.parentsStatus}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Lives With</label>
+                <p className="text-lg font-medium">{transformedData.livesWithWhom}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Village</label>
-                <p className="text-lg font-medium">{childData.village}, {childData.block}</p>
+                <p className="text-lg font-medium">{transformedData.village}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Block</label>
+                <p className="text-lg font-medium">{transformedData.block}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Gram Panchayat</label>
+                <p className="text-lg font-medium">{transformedData.gramPanchayat}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Medical Information */}
+        {/* Economic Information */}
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Home className="h-5 w-5" />
+              Economic Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Economic Status</label>
+                <p className="text-lg font-medium">{transformedData.economicStatus}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Ration Card Type</label>
+                <p className="text-lg font-medium">{transformedData.rationCardType}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Ration Card Number</label>
+                <p className="text-lg font-medium">{transformedData.rationCardNumber}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Health & Documents Information */}
         <Card className="shadow-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Heart className="h-5 w-5" />
-              Medical Information
+              Health & Documents
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Medical Issues</label>
-              <p className="text-lg font-medium">{childData.medicalIssues}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Has Disability</label>
+                <p className="text-lg font-medium">{transformedData.hasDisability}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Has Aadhaar</label>
+                <p className="text-lg font-medium">{transformedData.hasAadhaar}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Has Caste Certificate</label>
+                <p className="text-lg font-medium">{transformedData.hasCasteCertificate}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Has Residence Certificate</label>
+                <p className="text-lg font-medium">{transformedData.hasResidenceCertificate}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Is Vulnerable</label>
+                <p className="text-lg font-medium">{transformedData.isVulnerable}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Age Group</label>
+                <p className="text-lg font-medium">{transformedData.ageGroup}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Priority Level</label>
+                <p className="text-lg font-medium">{transformedData.priorityLevel}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Risk Factors</label>
+                <p className="text-lg font-medium">{transformedData.riskFactors}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -175,26 +287,57 @@ const ChildDetails = ({ childId, onBack, onEdit }: ChildDetailsProps) => {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <label className="text-sm font-medium text-muted-foreground">Current Status:</label>
-                {getStatusBadge(childData.schoolStatus)}
+                {getStatusBadge(transformedData.schoolStatus)}
               </div>
               
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">School</label>
-                <p className="text-lg font-medium">{childData.school}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">School</label>
+                  <p className="text-lg font-medium">{transformedData.school}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Current Class</label>
+                  <p className="text-lg font-medium">{transformedData.currentClass}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Attendance Status</label>
+                  <p className="text-lg font-medium">{transformedData.attendanceStatus}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Goes to School</label>
+                  <p className="text-lg font-medium">{transformedData.goesToSchool}</p>
+                </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              {childData.schoolStatus === 'Dropout' && (
-                <>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Last Attended</label>
-                    <p className="text-lg font-medium">{childData.lastAttended}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Dropout Reason</label>
-                    <p className="text-lg font-medium">{childData.dropoutReason}</p>
-                  </div>
-                </>
-              )}
+        {/* Survey Information */}
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Survey Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Surveyed By</label>
+                <p className="text-lg font-medium">{transformedData.surveyedBy}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Surveyed At</label>
+                <p className="text-lg font-medium">{transformedData.surveyedAt}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Last Updated At</label>
+                <p className="text-lg font-medium">{transformedData.lastUpdatedAt}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Last Updated By</label>
+                <p className="text-lg font-medium">{transformedData.lastUpdatedBy}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
