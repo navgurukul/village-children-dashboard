@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
-import { apiClient } from '../lib/api';
+import { apiClient, BlockGramPanchayatData } from '../lib/api';
 import { useToast } from "@/hooks/use-toast";
 
 interface AddNewUserProps {
@@ -22,8 +22,38 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
     block: '',
     panchayat: ''
   });
+  const [blocksData, setBlocksData] = useState<BlockGramPanchayatData[]>([]);
+  const [availableGramPanchayats, setAvailableGramPanchayats] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Fetch blocks and gram panchayats data
+  useEffect(() => {
+    const fetchBlocksData = async () => {
+      try {
+        const response = await apiClient.getBlocksGramPanchayats();
+        if (response.success) {
+          setBlocksData(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch blocks data:', error);
+      }
+    };
+
+    fetchBlocksData();
+  }, []);
+
+  // Update available gram panchayats when block changes
+  useEffect(() => {
+    if (formData.block) {
+      const selectedBlockData = blocksData.find(block => block.block === formData.block);
+      setAvailableGramPanchayats(selectedBlockData?.gramPanchayat || []);
+      // Reset panchayat selection when block changes
+      setFormData(prev => ({ ...prev, panchayat: '' }));
+    } else {
+      setAvailableGramPanchayats([]);
+    }
+  }, [formData.block, blocksData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,22 +204,31 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
                       <SelectValue placeholder="Select Block" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="block1">Block 1</SelectItem>
-                      <SelectItem value="block2">Block 2</SelectItem>
-                      <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
+                      {blocksData.map((blockData) => (
+                        <SelectItem key={blockData.block} value={blockData.block}>
+                          {blockData.block}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="panchayat" className="font-bold">Panchayat *</Label>
-                  <Select value={formData.panchayat} onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}>
+                  <Label htmlFor="panchayat" className="font-bold">Gram Panchayat *</Label>
+                  <Select 
+                    value={formData.panchayat} 
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}
+                    disabled={!formData.block}
+                  >
                     <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Select Panchayat" />
+                      <SelectValue placeholder="Select Gram Panchayat" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="panchayat1">Panchayat 1</SelectItem>
-                      <SelectItem value="panchayat2">Panchayat 2</SelectItem>
+                      {availableGramPanchayats.map((gramPanchayat) => (
+                        <SelectItem key={gramPanchayat} value={gramPanchayat}>
+                          {gramPanchayat}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
