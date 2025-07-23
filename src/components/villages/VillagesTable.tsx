@@ -39,6 +39,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                 <TableHead className="font-bold">Total Children</TableHead>
                 <TableHead className="font-bold">Enrolled Children</TableHead>
                 <TableHead className="font-bold">Dropout Children</TableHead>
+                <TableHead className="font-bold">Never Enrolled</TableHead>
                 <TableHead className="font-bold">Assigned Bal Mitra</TableHead>
                 <TableHead className="font-bold">Actions</TableHead>
               </TableRow>
@@ -62,6 +63,11 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                   <TableCell>
                     <Badge className="bg-destructive/10 text-destructive border-destructive/20">
                       {village.dropout}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className="bg-warning/10 text-warning border-warning/20">
+                      {village.neverEnrolled}
                     </Badge>
                   </TableCell>
                   <TableCell>{village.assignedBalMitra}</TableCell>

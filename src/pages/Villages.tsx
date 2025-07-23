@@ -80,11 +80,11 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       name: village.name,
       district: village.district,
       gramPanchayat: village.gramPanchayat,
-      totalChildren: Math.floor(village.population * 0.15), // Rough estimate
-      enrolled: Math.floor(village.population * 0.12),
-      dropout: Math.floor(village.population * 0.02),
-      neverEnrolled: Math.floor(village.population * 0.01),
-      assignedBalMitra: 'Bal Mitra Name' // This would come from actual assignment data
+      totalChildren: (village as any)['Total Children'] || 0,
+      enrolled: (village as any)['Enrolled'] || 0,
+      dropout: (village as any)['Dropout'] || 0,
+      neverEnrolled: (village as any)['Never Enrolled'] || 0,
+      assignedBalMitra: (village as any).balMitraName || 'Not Assigned'
     }));
   }, [villages]);
 
