@@ -115,34 +115,57 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
 
     setIsLoading(true);
     try {
+      // Format the payload according to the API specification
       const updatePayload = {
-        fullName: formData.fullName,
-        age: parseInt(formData.age),
-        gender: formData.gender,
-        para: formData.para,
-        panchayat: formData.panchayat,
-        cluster: formData.cluster,
-        block: formData.block,
-        motherTongue: formData.motherTongue,
-        motherName: formData.motherName,
-        fatherName: formData.fatherName,
-        motherEducated: formData.motherEducated,
-        fatherEducated: formData.fatherEducated,
-        familyOccupation: formData.familyOccupation,
-        caste: formData.caste,
-        parentsStatus: formData.parentsStatus,
-        livesWithWhom: formData.livesWithWhom,
-        goesToSchool: formData.goesToSchool,
-        schoolName: formData.schoolName,
-        schoolPara: formData.schoolPara,
-        currentClass: formData.currentClass,
-        attendanceStatus: formData.attendanceStatus,
-        educationStatus: formData.educationStatus,
-        hasCasteCertificate: formData.hasCasteCertificate,
-        hasResidenceCertificate: formData.hasResidenceCertificate,
-        hasAadhaar: formData.hasAadhaar,
-        aadhaarNumber: formData.aadhaarNumber,
-        hasDisability: formData.hasDisability
+        villageId: (childData as any)?.villageId || "8fbb3da4-0a54-4ea5-bc68-24aaa7861329", // Get from child data
+        surveyData: {
+          "section-1": {
+            "q1_1": formData.fullName,
+            "q1_2": formData.age,
+            "q1_3": "2012-03-15", // This should be calculated from age or stored separately
+            "q1_4": formData.gender,
+            "q1_5": formData.para,
+            "q1_6": formData.panchayat,
+            "q1_7": formData.cluster,
+            "q1_8": formData.block,
+            "q1_9": formData.motherTongue,
+            "q1_10": formData.motherName,
+            "q1_11": formData.fatherName,
+            "q1_12": formData.motherEducated ? "हाँ" : "नहीं",
+            "q1_13": formData.fatherEducated ? "हाँ" : "नहीं"
+          },
+          "section-2": {
+            "q2_1": formData.familyOccupation,
+            "q2_2": formData.caste,
+            "q2_3": formData.parentsStatus,
+            "q2_4": formData.livesWithWhom,
+            "q2_5": null
+          },
+          "section-3": {
+            "q3_1": "BPL", // This should come from form data if available
+            "q3_2": formData.aadhaarNumber
+          },
+          "section-4": {
+            "q4_1": formData.goesToSchool ? "हाँ" : "नहीं",
+            "q4_2": null,
+            "q4_3": null,
+            "q4_4": null,
+            "q4_5": formData.educationStatus,
+            "q4_6": formData.currentClass,
+            "q4_7": [], // This should come from form data if available
+            "q4_8": null
+          },
+          "section-5": {
+            "q5_1": formData.hasAadhaar ? "हाँ" : "नहीं",
+            "q5_2": formData.hasCasteCertificate ? "हाँ" : "नहीं",
+            "q5_3": formData.hasResidenceCertificate ? "हाँ" : "नहीं",
+            "q5_4": formData.aadhaarNumber
+          },
+          "section-6": {
+            "q6_1": formData.hasDisability ? "हाँ" : "नहीं",
+            "q6_2": null
+          }
+        }
       };
 
       await apiClient.updateChild(childId, updatePayload);

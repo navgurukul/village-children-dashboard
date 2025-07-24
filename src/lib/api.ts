@@ -199,23 +199,55 @@ interface ChildrenResponse {
 }
 
 interface UpdateChildPayload {
-  currentClass?: string;
-  attendanceStatus?: string;
-  age?: number;
-  fullName?: string;
-  gender?: string;
-  dateOfBirth?: string;
-  block?: string;
-  village?: string;
-  fatherName?: string;
-  motherName?: string;
-  familyIncome?: string;
-  caste?: string;
-  medicalIssues?: string;
-  educationStatus?: string;
-  schoolName?: string;
-  dropoutReason?: string;
-  lastAttended?: string;
+  villageId: string;
+  surveyData: {
+    "section-1": {
+      "q1_1": string; // fullName
+      "q1_2": string; // age
+      "q1_3": string; // dateOfBirth
+      "q1_4": string; // gender
+      "q1_5": string; // para
+      "q1_6": string; // panchayat
+      "q1_7": string; // cluster
+      "q1_8": string; // block
+      "q1_9": string; // motherTongue
+      "q1_10": string; // motherName
+      "q1_11": string; // fatherName
+      "q1_12": string; // motherEducated
+      "q1_13": string; // fatherEducated
+    };
+    "section-2": {
+      "q2_1": string; // familyOccupation
+      "q2_2": string; // caste
+      "q2_3": string; // parentsStatus
+      "q2_4": string; // livesWithWhom
+      "q2_5": string | null;
+    };
+    "section-3": {
+      "q3_1": string; // economicStatus
+      "q3_2": string; // aadhaarNumber
+    };
+    "section-4": {
+      "q4_1": string; // goesToSchool
+      "q4_2": string | null;
+      "q4_3": string | null;
+      "q4_4": string | null;
+      "q4_5": string; // educationStatus
+      "q4_6": string; // currentClass
+      "q4_7": string[]; // dropoutReasons
+      "q4_8": string | null;
+    };
+    "section-5": {
+      "q5_1": string; // hasAadhaar
+      "q5_2": string; // hasCasteCertificate
+      "q5_3": string; // hasResidenceCertificate
+      "q5_4": string; // aadhaarNumber
+    };
+    "section-6": {
+      "q6_1": string; // hasDisability
+      "q6_2": string | null;
+    };
+  };
 }
 
 interface DashboardOverview {
