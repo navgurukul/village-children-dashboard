@@ -33,6 +33,7 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
         setLoadingBlocks(true);
         const response = await apiClient.getBlocksGramPanchayats();
         if (response.success) {
+          console.log('Blocks data received:', response.data);
           setBlocksData(response.data);
         }
       } catch (error) {
@@ -171,7 +172,8 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
                 {formData.block && 
                   blocksData
                     .find(blockData => blockData.block === formData.block)
-                    ?.gramPanchayat.map((panchayat) => (
+                    ?.gramPanchayat?.filter(panchayat => typeof panchayat === 'string')
+                    .map((panchayat) => (
                       <SelectItem key={panchayat} value={panchayat}>
                         {panchayat}
                       </SelectItem>
