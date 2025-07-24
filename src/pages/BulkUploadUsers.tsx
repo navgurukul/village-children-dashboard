@@ -63,7 +63,41 @@ const BulkUploadUsers = ({ onComplete }: BulkUploadUsersProps) => {
   };
 
   const downloadTemplate = () => {
-    console.log('Downloading user template...');
+    // CSV headers
+    const headers = ['name', 'email', 'mobile', 'block', 'gramPanchayat'];
+    
+    // Sample data rows
+    const sampleData = [
+      ['Ram Kumar', 'ram.kumar@example.com', '9876543211', 'Jharia', 'Sijua'],
+      ['Shyam Singh', 'shyam.singh@example.com', '9876543212', 'Jharia', 'Katras'],
+      ['Amit Verma', 'amit.verma@example.com', '9876543213', 'Jharia', 'Bhaga'],
+      ['Suresh Yadav', 'suresh.yadav@example.com', '9876543214', 'Jharia', 'Putki'],
+      ['Ravi Ranjan', 'ravi.ranjan@example.com', '9876543215', 'Jharia', 'Bastacola'],
+      ['Dinesh Kumar', 'dinesh.kumar@example.com', '9876543216', 'Jharia', 'Kusunda'],
+      ['Rajeev Das', 'rajeev.das@example.com', '9876543217', 'Jharia', 'Bhaga'],
+      ['Manoj Tiwari', 'manoj.tiwari@example.com', '9876543218', 'Jharia', 'Sijua'],
+      ['Pankaj Mehta', 'pankaj.mehta@example.com', '9876543219', 'Jharia', 'Katras'],
+      ['Vikas Sharma', 'vikas.sharma@example.com', '9876543220', 'Jharia', 'Sindri']
+    ];
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...sampleData.map(row => row.join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'users_template.csv');
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
