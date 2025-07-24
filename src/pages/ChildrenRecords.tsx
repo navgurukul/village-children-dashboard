@@ -35,7 +35,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       };
 
       if (blockFilter !== 'all') params.block = blockFilter;
-      if (statusFilter !== 'all') params.educationStatus = statusFilter;
+      if (statusFilter !== 'all') params.status = statusFilter;
 
       console.log('Fetching children with params:', params);
       const response = await apiClient.getChildren(params);
