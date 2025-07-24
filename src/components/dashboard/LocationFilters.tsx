@@ -12,12 +12,34 @@ interface LocationFilters {
 interface LocationFiltersProps {
   filters: LocationFilters;
   onFiltersChange: (filters: LocationFilters) => void;
+  blocksData: any[];
 }
 
-const LocationFilters = ({ filters, onFiltersChange }: LocationFiltersProps) => {
+const LocationFilters = ({ filters, onFiltersChange, blocksData }: LocationFiltersProps) => {
   const updateFilter = (key: keyof LocationFilters, value: string) => {
-    onFiltersChange({ ...filters, [key]: value });
+    const newFilters = { ...filters, [key]: value };
+    
+    // Reset dependent filters when parent changes
+    if (key === 'block') {
+      newFilters.gramPanchayat = 'all';
+      newFilters.village = 'all';
+    } else if (key === 'gramPanchayat') {
+      newFilters.village = 'all';
+    }
+    
+    onFiltersChange(newFilters);
   };
+
+  // Get blocks from API data
+  const blocks = blocksData.map(block => block.block);
+  
+  // Get gram panchayats for selected block
+  const selectedBlockData = blocksData.find(block => block.block === filters.block);
+  const gramPanchayats = selectedBlockData ? selectedBlockData.gramPanchayat.map((gp: any) => gp.name) : [];
+  
+  // Get villages for selected gram panchayat
+  const selectedGramPanchayat = selectedBlockData?.gramPanchayat.find((gp: any) => gp.name === filters.gramPanchayat);
+  const villages = selectedGramPanchayat?.villages || [];
 
   return (
     <div className="flex items-center gap-4">
@@ -32,30 +54,41 @@ const LocationFilters = ({ filters, onFiltersChange }: LocationFiltersProps) => 
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Blocks</SelectItem>
-          <SelectItem value="block1">Block 1</SelectItem>
-          <SelectItem value="rajgangpur">Rajgangpur</SelectItem>
+          {blocks.map(block => (
+            <SelectItem key={block} value={block}>{block}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
-      <Select value={filters.gramPanchayat} onValueChange={(value) => updateFilter('gramPanchayat', value)}>
-        <SelectTrigger className="w-[150px] bg-white">
+      <Select 
+        value={filters.gramPanchayat} 
+        onValueChange={(value) => updateFilter('gramPanchayat', value)}
+        disabled={filters.block === 'all'}
+      >
+        <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="All Gram Panchayats" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Gram Panchayats</SelectItem>
-          <SelectItem value="panchayat1">Gram Panchayat 1</SelectItem>
-          <SelectItem value="panchayat2">Gram Panchayat 2</SelectItem>
+          {gramPanchayats.map(gp => (
+            <SelectItem key={gp} value={gp}>{gp}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
-      <Select value={filters.village} onValueChange={(value) => updateFilter('village', value)}>
+      <Select 
+        value={filters.village} 
+        onValueChange={(value) => updateFilter('village', value)}
+        disabled={filters.gramPanchayat === 'all'}
+      >
         <SelectTrigger className="w-[150px] bg-white">
           <SelectValue placeholder="All Villages" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Villages</SelectItem>
-          <SelectItem value="village1">Village 1</SelectItem>
-          <SelectItem value="village2">Village 2</SelectItem>
+          {villages.map(village => (
+            <SelectItem key={village} value={village}>{village}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

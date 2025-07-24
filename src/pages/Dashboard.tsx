@@ -24,9 +24,21 @@ const Dashboard = () => {
   const [recentSurveyDateRange, setRecentSurveyDateRange] = useState('30days');
   const [trendsDateRange, setTrendsDateRange] = useState('6months');
   const [dashboardData, setDashboardData] = useState<DashboardOverview | null>(null);
+  const [blocksData, setBlocksData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+
+  const fetchBlocksData = async () => {
+    try {
+      const response = await apiClient.getBlocksGramPanchayats();
+      if (response.success) {
+        setBlocksData(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching blocks data:', error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -65,6 +77,10 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBlocksData();
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
@@ -193,16 +209,31 @@ const Dashboard = () => {
   };
 
   const handleFilterChange = (filterId: string, value: string) => {
-    setLocationFilters(prev => ({
-      ...prev,
-      [filterId]: value
-    }));
+    setLocationFilters(prev => {
+      const newFilters = { ...prev, [filterId]: value };
+      
+      // Reset dependent filters when parent changes
+      if (filterId === 'block') {
+        newFilters.gramPanchayat = 'all';
+        newFilters.village = 'all';
+      } else if (filterId === 'gramPanchayat') {
+        newFilters.village = 'all';
+      }
+      
+      return newFilters;
+    });
   };
 
-  // Mock data for dropdowns - in real app, this would come from API
-  const blocks = ['Block A', 'Block B', 'Block C'];
-  const gramPanchayats = ['Gram Panchayat 1', 'Gram Panchayat 2', 'Gram Panchayat 3'];
-  const villages = ['Village 1', 'Village 2', 'Village 3', 'Village 4', 'Village 5'];
+  // Get blocks from API data
+  const blocks = blocksData.map(block => block.block);
+  
+  // Get gram panchayats for selected block
+  const selectedBlockData = blocksData.find(block => block.block === locationFilters.block);
+  const gramPanchayats = selectedBlockData ? selectedBlockData.gramPanchayat.map((gp: any) => gp.name) : [];
+  
+  // Get villages for selected gram panchayat
+  const selectedGramPanchayat = selectedBlockData?.gramPanchayat.find((gp: any) => gp.name === locationFilters.gramPanchayat);
+  const villages = selectedGramPanchayat?.villages || [];
 
   const filterOptions = [
     {
@@ -318,7 +349,8 @@ const Dashboard = () => {
           ) : (
             <LocationFilters 
               filters={locationFilters} 
-              onFiltersChange={setLocationFilters} 
+              onFiltersChange={setLocationFilters}
+              blocksData={blocksData}
             />
           )}
 
