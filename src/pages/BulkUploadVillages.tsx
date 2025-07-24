@@ -64,7 +64,41 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
   };
 
   const downloadTemplate = () => {
-    console.log('Downloading village template...');
+    // CSV headers
+    const headers = ['name', 'district', 'gramPanchayat', 'block', 'cluster', 'state'];
+    
+    // Sample data rows
+    const sampleData = [
+      ['Bahera', 'Dhanbad', 'Sijua', 'Jharia', 'Sijua-1', 'Jharkhand'],
+      ['Lodna', 'Dhanbad', 'Katras', 'Jharia', 'Katras-2', 'Jharkhand'],
+      ['Dhansar', 'Dhanbad', 'Bhaga', 'Jharia', 'Bhaga-3', 'Jharkhand'],
+      ['Tisra', 'Dhanbad', 'Sijua', 'Jharia', 'Sijua-2', 'Jharkhand'],
+      ['Kendua', 'Dhanbad', 'Katras', 'Jharia', 'Katras-1', 'Jharkhand'],
+      ['Putki', 'Dhanbad', 'Putki', 'Jharia', 'Putki-1', 'Jharkhand'],
+      ['Alakdiha', 'Dhanbad', 'Bhaga', 'Jharia', 'Bhaga-1', 'Jharkhand'],
+      ['Bastacola', 'Dhanbad', 'Bastacola', 'Jharia', 'Bastacola-1', 'Jharkhand'],
+      ['Sindri', 'Dhanbad', 'Sindri', 'Jharia', 'Sindri-1', 'Jharkhand'],
+      ['Kusunda', 'Dhanbad', 'Kusunda', 'Jharia', 'Kusunda-1', 'Jharkhand']
+    ];
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...sampleData.map(row => row.join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'village_template.csv');
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
