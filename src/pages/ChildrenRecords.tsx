@@ -80,7 +80,8 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     }));
   }, [apiChildren]);
 
-  // Filter data (client-side filtering for search)
+  // Filter data (client-side filtering for search only)
+  // The API already handles block and status filtering
   const filteredData = useMemo(() => {
     if (!searchTerm) return childrenData;
     
@@ -95,7 +96,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     });
   }, [childrenData, searchTerm]);
 
-  // Use API data directly for pagination
+  // Use filtered data for pagination
   const paginatedData = filteredData;
 
   const handleExportCSV = () => {
