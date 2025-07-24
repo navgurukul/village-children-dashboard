@@ -37,7 +37,9 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       if (blockFilter !== 'all') params.block = blockFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
 
+      console.log('Fetching children with params:', params);
       const response = await apiClient.getChildren(params);
+      console.log('API response:', response);
       // Filter out deleted children
       const activeChildren = response.data.children.filter(child => !child.auditInfo.isDeleted);
       setApiChildren(activeChildren);
