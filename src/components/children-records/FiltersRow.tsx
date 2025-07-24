@@ -43,9 +43,9 @@ const FiltersRow = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="Enrolled">Enrolled</SelectItem>
-          <SelectItem value="Dropout">Dropout</SelectItem>
-          <SelectItem value="Never Enrolled">Never Enrolled</SelectItem>
+          <SelectItem value="enrolled">Enrolled</SelectItem>
+          <SelectItem value="dropout">Dropout</SelectItem>
+          <SelectItem value="never_enrolled">Never Enrolled</SelectItem>
         </SelectContent>
       </Select>
     </div>

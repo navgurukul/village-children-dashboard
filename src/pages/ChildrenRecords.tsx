@@ -179,9 +179,9 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       value: statusFilter,
       options: [
         { label: 'All Statuses', value: 'all' },
-        { label: 'Enrolled', value: 'Enrolled' },
-        { label: 'Dropout', value: 'Dropout' },
-        { label: 'Never Enrolled', value: 'Never Enrolled' }
+        { label: 'Enrolled', value: 'enrolled' },
+        { label: 'Dropout', value: 'dropout' },
+        { label: 'Never Enrolled', value: 'never_enrolled' }
       ]
     }
   ];
