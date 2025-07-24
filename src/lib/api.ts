@@ -86,7 +86,10 @@ interface Village {
 
 interface BlockGramPanchayatData {
   block: string;
-  gramPanchayat: string[];
+  gramPanchayat: Array<{
+    name: string;
+    isAssigned: boolean;
+  }>;
 }
 
 interface VillagesResponse {
