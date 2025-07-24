@@ -155,8 +155,24 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const handleEditChild = (childId: string) => {
     // Find the child data from apiChildren (original API data)
     const childData = apiChildren.find(child => child.id === childId);
-    if (onEditChild) {
-      onEditChild(childId, childData);
+    if (onEditChild && childData) {
+      // Transform the API data to match the expected format for EditChildDetails
+      const transformedData = {
+        id: childData.id,
+        fullName: childData.basicInfo.fullName,
+        age: childData.basicInfo.age,
+        gender: childData.basicInfo.gender,
+        block: childData.basicInfo.block,
+        panchayat: childData.basicInfo.gramPanchayat,
+        para: childData.basicInfo.para,
+        motherName: childData.familyInfo.motherName,
+        fatherName: childData.familyInfo.fatherName,
+        educationStatus: childData.educationInfo.educationStatus,
+        schoolName: childData.educationInfo.schoolName || '',
+        aadhaarNumber: childData.documentsInfo.aadhaarNumber || '',
+        caste: childData.familyInfo.caste
+      };
+      onEditChild(childId, transformedData);
     }
   };
 
