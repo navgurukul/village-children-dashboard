@@ -126,9 +126,6 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
 
   const handleDeleteVillage = async (villageId: string) => {
     const village = villages.find(v => v.id === villageId);
-    const shouldDelete = window.confirm(`Are you sure you want to delete "${village?.name}"? This action cannot be undone.`);
-    
-    if (!shouldDelete) return;
 
     toast({
       title: "Deleting...",
