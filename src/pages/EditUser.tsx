@@ -141,7 +141,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
           {/* Role Selection */}
           <div className="space-y-2">
             <Label>Role *</Label>
-            <div className="flex gap-4">
+            <div className="flex gap-4 opacity-60 cursor-not-allowed">
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
@@ -150,6 +150,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
                   checked={formData.role === 'admin'}
                   onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                   className="text-primary"
+                  disabled
                 />
                 <span>Admin</span>
               </label>
@@ -161,6 +162,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
                   checked={formData.role === 'balMitra'}
                   onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                   className="text-primary"
+                  disabled
                 />
                 <span>Bal Mitra</span>
               </label>
