@@ -30,8 +30,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedChildData, setSelectedChildData] = useState<any | null>(null);
-  const [selectedBalMitraId, setSelectedBalMitraId] = useState<number | null>(null);
+  const [selectedBalMitraId, setSelectedBalMitraId] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [selectedBalMitra, setSelectedBalMitra] = useState<any | null>(null);
   const [selectedVillage, setSelectedVillage] = useState<any | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
   const isMobile = useIsMobile();
@@ -70,8 +71,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       setSelectedChildData(data?.childData || null);
       setEditChildFromDetails(data?.fromDetails || false);
     }
-    if (page === 'bal-mitra-details' && data?.balMitraId) {
-      setSelectedBalMitraId(data.balMitraId);
+    if (page === 'bal-mitra-details' && data?.balMitraData) {
+      setSelectedBalMitra(data.balMitraData);
+      setSelectedBalMitraId(data.balMitraData?.id || null);
     }
     if (page === 'edit-user' && data?.user) {
       setSelectedUser(data.user);
@@ -107,7 +109,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <UserManagement 
           onAddUser={() => handleNavigation('add-user')}
           onBulkUpload={() => handleNavigation('bulk-upload')}
-          onBalMitraClick={(balMitraId) => handleNavigation('bal-mitra-details', { balMitraId })}
+          onBalMitraClick={(balMitraData) => handleNavigation('bal-mitra-details', { balMitraData })}
           onEditUser={(user) => handleNavigation('edit-user', { user })}
         />;
       case 'add-user':
@@ -146,7 +148,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onSuccess={() => handleNavigation('villages')} 
         />;
       case 'bal-mitra-details':
-        return <BalMitraDetails balMitraId={selectedBalMitraId} onBack={() => handleNavigation('users')} />;
+        return <BalMitraDetails balMitraId={selectedBalMitraId} balMitraData={selectedBalMitra} onBack={() => handleNavigation('users')} />;
       case 'edit-user':
         return <EditUser 
           userData={selectedUser} 

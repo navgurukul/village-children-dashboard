@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 interface UserManagementProps {
   onAddUser: () => void;
   onBulkUpload: () => void;
-  onBalMitraClick: (balMitraId: string) => void;
+  onBalMitraClick: (balMitraData: User) => void;
   onEditUser: (user: User) => void;
 }
 
@@ -124,7 +124,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
 
   const handleUserClick = (user: User) => {
     if (user.role === 'balMitra') {
-      onBalMitraClick(user.id);
+      onBalMitraClick(user);
     }
   };
 

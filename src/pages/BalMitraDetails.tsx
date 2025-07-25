@@ -1,78 +1,47 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, User, MapPin, TrendingUp, Calendar, Users, GraduationCap, AlertTriangle, UserX } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { ArrowLeft, User, MapPin, Phone, Mail, Calendar, Building, Users } from 'lucide-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BalMitraDetailsProps {
-  balMitraId: number | null;
+  balMitraId: string | null;
+  balMitraData: any;
   onBack: () => void;
 }
 
-const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
-  const [dateRange, setDateRange] = useState('30days');
-  const [monthFilter, setMonthFilter] = useState('current');
+const BalMitraDetails = ({ balMitraId, balMitraData, onBack }: BalMitraDetailsProps) => {
   const isMobile = useIsMobile();
 
-  // Mock Bal Mitra data
-  const balMitraData = {
-    id: 2,
-    name: 'Priya Sharma',
-    email: 'priya.sharma@vcr.org',
-    mobile: '+91 98765 43210',
-    joiningDate: '2024-02-10',
-    block: 'Rajgangpur',
-    gramPanchayat: 'Gram Panchayat 1',
-    villages: ['Haripur', 'Rampur', 'Lakshmipur', 'Govindpur', 'Shantipur']
+  // Use actual user data or fallback to defaults
+  const displayData = {
+    id: balMitraData?.id || balMitraId,
+    name: balMitraData?.name || 'Unknown User',
+    email: balMitraData?.email || 'Not provided',
+    mobile: balMitraData?.mobile || 'Not provided',
+    username: balMitraData?.username || 'Not provided',
+    role: balMitraData?.role || 'Unknown',
+    isActive: balMitraData?.isActive || false,
+    block: balMitraData?.block || balMitraData?.assignedBlock || 'Not assigned',
+    gramPanchayat: balMitraData?.gramPanchayat || balMitraData?.assignedGramPanchayat || 'Not assigned',
+    cluster: balMitraData?.cluster || null,
+    createdAt: balMitraData?.createdAt || null,
+    updatedAt: balMitraData?.updatedAt || null,
+    loginAttempts: balMitraData?.loginAttempts || 0
   };
 
-  const performanceData = {
-    totalSurveyed: 450,
-    enrolled: 320,
-    dropout: 85,
-    neverEnrolled: 45
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    };
+    return date.toLocaleDateString('en-GB', options);
   };
 
-  const activityData = [
-    { date: '2024-06-01', surveyed: 15 },
-    { date: '2024-06-02', surveyed: 12 },
-    { date: '2024-06-03', surveyed: 18 },
-    { date: '2024-06-04', surveyed: 0 },
-    { date: '2024-06-05', surveyed: 22 },
-    { date: '2024-06-06', surveyed: 16 },
-    { date: '2024-06-07', surveyed: 14 },
-    { date: '2024-06-08', surveyed: 20 },
-    { date: '2024-06-09', surveyed: 0 },
-    { date: '2024-06-10', surveyed: 25 },
-    { date: '2024-06-11', surveyed: 19 },
-    { date: '2024-06-12', surveyed: 17 },
-    { date: '2024-06-13', surveyed: 13 },
-    { date: '2024-06-14', surveyed: 21 },
-    { date: '2024-06-15', surveyed: 0 }
-  ];
-
-  const villagePerformance = [
-    { village: 'Haripur', enrolled: 65, dropout: 20, neverEnrolled: 8 },
-    { village: 'Rampur', enrolled: 58, dropout: 15, neverEnrolled: 12 },
-    { village: 'Lakshmipur', enrolled: 72, dropout: 18, neverEnrolled: 5 },
-    { village: 'Govindpur', enrolled: 61, dropout: 16, neverEnrolled: 10 },
-    { village: 'Shantipur', enrolled: 64, dropout: 16, neverEnrolled: 10 }
-  ];
-
-  const getDateRangeLabel = () => {
-    switch (dateRange) {
-      case '7days': return 'Last 7 days';
-      case '30days': return 'Last 30 days';
-      case '90days': return 'Last 90 days';
-      default: return 'Last 30 days';
-    }
-  };
-
-  if (!balMitraId) {
+  if (!balMitraId && !balMitraData) {
     return (
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-6xl mx-auto">
@@ -111,186 +80,108 @@ const BalMitraDetails = ({ balMitraId, onBack }: BalMitraDetailsProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Name</label>
-                <p className="text-lg font-medium">{balMitraData.name}</p>
+                <p className="text-lg font-medium">{displayData.name}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Email</label>
-                <p className="text-lg font-medium">{balMitraData.email}</p>
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                  <Mail className="h-4 w-4" />
+                  Email
+                </label>
+                <p className="text-lg font-medium">{displayData.email}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Mobile</label>
-                <p className="text-lg font-medium">{balMitraData.mobile}</p>
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                  <Phone className="h-4 w-4" />
+                  Mobile
+                </label>
+                <p className="text-lg font-medium">{displayData.mobile}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Joining Date</label>
-                <p className="text-lg font-medium">{balMitraData.joiningDate}</p>
+                <label className="text-sm font-medium text-muted-foreground">Username</label>
+                <p className="text-lg font-medium">{displayData.username}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Block</label>
-                <p className="text-lg font-medium">{balMitraData.block}</p>
+                <label className="text-sm font-medium text-muted-foreground">Role</label>
+                <div className="mt-1">
+                  <Badge variant={displayData.role === 'admin' ? 'default' : 'secondary'}>
+                    {displayData.role}
+                  </Badge>
+                </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Gram Panchayat</label>
-                <p className="text-lg font-medium">{balMitraData.gramPanchayat}</p>
+                <label className="text-sm font-medium text-muted-foreground">Status</label>
+                <div className="mt-1">
+                  <Badge variant={displayData.isActive ? 'default' : 'destructive'}>
+                    {displayData.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
               </div>
             </div>
 
-            <div className="mt-4">
-              <label className="text-sm font-medium text-muted-foreground">Assigned Villages</label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {balMitraData.villages.map((village) => (
-                  <Badge key={village} variant="secondary">{village}</Badge>
-                ))}
+            {/* Assignment Information */}
+            {(displayData.block !== 'Not assigned' || displayData.gramPanchayat !== 'Not assigned') && (
+              <div className="mt-6 pt-6 border-t">
+                <h4 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  Assignment Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {displayData.block !== 'Not assigned' && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Block</label>
+                      <p className="text-lg font-medium">{displayData.block}</p>
+                    </div>
+                  )}
+                  {displayData.gramPanchayat !== 'Not assigned' && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Gram Panchayat</label>
+                      <p className="text-lg font-medium">{displayData.gramPanchayat}</p>
+                    </div>
+                  )}
+                  {displayData.cluster && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Cluster</label>
+                      <p className="text-lg font-medium">{displayData.cluster}</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Date Range Filter */}
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium">Performance Data Range:</label>
-          <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-[200px] bg-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7days">Last 7 days</SelectItem>
-              <SelectItem value="30days">Last 30 days</SelectItem>
-              <SelectItem value="90days">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Performance Section */}
+        {/* Account Information */}
         <Card className="shadow-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Performance ({getDateRangeLabel()})
+              <Building className="h-5 w-5" />
+              Account Information
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'} gap-6`}>
-              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
-                <div className={`p-3 rounded-lg bg-primary/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
-                  <Users className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-primary`} />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayData.createdAt && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Surveyed</p>
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.totalSurveyed}</p>
+                  <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    Joined Date
+                  </label>
+                  <p className="text-lg font-medium">{formatDate(displayData.createdAt)}</p>
                 </div>
-              </div>
-
-              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
-                <div className={`p-3 rounded-lg bg-success/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
-                  <GraduationCap className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-success`} />
-                </div>
+              )}
+              {displayData.updatedAt && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Enrolled</p>
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.enrolled}</p>
+                  <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
+                  <p className="text-lg font-medium">{formatDate(displayData.updatedAt)}</p>
                 </div>
-              </div>
-
-              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
-                <div className={`p-3 rounded-lg bg-destructive/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
-                  <AlertTriangle className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-destructive`} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Dropout</p>
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.dropout}</p>
-                </div>
-              </div>
-
-              <div className={`${isMobile ? 'flex items-center gap-3' : 'text-center'}`}>
-                <div className={`p-3 rounded-lg bg-warning/20 ${isMobile ? '' : 'w-fit mx-auto mb-2'}`}>
-                  <UserX className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6 md:h-8 md:w-8'} text-warning`} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Never Enrolled</p>
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground`}>{performanceData.neverEnrolled}</p>
-                </div>
+              )}
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Login Attempts</label>
+                <p className="text-lg font-medium">{displayData.loginAttempts}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Activity Visualization */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Daily Activity */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Daily Survey Activity
-              </CardTitle>
-              {isMobile && (
-                <Select value={monthFilter} onValueChange={setMonthFilter}>
-                  <SelectTrigger className="w-[150px] bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="current">Current Month</SelectItem>
-                    <SelectItem value="previous">Previous Month</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <div style={{ minWidth: isMobile ? '400px' : '100%' }}>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={activityData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="date" 
-                        tickFormatter={(value) => new Date(value).getDate().toString()}
-                      />
-                      <YAxis />
-                      <Tooltip 
-                        labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="surveyed" 
-                        stroke="hsl(var(--primary))" 
-                        strokeWidth={2}
-                        name="Children Surveyed"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Village Performance */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Village-wise Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <div style={{ minWidth: isMobile ? '500px' : '100%' }}>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={villagePerformance}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="village" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="enrolled" stackId="a" fill="hsl(var(--success))" name="Enrolled" />
-                      <Bar dataKey="dropout" stackId="a" fill="hsl(var(--destructive))" name="Dropout" />
-                      <Bar dataKey="neverEnrolled" stackId="a" fill="hsl(var(--warning))" name="Never Enrolled" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );
