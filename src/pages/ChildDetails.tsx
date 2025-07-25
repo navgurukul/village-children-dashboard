@@ -94,12 +94,6 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
           </Button>
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold text-foreground">Child Details</h1>
-            {onEdit && (
-              <Button onClick={() => onEdit(childId)} className="gap-2">
-                <Edit className="h-4 w-4" />
-                Edit Details
-              </Button>
-            )}
           </div>
         </div>
 
