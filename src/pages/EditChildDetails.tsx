@@ -147,9 +147,9 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
           },
           "section-4": {
             "q4_1": formData.goesToSchool ? "हाँ" : "नहीं",
-            "q4_2": null,
-            "q4_3": null,
-            "q4_4": null,
+            "q4_2": formData.schoolName,
+            "q4_3": formData.currentClass,
+            "q4_4": formData.attendanceStatus,
             "q4_5": formData.educationStatus,
             "q4_6": formData.currentClass,
             "q4_7": [], // This should come from form data if available
