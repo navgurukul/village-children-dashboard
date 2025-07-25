@@ -583,9 +583,6 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
             <Button type="button" variant="outline" onClick={onBack} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="button" variant="destructive" onClick={handleDelete} disabled={isLoading}>
-              Delete Record
-            </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? 'Updating...' : 'Update Child Details'}
             </Button>
