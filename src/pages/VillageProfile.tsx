@@ -11,26 +11,39 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VillageProfileProps {
   villageId: string | null;
+  villageData: any;
   onBack: () => void;
 }
 
-const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
+const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps) => {
   const [recentUpdatesDateRange, setRecentUpdatesDateRange] = useState('30days');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const isMobile = useIsMobile();
 
-  // Mock village data
-  const villageData = {
-    id: '1',
-    name: 'Haripur',
-    block: 'Block C',
-    gramPanchayat: 'Gram Panchayat 1',
-    assignedBalMitra: 'Ravi Kumar',
-    totalChildren: 245,
-    enrolled: { count: 189, percentage: 77.1 },
-    dropout: { count: 42, percentage: 17.1 },
-    neverEnrolled: { count: 14, percentage: 5.7 }
+  // Use actual village data or fallback to defaults
+  const displayData = {
+    id: villageData?.id || villageId,
+    name: villageData?.name || 'Unknown Village',
+    block: villageData?.block || 'Unknown Block',
+    gramPanchayat: villageData?.gramPanchayat || 'Unknown Gram Panchayat',
+    assignedBalMitra: villageData?.balMitraName || 'Not Assigned',
+    totalChildren: villageData?.['Total Children'] || 0,
+    enrolled: { 
+      count: villageData?.['Enrolled'] || 0, 
+      percentage: villageData?.['Total Children'] ? 
+        ((villageData?.['Enrolled'] || 0) / villageData?.['Total Children'] * 100).toFixed(1) : 0 
+    },
+    dropout: { 
+      count: villageData?.['Dropout'] || 0, 
+      percentage: villageData?.['Total Children'] ? 
+        ((villageData?.['Dropout'] || 0) / villageData?.['Total Children'] * 100).toFixed(1) : 0 
+    },
+    neverEnrolled: { 
+      count: villageData?.['Never Enrolled'] || 0, 
+      percentage: villageData?.['Total Children'] ? 
+        ((villageData?.['Never Enrolled'] || 0) / villageData?.['Total Children'] * 100).toFixed(1) : 0 
+    }
   };
 
   const longDropoutData = [
@@ -130,14 +143,14 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
           
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{villageData.name}</h1>
+              <h1 className="text-3xl font-bold text-foreground">{displayData.name}</h1>
               <p className="text-lg text-muted-foreground mt-1">
-                {villageData.block} &gt; {villageData.gramPanchayat}
+                {displayData.block} &gt; {displayData.gramPanchayat}
               </p>
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Assigned Bal Mitra</p>
-              <p className="font-semibold">{villageData.assignedBalMitra}</p>
+              <p className="font-semibold">{displayData.assignedBalMitra}</p>
             </div>
           </div>
         </div>
@@ -152,7 +165,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Children</p>
-                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{villageData.totalChildren}</p>
+                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{displayData.totalChildren}</p>
                 </div>
               </div>
             </CardContent>
@@ -166,7 +179,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Enrolled</p>
-                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{villageData.enrolled.count}</p>
+                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{displayData.enrolled.count}</p>
                 </div>
               </div>
             </CardContent>
@@ -180,7 +193,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Dropout</p>
-                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{villageData.dropout.count}</p>
+                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{displayData.dropout.count}</p>
                 </div>
               </div>
             </CardContent>
@@ -194,7 +207,7 @@ const VillageProfile = ({ villageId, onBack }: VillageProfileProps) => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Never Enrolled</p>
-                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{villageData.neverEnrolled.count}</p>
+                  <p className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-foreground`}>{displayData.neverEnrolled.count}</p>
                 </div>
               </div>
             </CardContent>

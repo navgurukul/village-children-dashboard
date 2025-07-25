@@ -76,8 +76,8 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     if (page === 'edit-user' && data?.user) {
       setSelectedUser(data.user);
     }
-    if (page === 'village-profile' && data?.villageId) {
-      setSelectedVillage({ id: data.villageId });
+    if (page === 'village-profile' && data?.villageData) {
+      setSelectedVillage(data.villageData);
     }
     if (page === 'edit-village' && data?.village) {
       setSelectedVillage(data.village);
@@ -99,7 +99,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           key={`villages-${Date.now()}`}
           onAddVillage={() => handleNavigation('add-village')}
           onBulkUpload={() => handleNavigation('bulk-upload-villages')}
-          onVillageClick={(villageId) => handleNavigation('village-profile', { villageId })}
+          onVillageClick={(villageData) => handleNavigation('village-profile', { villageData })}
           onEditVillage={(village) => handleNavigation('edit-village', { village })}
           onDeleteVillage={(villageId) => console.log('Delete village:', villageId)}
         />;
@@ -136,6 +136,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'village-profile':
         return <VillageProfile 
           villageId={selectedVillage?.id} 
+          villageData={selectedVillage}
           onBack={() => handleNavigation('villages')} 
         />;
       case 'edit-village':
