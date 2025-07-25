@@ -253,55 +253,35 @@ interface UpdateChildPayload {
   };
 }
 
-interface DashboardOverview {
+interface DashboardSummary {
   totalChildren: number;
   enrolled: number;
   dropout: number;
   neverEnrolled: number;
   enrollmentRate: number;
   dropoutRate: number;
-  genderBreakdown: {
-    total: {
-      boys: number;
-      girls: number;
-      others: number;
-    };
-    enrolled: {
+  childrenWithDisability: number;
+  recentSurveyFindings: {
+    dropouts: {
+      total: number;
       boys: number;
       girls: number;
     };
-    dropout: {
+    enrollments: {
+      total: number;
       boys: number;
       girls: number;
     };
     neverEnrolled: {
+      total: number;
       boys: number;
       girls: number;
     };
   };
-  ageGroupBreakdown: {
-    [key: string]: {
-      total: number;
-      enrolled: number;
-      dropout: number;
-      neverEnrolled: number;
-    };
-  };
-  casteBreakdown: {
-    [key: string]: {
-      total: number;
-      enrolled: number;
-      dropout: number;
-      neverEnrolled: number;
-    };
-  };
-  vulnerableChildren: number;
-  childrenWithDisability: number;
-  recentSurveys: number;
-  timeRange: {
-    startDate: string;
-    endDate: string;
-    period: string;
+  longDropoutPeriods: {
+    moreThan1Year: number;
+    sixToTwelveMonths: number;
+    threeToSixMonths: number;
   };
 }
 
@@ -363,23 +343,19 @@ class ApiClient {
     });
   }
 
-  async getDashboardOverview(params: {
-    period?: string;
+  async getDashboardSummary(params: {
     block?: string;
-    panchayat?: string;
-    caste?: string;
-    hasDisability?: boolean;
-  } = {}): Promise<ApiResponse<DashboardOverview>> {
+    gramPanchayat?: string;
+    villageId?: string;
+  } = {}): Promise<ApiResponse<DashboardSummary>> {
     const searchParams = new URLSearchParams();
     
-    if (params.period) searchParams.append('period', params.period);
     if (params.block) searchParams.append('block', params.block);
-    if (params.panchayat) searchParams.append('panchayat', params.panchayat);
-    if (params.caste) searchParams.append('caste', params.caste);
-    if (params.hasDisability !== undefined) searchParams.append('hasDisability', params.hasDisability.toString());
+    if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
+    if (params.villageId) searchParams.append('villageId', params.villageId);
 
-    const endpoint = `/dashboard/overview${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-    return this.request<DashboardOverview>(endpoint);
+    const endpoint = `/dashboard/summary${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<DashboardSummary>(endpoint);
   }
 
   async getUsers(params: {
@@ -535,6 +511,6 @@ export type {
   Child,
   ChildrenResponse,
   UpdateChildPayload,
-  DashboardOverview,
+  DashboardSummary,
   BlockGramPanchayatData
 };

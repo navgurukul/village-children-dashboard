@@ -10,7 +10,7 @@ import RecentSurveyFindings from '../components/dashboard/RecentSurveyFindings';
 import LongDropoutPeriod from '../components/dashboard/LongDropoutPeriod';
 import TrendsChart from '../components/dashboard/TrendsChart';
 import { useIsMobile } from "@/hooks/use-mobile";
-import { apiClient, DashboardOverview } from '../lib/api';
+import { apiClient, DashboardSummary } from '../lib/api';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -21,9 +21,8 @@ const Dashboard = () => {
     village: 'all'
   });
 
-  const [recentSurveyDateRange, setRecentSurveyDateRange] = useState('30days');
   const [trendsDateRange, setTrendsDateRange] = useState('6months');
-  const [dashboardData, setDashboardData] = useState<DashboardOverview | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
   const [blocksData, setBlocksData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
@@ -43,18 +42,11 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
-      // Convert filter period to API format
-      const periodMap: { [key: string]: string } = {
-        '7days': '7d',
-        '30days': '30d',
-        '90days': '90d'
-      };
 
-      const response = await apiClient.getDashboardOverview({
-        period: periodMap[recentSurveyDateRange] || '30d',
+      const response = await apiClient.getDashboardSummary({
         block: locationFilters.block !== 'all' ? locationFilters.block : undefined,
-        panchayat: locationFilters.gramPanchayat !== 'all' ? locationFilters.gramPanchayat : undefined,
+        gramPanchayat: locationFilters.gramPanchayat !== 'all' ? locationFilters.gramPanchayat : undefined,
+        villageId: locationFilters.village !== 'all' ? locationFilters.village : undefined,
       });
 
       if (response.success) {
@@ -84,7 +76,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, [locationFilters, recentSurveyDateRange]);
+  }, [locationFilters]);
 
   const handleExportPDF = async () => {
     try {
@@ -279,18 +271,18 @@ const Dashboard = () => {
   const recentSurveyFindings = dashboardData ? [
     { 
       type: 'Dropouts', 
-      count: dashboardData.dropout, 
-      breakdown: `${dashboardData.genderBreakdown.dropout.boys} Boys, ${dashboardData.genderBreakdown.dropout.girls} Girls` 
+      count: dashboardData.recentSurveyFindings.dropouts.total, 
+      breakdown: `${dashboardData.recentSurveyFindings.dropouts.boys} Boys, ${dashboardData.recentSurveyFindings.dropouts.girls} Girls` 
     },
     { 
       type: 'Enrollments', 
-      count: dashboardData.enrolled, 
-      breakdown: `${dashboardData.genderBreakdown.enrolled.boys} Boys, ${dashboardData.genderBreakdown.enrolled.girls} Girls` 
+      count: dashboardData.recentSurveyFindings.enrollments.total, 
+      breakdown: `${dashboardData.recentSurveyFindings.enrollments.boys} Boys, ${dashboardData.recentSurveyFindings.enrollments.girls} Girls` 
     },
     { 
       type: 'Never Enrolled', 
-      count: dashboardData.neverEnrolled, 
-      breakdown: `${dashboardData.genderBreakdown.neverEnrolled.boys} Boys, ${dashboardData.genderBreakdown.neverEnrolled.girls} Girls` 
+      count: dashboardData.recentSurveyFindings.neverEnrolled.total, 
+      breakdown: `${dashboardData.recentSurveyFindings.neverEnrolled.boys} Boys, ${dashboardData.recentSurveyFindings.neverEnrolled.girls} Girls` 
     }
   ] : [
     { type: 'Dropouts', count: 0, breakdown: '0 Boys, 0 Girls' },
@@ -298,11 +290,15 @@ const Dashboard = () => {
     { type: 'Never Enrolled', count: 0, breakdown: '0 Boys, 0 Girls' }
   ];
 
-  // Prepare long dropout data (mock data for now as it's not in the API response)
-  const longDropoutData = [
-    { period: '> 1 year', count: Math.floor(dashboardData?.dropout * 0.6) || 0, breakdown: 'Data not available' },
-    { period: '6-12 months', count: Math.floor(dashboardData?.dropout * 0.3) || 0, breakdown: 'Data not available' },
-    { period: '3-6 months', count: Math.floor(dashboardData?.dropout * 0.1) || 0, breakdown: 'Data not available' }
+  // Prepare long dropout data
+  const longDropoutData = dashboardData ? [
+    { period: '> 1 year', count: dashboardData.longDropoutPeriods.moreThan1Year, breakdown: 'Data from API' },
+    { period: '6-12 months', count: dashboardData.longDropoutPeriods.sixToTwelveMonths, breakdown: 'Data from API' },
+    { period: '3-6 months', count: dashboardData.longDropoutPeriods.threeToSixMonths, breakdown: 'Data from API' }
+  ] : [
+    { period: '> 1 year', count: 0, breakdown: 'Data not available' },
+    { period: '6-12 months', count: 0, breakdown: 'Data not available' },
+    { period: '3-6 months', count: 0, breakdown: 'Data not available' }
   ];
 
   // Mock trends data (this would need a separate API endpoint)
@@ -361,8 +357,6 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <RecentSurveyFindings 
               findings={recentSurveyFindings}
-              dateRange={recentSurveyDateRange}
-              onDateRangeChange={setRecentSurveyDateRange}
             />
             <LongDropoutPeriod data={longDropoutData} />
           </div>

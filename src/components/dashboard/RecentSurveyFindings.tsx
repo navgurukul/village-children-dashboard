@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,8 +12,8 @@ interface SurveyFinding {
 
 interface RecentSurveyFindingsProps {
   findings: SurveyFinding[];
-  dateRange: string;
-  onDateRangeChange: (range: string) => void;
+  dateRange?: string;
+  onDateRangeChange?: (range: string) => void;
 }
 
 const RecentSurveyFindings = ({ findings, dateRange, onDateRangeChange }: RecentSurveyFindingsProps) => {
@@ -26,16 +25,18 @@ const RecentSurveyFindings = ({ findings, dateRange, onDateRangeChange }: Recent
             <TrendingUp className="h-5 w-5" />
             Recent Survey Findings
           </CardTitle>
-          <Select value={dateRange} onValueChange={onDateRangeChange}>
-            <SelectTrigger className="w-[140px] bg-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7days">Last 7 days</SelectItem>
-              <SelectItem value="30days">Last 30 days</SelectItem>
-              <SelectItem value="90days">Last 3 Months</SelectItem>
-            </SelectContent>
-          </Select>
+          {dateRange && onDateRangeChange && (
+            <Select value={dateRange} onValueChange={onDateRangeChange}>
+              <SelectTrigger className="w-[140px] bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7days">Last 7 days</SelectItem>
+                <SelectItem value="30days">Last 30 days</SelectItem>
+                <SelectItem value="90days">Last 90 days</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </CardHeader>
       <CardContent>
