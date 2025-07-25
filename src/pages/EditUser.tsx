@@ -171,14 +171,14 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
 
           {/* Conditional Bal Mitra Fields */}
           {formData.role === 'balMitra' && (
-            <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/20">
+            <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/20 opacity-60">
               <h3 className="font-medium text-foreground">Village Assignment</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="block">Block</Label>
-                  <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value }))}>
-                    <SelectTrigger>
+                  <Select value={formData.block} onValueChange={(value) => setFormData(prev => ({ ...prev, block: value }))} disabled>
+                    <SelectTrigger className="cursor-not-allowed">
                       <SelectValue placeholder="Select Block" />
                     </SelectTrigger>
                     <SelectContent>
@@ -192,8 +192,8 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="panchayat">Panchayat</Label>
-                  <Select value={formData.panchayat} onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}>
-                    <SelectTrigger>
+                  <Select value={formData.panchayat} onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))} disabled>
+                    <SelectTrigger className="cursor-not-allowed">
                       <SelectValue placeholder="Select Panchayat" />
                     </SelectTrigger>
                     <SelectContent>
