@@ -17,6 +17,7 @@ interface Child {
   aadhaar: string;
   aadhaarNumber: string;
   schoolName: string;
+  school: string;
   schoolStatus: string;
   block: string;
   gramPanchayat: string;

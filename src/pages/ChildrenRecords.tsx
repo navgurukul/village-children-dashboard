@@ -75,7 +75,8 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       village: child.basicInfo.para,
       aadhaar: child.documentsInfo.aadhaarNumber,
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
-      schoolName: child.educationInfo.schoolName,
+      schoolName: child.educationInfo.schoolName || '',
+      school: child.educationInfo.schoolName || '',
       schoolStatus: child.educationInfo.educationStatus,
       block: child.basicInfo.block,
       gramPanchayat: child.basicInfo.gramPanchayat || ''
