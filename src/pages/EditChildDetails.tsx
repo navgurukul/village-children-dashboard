@@ -303,8 +303,16 @@ const EditChildDetails = ({ childId, childData, onBack, onSuccess, fromChildDeta
                   id="aadhaarNumber"
                   type="text"
                   value={formData.aadhaarNumber}
-                  onChange={(e) => setFormData(prev => ({ ...prev, aadhaarNumber: e.target.value }))}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                    if (value.length <= 12) {
+                      setFormData(prev => ({ ...prev, aadhaarNumber: value }));
+                    }
+                  }}
                   className="bg-white"
+                  maxLength={12}
+                  pattern="[0-9]{12}"
+                  title="Please enter exactly 12 digits"
                 />
               </div>
               <div className="space-y-2">
