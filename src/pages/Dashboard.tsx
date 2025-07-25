@@ -268,21 +268,21 @@ const Dashboard = () => {
   };
 
   // Prepare recent survey findings
-  const recentSurveyFindings = dashboardData ? [
+  const recentSurveyFindings = dashboardData && dashboardData.recentSurveyFindings ? [
     { 
       type: 'Dropouts', 
-      count: dashboardData.recentSurveyFindings.dropouts.total, 
-      breakdown: `${dashboardData.recentSurveyFindings.dropouts.boys} Boys, ${dashboardData.recentSurveyFindings.dropouts.girls} Girls` 
+      count: dashboardData.recentSurveyFindings.dropouts?.total || 0, 
+      breakdown: `${dashboardData.recentSurveyFindings.dropouts?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.dropouts?.girls || 0} Girls` 
     },
     { 
       type: 'Enrollments', 
-      count: dashboardData.recentSurveyFindings.enrollments.total, 
-      breakdown: `${dashboardData.recentSurveyFindings.enrollments.boys} Boys, ${dashboardData.recentSurveyFindings.enrollments.girls} Girls` 
+      count: dashboardData.recentSurveyFindings.enrollments?.total || 0, 
+      breakdown: `${dashboardData.recentSurveyFindings.enrollments?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.enrollments?.girls || 0} Girls` 
     },
     { 
       type: 'Never Enrolled', 
-      count: dashboardData.recentSurveyFindings.neverEnrolled.total, 
-      breakdown: `${dashboardData.recentSurveyFindings.neverEnrolled.boys} Boys, ${dashboardData.recentSurveyFindings.neverEnrolled.girls} Girls` 
+      count: dashboardData.recentSurveyFindings.neverEnrolled?.total || 0, 
+      breakdown: `${dashboardData.recentSurveyFindings.neverEnrolled?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.neverEnrolled?.girls || 0} Girls` 
     }
   ] : [
     { type: 'Dropouts', count: 0, breakdown: '0 Boys, 0 Girls' },
@@ -291,10 +291,10 @@ const Dashboard = () => {
   ];
 
   // Prepare long dropout data
-  const longDropoutData = dashboardData ? [
-    { period: '> 1 year', count: dashboardData.longDropoutPeriods.moreThan1Year, breakdown: 'Data from API' },
-    { period: '6-12 months', count: dashboardData.longDropoutPeriods.sixToTwelveMonths, breakdown: 'Data from API' },
-    { period: '3-6 months', count: dashboardData.longDropoutPeriods.threeToSixMonths, breakdown: 'Data from API' }
+  const longDropoutData = dashboardData && dashboardData.longDropoutPeriods ? [
+    { period: '> 1 year', count: dashboardData.longDropoutPeriods.moreThan1Year || 0, breakdown: 'Data from API' },
+    { period: '6-12 months', count: dashboardData.longDropoutPeriods.sixToTwelveMonths || 0, breakdown: 'Data from API' },
+    { period: '3-6 months', count: dashboardData.longDropoutPeriods.threeToSixMonths || 0, breakdown: 'Data from API' }
   ] : [
     { period: '> 1 year', count: 0, breakdown: 'Data not available' },
     { period: '6-12 months', count: 0, breakdown: 'Data not available' },
