@@ -75,7 +75,7 @@ const UsersCardList = ({ users, onUserClick, onEditUser, onDeleteUser, onCopyLog
                 
                 <div className="text-sm text-muted-foreground">
                   <div>Created: {formatDate(user.createdAt)}</div>
-                  <div>Assigned to: {user.block ? `${user.block} - ${user.panchayat}` : 'All Blocks'}</div>
+                  <div>Assigned to: {user.block ? `${user.block} - ${user.assignedGramPanchayat || user.gramPanchayat || ''}` : 'All Blocks'}</div>
                 </div>
               </div>
               

@@ -279,7 +279,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                       </TableCell>
                       <TableCell className="font-mono text-sm">{user.username}</TableCell>
                       <TableCell className="font-mono text-sm">{user.mobile}</TableCell>
-                      <TableCell>{user.block ? `${user.block} - ${user.panchayat}` : 'All Blocks'}</TableCell>
+                      <TableCell>{user.block ? `${user.block} - ${user.assignedGramPanchayat || user.gramPanchayat || ''}` : 'All Blocks'}</TableCell>
                       <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">

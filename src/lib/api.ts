@@ -34,6 +34,9 @@ interface User {
   block?: string;
   panchayat?: string;
   cluster?: string;
+  assignedBlock?: string;
+  assignedGramPanchayat?: string;
+  gramPanchayat?: string;
   isActive: boolean;
   loginAttempts: number;
   createdAt: string;
