@@ -21,6 +21,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [apiChildren, setApiChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
   const itemsPerPage = 50;
@@ -43,7 +44,8 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       // Filter out deleted children
       const activeChildren = response.data.children.filter(child => !child.auditInfo.isDeleted);
       setApiChildren(activeChildren);
-      setTotalCount(activeChildren.length);
+      setTotalCount(response.data.pagination.totalRecords);
+      setTotalPages(response.data.pagination.totalPages);
     } catch (error) {
       console.error('Error fetching children:', error);
       toast({
@@ -219,6 +221,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           paginatedData={paginatedData}
           filteredData={filteredData}
           currentPage={currentPage}
+          totalPages={totalPages}
           setCurrentPage={setCurrentPage}
           onChildClick={(childId: string) => {
             const childData = apiChildren.find(child => child.id === childId);

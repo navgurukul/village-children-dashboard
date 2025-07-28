@@ -34,6 +34,7 @@ interface ChildrenRecordsContentProps {
   paginatedData: Child[];
   filteredData: Child[];
   currentPage: number;
+  totalPages: number;
   setCurrentPage: (page: number) => void;
   onChildClick: (childId: string) => void;
   onEditChild?: (childId: string) => void;
@@ -58,6 +59,7 @@ const ChildrenRecordsContent = ({
   paginatedData,
   filteredData,
   currentPage,
+  totalPages,
   setCurrentPage,
   onChildClick,
   onEditChild,
@@ -67,8 +69,6 @@ const ChildrenRecordsContent = ({
   filterOptions
 }: ChildrenRecordsContentProps) => {
   const isMobile = useIsMobile();
-  const itemsPerPage = 20;
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <>
