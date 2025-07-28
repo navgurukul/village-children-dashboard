@@ -52,7 +52,7 @@ const EditVillage = ({ village, onCancel, onSuccess }: EditVillageProps) => {
         district: formData.district,
         state: formData.state,
         block: formData.block,
-        panchayat: formData.panchayat,
+        gramPanchayat: formData.panchayat,
         population: parseInt(formData.population) || 0
       });
 

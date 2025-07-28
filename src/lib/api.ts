@@ -117,7 +117,7 @@ interface CreateVillagePayload {
 interface UpdateVillagePayload {
   name?: string;
   district?: string;
-  panchayat?: string;
+  gramPanchayat?: string;
   block?: string;
   cluster?: string;
   state?: string;
