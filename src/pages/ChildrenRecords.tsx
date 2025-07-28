@@ -162,18 +162,33 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       // Transform the API data to match the expected format for EditChildDetails
       const transformedData = {
         id: childData.id,
+        villageId: childData.surveyMeta.villageId,
         fullName: childData.basicInfo.fullName,
         age: childData.basicInfo.age,
         gender: childData.basicInfo.gender,
         block: childData.basicInfo.block,
         panchayat: childData.basicInfo.gramPanchayat,
         para: childData.basicInfo.para,
+        cluster: childData.basicInfo.cluster,
+        motherTongue: childData.basicInfo.motherTongue,
         motherName: childData.familyInfo.motherName,
         fatherName: childData.familyInfo.fatherName,
-        educationStatus: childData.educationInfo.educationStatus,
+        motherEducated: childData.familyInfo.motherEducated,
+        fatherEducated: childData.familyInfo.fatherEducated,
+        familyOccupation: childData.familyInfo.familyOccupation,
+        caste: childData.familyInfo.caste,
+        parentsStatus: childData.familyInfo.parentsStatus,
+        livesWithWhom: childData.familyInfo.livesWithWhom,
+        goesToSchool: childData.educationInfo.goesToSchool,
         schoolName: childData.educationInfo.schoolName || '',
+        currentClass: childData.educationInfo.currentClass,
+        attendanceStatus: childData.educationInfo.attendanceStatus,
+        educationStatus: childData.educationInfo.educationStatus,
+        hasCasteCertificate: childData.documentsInfo.hasCasteCertificate,
+        hasResidenceCertificate: childData.documentsInfo.hasResidenceCertificate,
+        hasAadhaar: childData.documentsInfo.hasAadhaar,
         aadhaarNumber: childData.documentsInfo.aadhaarNumber || '',
-        caste: childData.familyInfo.caste
+        hasDisability: childData.healthInfo.hasDisability
       };
       onEditChild(childId, transformedData);
     }
