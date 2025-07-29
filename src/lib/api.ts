@@ -158,6 +158,7 @@ interface Child {
     currentClass: string;
     attendanceStatus: string;
     educationStatus: string;
+    educationCategory: string;
   };
   documentsInfo: {
     hasCasteCertificate: boolean;
