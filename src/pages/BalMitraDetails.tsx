@@ -175,10 +175,10 @@ const BalMitraDetails = ({ balMitraId, balMitraData, onBack }: BalMitraDetailsPr
                   <p className="text-lg font-medium">{formatDate(displayData.updatedAt)}</p>
                 </div>
               )}
-              <div>
+              {/* <div>
                 <label className="text-sm font-medium text-muted-foreground">Login Attempts</label>
                 <p className="text-lg font-medium">{displayData.loginAttempts}</p>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>
