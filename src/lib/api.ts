@@ -499,6 +499,12 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async getProfile(): Promise<ApiResponse<any>> {
+    return this.request<any>('/users/profile', {
+      method: 'GET',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();
