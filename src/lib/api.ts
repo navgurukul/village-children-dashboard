@@ -334,7 +334,14 @@ class ApiClient {
     const response = await fetch(url, config);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Parse error response and throw it so frontend can access error details
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: `HTTP error! status: ${response.status}` };
+      }
+      throw { response: { status: response.status, data: errorData } };
     }
 
     return response.json();
