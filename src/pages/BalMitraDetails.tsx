@@ -28,7 +28,7 @@ const BalMitraDetails = ({ balMitraId, balMitraData, onBack }: BalMitraDetailsPr
     cluster: balMitraData?.cluster || null,
     createdAt: balMitraData?.createdAt || null,
     updatedAt: balMitraData?.updatedAt || null,
-    // loginAttempts: balMitraData?.loginAttempts || 0
+    //  loginAttempts: balMitraData?.loginAttempts || 0
   };
 
   const formatDate = (dateString: string) => {
