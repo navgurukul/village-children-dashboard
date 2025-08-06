@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +21,7 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
     panchayat: '',
     population: ''
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [blocksData, setBlocksData] = useState<BlockGramPanchayatData[]>([]);
   const [loadingBlocks, setLoadingBlocks] = useState(true);
@@ -53,30 +53,31 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log('Form submitted with data:', formData);
-    
-    // Check if required fields are filled
-    if (!formData.villageName || !formData.block || !formData.panchayat) {
+    const newErrors: { [key: string]: string } = {};
+    // Validate fields
+    if (!formData.villageName.trim()) {
+      newErrors.villageName = 'Village name is required';
+    }
+    if (!formData.block) {
+      newErrors.block = 'Block is required';
+    }
+    if (!formData.panchayat) {
+      newErrors.panchayat = 'Gram Panchayat is required';
+    }
+    if (formData.population && (!/^[0-9]+$/.test(formData.population) || parseInt(formData.population) < 0)) {
+      newErrors.population = 'Population must be a positive number';
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
       toast({
         title: "Validation Error",
-        description: "Please fill all required fields",
+        description: "Please fix the errors in the form.",
         variant: "destructive",
       });
       return;
     }
-    
     try {
       setLoading(true);
-      console.log('Calling API with payload:', {
-        name: formData.villageName,
-        district: formData.district,
-        state: formData.state,
-        block: formData.block,
-        panchayat: formData.panchayat,
-        population: parseInt(formData.population) || 0
-      });
-      
       const response = await apiClient.createVillage({
         name: formData.villageName,
         district: formData.district,
@@ -85,24 +86,34 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
         gramPanchayat: formData.panchayat,
         population: parseInt(formData.population) || 0
       });
-
-      console.log('API Response:', response);
-
       if (response.success) {
         toast({
           title: "Success",
           description: "Village created successfully",
         });
         onSuccess();
+      } else {
+        const errorMessage = response.message || "Please fix the errors in the form.";
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
       }
-    } catch (error) {
-      console.error('Error creating village:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create village",
-        variant: "destructive",
-      });
-    } finally {
+    } catch (error: any) {
+  console.error('Error creating village:', error);
+  let errorMsg = "Failed to create village";
+  // Backend error details show karo agar mil jaye
+  if (error?.response?.data?.error?.details?.[0]) {
+    errorMsg = error.response.data.error.details[0];
+  }
+  toast({
+    title: "Error",
+    description: errorMsg,
+    variant: "destructive",
+  });
+} finally {
       setLoading(false);
     }
   };
@@ -131,21 +142,36 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
               id="villageName"
               type="text"
               value={formData.villageName}
-              onChange={(e) => setFormData(prev => ({ ...prev, villageName: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData(prev => ({ ...prev, villageName: value }));
+                if (errors.villageName) {
+                  setErrors(prev => ({ ...prev, villageName: '' }));
+                }
+              }}
               placeholder="Enter village name"
-              className="bg-white"
-              required
+              className={`bg-white${errors.villageName && !formData.villageName.trim() ? ' border-2 border-red-500 focus:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2' : ''}`}
+              autoComplete="off"
             />
+            {/* Show error only if not editing and error exists */}
+            {errors.villageName && !formData.villageName.trim() && document.activeElement?.id !== 'villageName' && (
+              <p className="text-red-500 text-xs mt-1">{errors.villageName}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="block" className="font-bold">Block *</Label>
             <Select 
               value={formData.block} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, block: value, panchayat: '' }))}
+              onValueChange={(value) => {
+                setFormData(prev => ({ ...prev, block: value, panchayat: '' }));
+                if (errors.block) {
+                  setErrors(prev => ({ ...prev, block: '' }));
+                }
+              }}
               disabled={loadingBlocks}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className={`bg-white${errors.block && !formData.block ? ' border-2 border-red-500 focus:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2' : ''}`}>
                 <SelectValue placeholder={loadingBlocks ? "Loading blocks..." : "Select Block"} />
               </SelectTrigger>
               <SelectContent>
@@ -156,16 +182,25 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
                 ))}
               </SelectContent>
             </Select>
+            {/* Show error only if not editing and error exists */}
+            {errors.block && !formData.block && document.activeElement?.id !== 'block' && (
+              <p className="text-red-500 text-xs mt-1">{errors.block}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="panchayat" className="font-bold">Gram Panchayat *</Label>
             <Select 
               value={formData.panchayat} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))}
+              onValueChange={(value) => {
+                setFormData(prev => ({ ...prev, panchayat: value }));
+                if (errors.panchayat) {
+                  setErrors(prev => ({ ...prev, panchayat: '' }));
+                }
+              }}
               disabled={!formData.block}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className={`bg-white${errors.panchayat && !formData.panchayat ? ' border-2 border-red-500 focus:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2' : ''}`}>
                 <SelectValue placeholder={!formData.block ? "Select Block first" : "Select Gram Panchayat"} />
               </SelectTrigger>
               <SelectContent>
@@ -180,6 +215,10 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
                 }
               </SelectContent>
             </Select>
+            {/* Show error only if not editing and error exists */}
+            {errors.panchayat && !formData.panchayat && document.activeElement?.id !== 'panchayat' && (
+              <p className="text-red-500 text-xs mt-1">{errors.panchayat}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -188,10 +227,20 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
               id="population"
               type="number"
               value={formData.population}
-              onChange={(e) => setFormData(prev => ({ ...prev, population: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData(prev => ({ ...prev, population: value }));
+                if (errors.population) {
+                  setErrors(prev => ({ ...prev, population: '' }));
+                }
+              }}
               placeholder="Enter population"
-              className="bg-white"
+              className={`bg-white${errors.population && (!formData.population || !/^[0-9]+$/.test(formData.population) || parseInt(formData.population) < 0) ? ' border-2 border-red-500 focus:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2' : ''}`}
             />
+            {/* Show error only if not editing and error exists */}
+            {errors.population && (!formData.population || !/^[0-9]+$/.test(formData.population) || parseInt(formData.population) < 0) && document.activeElement?.id !== 'population' && (
+              <p className="text-red-500 text-xs mt-1">{errors.population}</p>
+            )}
           </div>
 
           {/* Actions */}
