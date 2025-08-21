@@ -79,7 +79,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
       schoolName: child.educationInfo.schoolName || '',
       school: child.educationInfo.schoolName || '',
-      schoolStatus: child.educationInfo.educationCategory, // Use educationCategory for status column
+      schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
       block: child.basicInfo.block,
       gramPanchayat: child.basicInfo.gramPanchayat || ''
     }));
