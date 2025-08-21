@@ -28,14 +28,23 @@ interface ChildrenTableProps {
 const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: ChildrenTableProps) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'enrolled':
+        return <Badge className="status-enrolled">Enrolled</Badge>;
+      case 'dropout':
+        return <Badge className="status-dropout">Dropout</Badge>;
+      case 'never_enrolled':
+        return <Badge className="status-never">Never Enrolled</Badge>;
+      case 'unknown':
+        return <Badge variant="outline" className="text-gray-600 border-gray-300">Unknown</Badge>;
+      // Handle legacy cases (for backwards compatibility)
       case 'Enrolled':
-        return <Badge className="status-enrolled">{status}</Badge>;
+        return <Badge className="status-enrolled">Enrolled</Badge>;
       case 'Dropout':
-        const dropoutPeriod = Math.floor(Math.random() * 18) + 1;
-        const displayText = dropoutPeriod > 12 ? 'Dropout > 1 year' : `Dropout for ${dropoutPeriod} months`;
-        return <Badge className="status-dropout">{displayText}</Badge>;
+        return <Badge className="status-dropout">Dropout</Badge>;
       case 'Never Enrolled':
-        return <Badge className="status-never">{status}</Badge>;
+        return <Badge className="status-never">Never Enrolled</Badge>;
+      case 'N/A':
+        return <Badge variant="outline" className="text-gray-400 border-gray-300">N/A</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
