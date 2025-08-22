@@ -292,13 +292,25 @@ const Dashboard = () => {
 
   // Prepare long dropout data
   const longDropoutData = dashboardData && dashboardData.longDropoutPeriods ? [
-    { period: '> 1 year', count: dashboardData.longDropoutPeriods.moreThan1Year || 0, breakdown: 'Data from API' },
-    { period: '6-12 months', count: dashboardData.longDropoutPeriods.sixToTwelveMonths || 0, breakdown: 'Data from API' },
-    { period: '3-6 months', count: dashboardData.longDropoutPeriods.threeToSixMonths || 0, breakdown: 'Data from API' }
+    { 
+      period: '> 1 year', 
+      count: dashboardData.longDropoutPeriods.moreThan1Year || 0, 
+      breakdown: (dashboardData.longDropoutPeriods.moreThan1Year || 0) > 0 ? 'Data from API' : '0'
+    },
+    { 
+      period: '6-12 months', 
+      count: dashboardData.longDropoutPeriods.sixToTwelveMonths || 0, 
+      breakdown: (dashboardData.longDropoutPeriods.sixToTwelveMonths || 0) > 0 ? 'Data from API' : '0'
+    },
+    { 
+      period: '3-6 months', 
+      count: dashboardData.longDropoutPeriods.threeToSixMonths || 0, 
+      breakdown: (dashboardData.longDropoutPeriods.threeToSixMonths || 0) > 0 ? 'Data from API' : '0'
+    }
   ] : [
-    { period: '> 1 year', count: 0, breakdown: 'Data not available' },
-    { period: '6-12 months', count: 0, breakdown: 'Data not available' },
-    { period: '3-6 months', count: 0, breakdown: 'Data not available' }
+    { period: '> 1 year', count: 0, breakdown: '0' },
+    { period: '6-12 months', count: 0, breakdown: '0' },
+    { period: '3-6 months', count: 0, breakdown: '0' }
   ];
 
   // Mock trends data (this would need a separate API endpoint)
