@@ -53,7 +53,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
       const response = await apiClient.getVillages({
         page: currentPage,
         limit: itemsPerPage,
-        district: 'Dhanbad', // Default district
+        district: districtFilter !== 'all' ? districtFilter : undefined, // Use filter instead of hardcoded value
         panchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined
       });
 
