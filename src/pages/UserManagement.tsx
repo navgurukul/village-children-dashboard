@@ -22,6 +22,7 @@ interface UserManagementProps {
 
 const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
@@ -36,12 +37,23 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, roleFilter]);
+  }, [currentPage, roleFilter, debouncedSearchTerm]); // Use debouncedSearchTerm
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Reset to first page when search changes
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
+    if (debouncedSearchTerm) {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -50,6 +62,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
         role: roleFilter === 'all' ? undefined : roleFilter,
         page: currentPage,
         limit: itemsPerPage,
+        search: debouncedSearchTerm || undefined, // Use debouncedSearchTerm
       });
       
       if (response.success) {
@@ -71,20 +84,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     }
   };
 
-  // Filter data (client-side search only, pagination handled by backend)
-  const filteredData = useMemo(() => {
-    return users.filter(user => {
-      const matchesSearch = searchTerm === '' || 
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesSearch;
-    });
-  }, [users, searchTerm]);
-
-  // Use filtered data directly (no additional pagination needed)
-  const paginatedData = filteredData;
+  // Use users directly (server-side search and pagination)
+  const paginatedData = users;
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
