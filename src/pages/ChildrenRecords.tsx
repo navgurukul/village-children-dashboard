@@ -49,7 +49,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       };
 
       if (blockFilter !== 'all') params.block = blockFilter;
-      if (statusFilter !== 'all') params.status = statusFilter;
+      if (statusFilter !== 'all') params.educationStatus = statusFilter;
 
       console.log('Fetching children with params:', params);
       const response = await apiClient.getChildren(params);
@@ -167,8 +167,10 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'block') {
       setBlockFilter(value);
+      setCurrentPage(1); // Reset to first page when filter changes
     } else if (filterId === 'status') {
       setStatusFilter(value);
+      setCurrentPage(1); // Reset to first page when filter changes
     }
   };
 

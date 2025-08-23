@@ -95,6 +95,22 @@ interface BlockGramPanchayatData {
   }>;
 }
 
+interface DistrictGramPanchayatData {
+  district: string;
+  gramPanchayat: Array<{
+    name: string;
+    isAssigned: boolean;
+  }>;
+}
+
+interface GramPanchayatResponse {
+  gramPanchayats: string[];
+  total: number;
+  filters: {
+    district: string | null;
+  };
+}
+
 interface VillagesResponse {
   items: Village[];
   pagination: {
@@ -494,6 +510,14 @@ class ApiClient {
     return this.request<BlockGramPanchayatData[]>('/villages/blocks-gramPanchayats');
   }
 
+  async getDistrictGramPanchayats(district?: string): Promise<ApiResponse<GramPanchayatResponse>> {
+    const searchParams = new URLSearchParams();
+    if (district) searchParams.append('district', district);
+    
+    const endpoint = `/villages/district-gramPanchayats${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<GramPanchayatResponse>(endpoint);
+  }
+
   async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
     return this.request<any>(`/children/${childId}`, {
       method: 'PUT',
@@ -529,5 +553,7 @@ export type {
   ChildrenResponse,
   UpdateChildPayload,
   DashboardSummary,
-  BlockGramPanchayatData
+  BlockGramPanchayatData,
+  DistrictGramPanchayatData,
+  GramPanchayatResponse
 };
