@@ -19,12 +19,25 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [apiChildren, setApiChildren] = useState<Child[]>([]);
+  const [blocksData, setBlocksData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
   const itemsPerPage = 50;
+
+  // Fetch blocks data from API
+  const fetchBlocksData = async () => {
+    try {
+      const response = await apiClient.getBlocksGramPanchayats();
+      if (response.success) {
+        setBlocksData(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching blocks data:', error);
+    }
+  };
 
   // Fetch children data from API
   const fetchChildren = async () => {
@@ -59,13 +72,17 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   };
 
   useEffect(() => {
+    fetchBlocksData();
+  }, []);
+
+  useEffect(() => {
     fetchChildren();
   }, [currentPage, blockFilter, statusFilter]);
 
-  // Get unique blocks for filter from API data
+  // Get blocks from API data
   const blocks = useMemo(() => {
-    return [...new Set(apiChildren.map(child => child.basicInfo.block))];
-  }, [apiChildren]);
+    return blocksData.map(blockData => blockData.block);
+  }, [blocksData]);
 
   // Transform API data to match expected interface for components
   const childrenData = useMemo(() => {
