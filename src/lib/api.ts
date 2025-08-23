@@ -389,12 +389,14 @@ class ApiClient {
     role?: string;
     page?: number;
     limit?: number;
+    search?: string;
   } = {}): Promise<ApiResponse<UsersResponse>> {
     const searchParams = new URLSearchParams();
     
     if (params.role) searchParams.append('role', params.role);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
 
     const endpoint = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     return this.request<UsersResponse>(endpoint);
