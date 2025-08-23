@@ -117,7 +117,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
   };
 
   const handleCopyLoginDetails = (username: string, mobile: string) => {
-    const loginDetails = `Username: ${username}\nPassword: ${mobile}`;
+    const loginDetails = `Username: ${username}\nPassword: ${username}`;
     navigator.clipboard.writeText(loginDetails).then(() => {
       toast({
         title: "Copied!",
@@ -305,7 +305,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                         </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-sm">{user.username}</TableCell>
-                      <TableCell className="font-mono text-sm">{user.mobile}</TableCell>
+                      <TableCell className="font-mono text-sm">{user.username}</TableCell>
                       <TableCell>{user.block ? `${user.block} - ${user.assignedGramPanchayat || user.gramPanchayat || ''}` : 'All Blocks'}</TableCell>
                       <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>
