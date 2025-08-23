@@ -27,6 +27,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const itemsPerPage = 20;
@@ -36,6 +37,11 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
   useEffect(() => {
     fetchUsers();
   }, [currentPage, roleFilter]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -50,7 +56,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
         // Filter out deleted users
         const activeUsers = response.data.items.filter(user => !user.isDeleted);
         setUsers(activeUsers);
-        setTotalCount(activeUsers.length);
+        setTotalCount(response.data.pagination.totalCount);
+        setHasMore(response.data.pagination.hasMore);
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -64,7 +71,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     }
   };
 
-  // Filter data
+  // Filter data (client-side search only, pagination handled by backend)
   const filteredData = useMemo(() => {
     return users.filter(user => {
       const matchesSearch = searchTerm === '' || 
@@ -76,11 +83,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     });
   }, [users, searchTerm]);
 
-  // Paginated data
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredData, currentPage]);
+  // Use filtered data directly (no additional pagination needed)
+  const paginatedData = filteredData;
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
@@ -194,17 +198,27 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             />
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} users
+              Showing {paginatedData.length} of {totalCount} users (Page {currentPage})
             </div>
 
             {/* Users Card List */}
-            <UsersCardList
-              users={paginatedData}
-              onUserClick={handleUserClick}
-              onEditUser={onEditUser}
-              onDeleteUser={handleDeleteUser}
-              onCopyLoginDetails={handleCopyLoginDetails}
-            />
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">Loading users...</div>
+              </div>
+            ) : paginatedData.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">No users found</div>
+              </div>
+            ) : (
+              <UsersCardList
+                users={paginatedData}
+                onUserClick={handleUserClick}
+                onEditUser={onEditUser}
+                onDeleteUser={handleDeleteUser}
+                onCopyLoginDetails={handleCopyLoginDetails}
+              />
+            )}
           </div>
         ) : (
           <>
@@ -247,7 +261,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             </div>
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} users
+              Showing {paginatedData.length} of {totalCount} users (Page {currentPage})
             </div>
 
             {/* Desktop Table */}
@@ -265,7 +279,20 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedData.map((user, index) => (
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        Loading users...
+                      </TableCell>
+                    </TableRow>
+                  ) : paginatedData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        No users found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedData.map((user, index) => (
                     <TableRow 
                       key={user.id} 
                       className={`${index % 2 === 0 ? "bg-muted/30" : ""} ${user.role === 'balMitra' ? 'cursor-pointer hover:bg-accent' : ''}`}
@@ -322,7 +349,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -330,7 +358,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {(currentPage > 1 || hasMore) && (
           <div className="flex justify-center items-center gap-2">
             <Button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -340,11 +368,11 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
               Previous
             </Button>
             <span className="text-muted-foreground text-xs">
-              Page {currentPage} of {totalPages}
+              Page {currentPage} {hasMore ? '(More available)' : '(Last page)'}
             </span>
             <Button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={!hasMore}
               variant="outline"
             >
               Next
