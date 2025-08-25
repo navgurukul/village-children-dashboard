@@ -79,7 +79,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
         page: currentPage,
         limit: itemsPerPage,
         district: districtFilter !== 'all' ? districtFilter : undefined, // Use filter instead of hardcoded value
-        panchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined
+        gramPanchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined
       });
 
       if (response.success) {

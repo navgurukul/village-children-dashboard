@@ -453,14 +453,14 @@ class ApiClient {
 
   async getVillages(params: {
     district?: string;
-    panchayat?: string;
+    gramPanchayat?: string;
     page?: number;
     limit?: number;
   } = {}): Promise<ApiResponse<VillagesResponse>> {
     const searchParams = new URLSearchParams();
     
     if (params.district) searchParams.append('district', params.district);
-    if (params.panchayat) searchParams.append('panchayat', params.panchayat);
+    if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
 
