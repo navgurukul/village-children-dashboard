@@ -323,21 +323,6 @@ const Dashboard = () => {
     { month: 'Jun', enrolled: kpiData.enrolled, dropout: kpiData.dropout, neverEnrolled: kpiData.neverEnrolled }
   ];
 
-  if (loading) {
-    return (
-      <div className="p-6 bg-background min-h-screen">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading dashboard data...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -363,22 +348,71 @@ const Dashboard = () => {
           )}
 
           {/* Row 1: KPI Cards */}
-          <KPICards data={kpiData} />
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-card p-6 rounded-lg border">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                    <div className="h-8 bg-muted rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <KPICards data={kpiData} />
+          )}
 
           {/* Row 2: Key Insights - Two Column Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <RecentSurveyFindings 
-              findings={recentSurveyFindings}
-            />
-            <LongDropoutPeriod data={longDropoutData} />
+            {loading ? (
+              <>
+                <div className="bg-card p-6 rounded-lg border">
+                  <div className="animate-pulse">
+                    <div className="h-5 bg-muted rounded w-1/2 mb-4"></div>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-card p-6 rounded-lg border">
+                  <div className="animate-pulse">
+                    <div className="h-5 bg-muted rounded w-1/2 mb-4"></div>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <RecentSurveyFindings 
+                  findings={recentSurveyFindings}
+                />
+                <LongDropoutPeriod data={longDropoutData} />
+              </>
+            )}
           </div>
 
           {/* Row 3: Overall Trend Chart */}
-          <TrendsChart 
-            data={trendsData}
-            dateRange={trendsDateRange}
-            onDateRangeChange={setTrendsDateRange}
-          />
+          {loading ? (
+            <div className="bg-card p-6 rounded-lg border">
+              <div className="animate-pulse">
+                <div className="h-5 bg-muted rounded w-1/3 mb-4"></div>
+                <div className="h-64 bg-muted rounded"></div>
+              </div>
+            </div>
+          ) : (
+            <TrendsChart 
+              data={trendsData}
+              dateRange={trendsDateRange}
+              onDateRangeChange={setTrendsDateRange}
+            />
+          )}
         </div>
       </div>
     </div>
