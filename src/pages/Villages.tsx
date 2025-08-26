@@ -192,14 +192,15 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   };
 
   const filterOptions = [
-    {
-      label: 'District',
-      value: districtFilter,
-      options: [
-        { label: 'All Districts', value: 'all' },
-        ...districts.map(district => ({ label: district, value: district }))
-      ]
-    },
+    // District filter hidden since there's only one district (Dantewada)
+    // {
+    //   label: 'District',
+    //   value: districtFilter,
+    //   options: [
+    //     { label: 'All Districts', value: 'all' },
+    //     ...districts.map(district => ({ label: district, value: district }))
+    //   ]
+    // },
     {
       label: 'Gram Panchayat',
       value: gramPanchayatFilter,
