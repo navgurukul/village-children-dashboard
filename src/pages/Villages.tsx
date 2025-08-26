@@ -7,7 +7,7 @@ import FilterChips from '../components/FilterChips';
 import VillagesTable from '../components/villages/VillagesTable';
 import VillagesCardList from '../components/villages/VillagesCardList';
 import { useIsMobile } from "@/hooks/use-mobile";
-import { apiClient, Village as ApiVillage } from '../lib/api';
+import { apiClient, Village as ApiVillage, GramPanchayatResponse } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface VillageDisplayData {
@@ -36,11 +36,36 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [villages, setVillages] = useState<ApiVillage[]>([]);
+  const [gramPanchayatData, setGramPanchayatData] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 20;
   const isMobile = useIsMobile();
   const { toast } = useToast();
+
+  // Fetch gram panchayat data from API
+  const fetchGramPanchayatData = async (district?: string) => {
+    try {
+      console.log('Fetching gramPanchayat data for district:', district);
+      const response = await apiClient.getDistrictGramPanchayats(district);
+      console.log('GramPanchayat API response:', response);
+      
+      if (response.success && response.data && response.data.gramPanchayats) {
+        setGramPanchayatData(response.data.gramPanchayats);
+      } else {
+        console.warn('Unexpected gramPanchayat API response structure:', response);
+        setGramPanchayatData([]);
+      }
+    } catch (error) {
+      console.error('Error fetching gramPanchayat data:', error);
+      setGramPanchayatData([]);
+    }
+  };
+
+  // Load gram panchayat data on mount and when district changes
+  useEffect(() => {
+    fetchGramPanchayatData(districtFilter !== 'all' ? districtFilter : undefined);
+  }, [districtFilter]);
 
   // Load villages from API
   useEffect(() => {
@@ -54,7 +79,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
         page: currentPage,
         limit: itemsPerPage,
         district: districtFilter !== 'all' ? districtFilter : undefined, // Use filter instead of hardcoded value
-        panchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined
+        gramPanchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined
       });
 
       if (response.success) {
@@ -88,14 +113,27 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     }));
   }, [villages]);
 
-  // Get unique districts and gram panchayats for filters
+  // Get districts from village data (as they won't be in the API response)
   const districts = useMemo(() => {
     return [...new Set(villageDisplayData.map(village => village.district))];
   }, [villageDisplayData]);
 
+  // Get gram panchayats from API data
   const gramPanchayats = useMemo(() => {
-    return [...new Set(villageDisplayData.map(village => village.gramPanchayat))];
-  }, [villageDisplayData]);
+    // Use API data if available
+    if (Array.isArray(gramPanchayatData) && gramPanchayatData.length > 0) {
+      return gramPanchayatData;
+    }
+    
+    // Fallback to village data if API data is not available
+    if (districtFilter === 'all') {
+      return [...new Set(villageDisplayData.map(village => village.gramPanchayat))];
+    } else {
+      return [...new Set(villageDisplayData
+        .filter(village => village.district === districtFilter)
+        .map(village => village.gramPanchayat))];
+    }
+  }, [gramPanchayatData, districtFilter, villageDisplayData]);
 
   // Filter data
   const filteredData = useMemo(() => {
@@ -118,6 +156,8 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'district') {
       setDistrictFilter(value);
+      // Reset gram panchayat when district changes
+      setGramPanchayatFilter('all');
     } else if (filterId === 'gram panchayat') {
       setGramPanchayatFilter(value);
     }
@@ -152,14 +192,15 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   };
 
   const filterOptions = [
-    {
-      label: 'District',
-      value: districtFilter,
-      options: [
-        { label: 'All Districts', value: 'all' },
-        ...districts.map(district => ({ label: district, value: district }))
-      ]
-    },
+    // District filter hidden since there's only one district (Dantewada)
+    // {
+    //   label: 'District',
+    //   value: districtFilter,
+    //   options: [
+    //     { label: 'All Districts', value: 'all' },
+    //     ...districts.map(district => ({ label: district, value: district }))
+    //   ]
+    // },
     {
       label: 'Gram Panchayat',
       value: gramPanchayatFilter,

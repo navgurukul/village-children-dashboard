@@ -95,6 +95,22 @@ interface BlockGramPanchayatData {
   }>;
 }
 
+interface DistrictGramPanchayatData {
+  district: string;
+  gramPanchayat: Array<{
+    name: string;
+    isAssigned: boolean;
+  }>;
+}
+
+interface GramPanchayatResponse {
+  gramPanchayats: string[];
+  total: number;
+  filters: {
+    district: string | null;
+  };
+}
+
 interface VillagesResponse {
   items: Village[];
   pagination: {
@@ -373,12 +389,14 @@ class ApiClient {
     role?: string;
     page?: number;
     limit?: number;
+    search?: string;
   } = {}): Promise<ApiResponse<UsersResponse>> {
     const searchParams = new URLSearchParams();
     
     if (params.role) searchParams.append('role', params.role);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
 
     const endpoint = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     return this.request<UsersResponse>(endpoint);
@@ -435,14 +453,14 @@ class ApiClient {
 
   async getVillages(params: {
     district?: string;
-    panchayat?: string;
+    gramPanchayat?: string;
     page?: number;
     limit?: number;
   } = {}): Promise<ApiResponse<VillagesResponse>> {
     const searchParams = new URLSearchParams();
     
     if (params.district) searchParams.append('district', params.district);
-    if (params.panchayat) searchParams.append('panchayat', params.panchayat);
+    if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
 
@@ -494,6 +512,14 @@ class ApiClient {
     return this.request<BlockGramPanchayatData[]>('/villages/blocks-gramPanchayats');
   }
 
+  async getDistrictGramPanchayats(district?: string): Promise<ApiResponse<GramPanchayatResponse>> {
+    const searchParams = new URLSearchParams();
+    if (district) searchParams.append('district', district);
+    
+    const endpoint = `/villages/district-gramPanchayats${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<GramPanchayatResponse>(endpoint);
+  }
+
   async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
     return this.request<any>(`/children/${childId}`, {
       method: 'PUT',
@@ -529,5 +555,7 @@ export type {
   ChildrenResponse,
   UpdateChildPayload,
   DashboardSummary,
-  BlockGramPanchayatData
+  BlockGramPanchayatData,
+  DistrictGramPanchayatData,
+  GramPanchayatResponse
 };

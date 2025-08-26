@@ -27,7 +27,8 @@ const VillagesFilters = ({
         <span className="font-medium">Filters</span>
       </div>
       
-      <Select value={districtFilter} onValueChange={onDistrictFilterChange}>
+      {/* District filter hidden since there's only one district (Dantewada) */}
+      {/* <Select value={districtFilter} onValueChange={onDistrictFilterChange}>
         <SelectTrigger className="w-[150px] bg-white">
           <SelectValue />
         </SelectTrigger>
@@ -37,7 +38,7 @@ const VillagesFilters = ({
             <SelectItem key={district} value={district}>{district}</SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       <Select value={gramPanchayatFilter} onValueChange={onGramPanchayatFilterChange}>
         <SelectTrigger className="w-[180px] bg-white">

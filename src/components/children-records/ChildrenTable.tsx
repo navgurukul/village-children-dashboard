@@ -82,7 +82,7 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                   className={`cursor-pointer hover:bg-muted/50 transition-colors ${index % 2 === 0 ? "bg-muted/30" : ""}`}
                   onClick={() => onChildClick(student.id)}
                 >
-                  <TableCell className="font-medium">{student.aadhaarNumber}</TableCell>
+                  <TableCell className="font-medium">{student.aadhaarNumber || '-'}</TableCell>
                   <TableCell>{student.name}</TableCell>
                   <TableCell>{student.age}</TableCell>
                   <TableCell>{student.gender}</TableCell>

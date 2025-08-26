@@ -22,11 +22,13 @@ interface UserManagementProps {
 
 const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const itemsPerPage = 20;
@@ -35,7 +37,23 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, roleFilter]);
+  }, [currentPage, roleFilter, debouncedSearchTerm]); // Use debouncedSearchTerm
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -44,13 +62,15 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
         role: roleFilter === 'all' ? undefined : roleFilter,
         page: currentPage,
         limit: itemsPerPage,
+        search: debouncedSearchTerm || undefined, // Use debouncedSearchTerm
       });
       
       if (response.success) {
         // Filter out deleted users
         const activeUsers = response.data.items.filter(user => !user.isDeleted);
         setUsers(activeUsers);
-        setTotalCount(activeUsers.length);
+        setTotalCount(response.data.pagination.totalCount);
+        setHasMore(response.data.pagination.hasMore);
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -64,23 +84,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
     }
   };
 
-  // Filter data
-  const filteredData = useMemo(() => {
-    return users.filter(user => {
-      const matchesSearch = searchTerm === '' || 
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesSearch;
-    });
-  }, [users, searchTerm]);
-
-  // Paginated data
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredData, currentPage]);
+  // Use users directly (server-side search and pagination)
+  const paginatedData = users;
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
@@ -113,7 +118,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
   };
 
   const handleCopyLoginDetails = (username: string, mobile: string) => {
-    const loginDetails = `Username: ${username}\nPassword: ${mobile}`;
+    const loginDetails = `Username: ${username}\nPassword: ${username}`;
     navigator.clipboard.writeText(loginDetails).then(() => {
       toast({
         title: "Copied!",
@@ -194,17 +199,27 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             />
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} users
+              Showing {paginatedData.length} of {totalCount} users (Page {currentPage})
             </div>
 
             {/* Users Card List */}
-            <UsersCardList
-              users={paginatedData}
-              onUserClick={handleUserClick}
-              onEditUser={onEditUser}
-              onDeleteUser={handleDeleteUser}
-              onCopyLoginDetails={handleCopyLoginDetails}
-            />
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">Loading users...</div>
+              </div>
+            ) : paginatedData.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">No users found</div>
+              </div>
+            ) : (
+              <UsersCardList
+                users={paginatedData}
+                onUserClick={handleUserClick}
+                onEditUser={onEditUser}
+                onDeleteUser={handleDeleteUser}
+                onCopyLoginDetails={handleCopyLoginDetails}
+              />
+            )}
           </div>
         ) : (
           <>
@@ -247,7 +262,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             </div>
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {filteredData.length} users
+              Showing {paginatedData.length} of {totalCount} users (Page {currentPage})
             </div>
 
             {/* Desktop Table */}
@@ -265,7 +280,20 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedData.map((user, index) => (
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        Loading users...
+                      </TableCell>
+                    </TableRow>
+                  ) : paginatedData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        No users found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedData.map((user, index) => (
                     <TableRow 
                       key={user.id} 
                       className={`${index % 2 === 0 ? "bg-muted/30" : ""} ${user.role === 'balMitra' ? 'cursor-pointer hover:bg-accent' : ''}`}
@@ -278,7 +306,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                         </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-sm">{user.username}</TableCell>
-                      <TableCell className="font-mono text-sm">{user.mobile}</TableCell>
+                      <TableCell className="font-mono text-sm">{user.username}</TableCell>
                       <TableCell>{user.block ? `${user.block} - ${user.assignedGramPanchayat || user.gramPanchayat || ''}` : 'All Blocks'}</TableCell>
                       <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>
@@ -322,7 +350,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -330,7 +359,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {(currentPage > 1 || hasMore) && (
           <div className="flex justify-center items-center gap-2">
             <Button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -340,11 +369,11 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
               Previous
             </Button>
             <span className="text-muted-foreground text-xs">
-              Page {currentPage} of {totalPages}
+              Page {currentPage} {hasMore ? '(More available)' : '(Last page)'}
             </span>
             <Button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={!hasMore}
               variant="outline"
             >
               Next
