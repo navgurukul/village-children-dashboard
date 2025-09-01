@@ -518,6 +518,7 @@ class ApiClient {
     gramPanchayat?: string;
     page?: number;
     limit?: number;
+    search?: string;
   } = {}): Promise<ApiResponse<VillagesResponse>> {
     const searchParams = new URLSearchParams();
     
@@ -525,6 +526,7 @@ class ApiClient {
     if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
 
     const endpoint = `/villages${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     return this.request<VillagesResponse>(endpoint);
