@@ -32,6 +32,7 @@ interface VillagesProps {
 
 const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, onDeleteVillage }: VillagesProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [districtFilter, setDistrictFilter] = useState('all');
   const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,7 +71,23 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
   // Load villages from API
   useEffect(() => {
     loadVillages();
-  }, [currentPage, districtFilter, gramPanchayatFilter]);
+  }, [currentPage, districtFilter, gramPanchayatFilter, debouncedSearchTerm]);
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
 
   const loadVillages = async () => {
     try {
@@ -79,7 +96,8 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
         page: currentPage,
         limit: itemsPerPage,
         district: districtFilter !== 'all' ? districtFilter : undefined, // Use filter instead of hardcoded value
-        gramPanchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined
+        gramPanchayat: gramPanchayatFilter !== 'all' ? gramPanchayatFilter : undefined,
+        search: debouncedSearchTerm || undefined // Use debouncedSearchTerm for global search
       });
 
       if (response.success) {
@@ -135,21 +153,10 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
     }
   }, [gramPanchayatData, districtFilter, villageDisplayData]);
 
-  // Filter data
+  // Use data directly from API response since filtering is done server-side
   const filteredData = useMemo(() => {
-    return villageDisplayData.filter(village => {
-      const matchesSearch = searchTerm === '' || 
-        village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        village.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        village.gramPanchayat.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        village.assignedBalMitra.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesDistrict = districtFilter === 'all' || village.district === districtFilter;
-      const matchesGramPanchayat = gramPanchayatFilter === 'all' || village.gramPanchayat === gramPanchayatFilter;
-
-      return matchesSearch && matchesDistrict && matchesGramPanchayat;
-    });
-  }, [villageDisplayData, searchTerm, districtFilter, gramPanchayatFilter]);
+    return villageDisplayData;
+  }, [villageDisplayData]);
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
