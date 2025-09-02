@@ -150,18 +150,8 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Aadhaar Number</label>
-                <p className="text-lg font-medium">
-                  {transformedData.hasAadhaar === 'Yes' ? transformedData.aadhaarNumber : 'Not Available'}
-                </p>
-              </div>
-              <div>
                 <label className="text-sm font-medium text-muted-foreground">Name</label>
                 <p className="text-lg font-medium">{transformedData.name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Age</label>
-                <p className="text-lg font-medium">{transformedData.age} years</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Gender</label>
@@ -172,14 +162,16 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                 <p className="text-lg font-medium">{transformedData.dateOfBirth}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Caste</label>
-                <p className="text-lg font-medium">
-                  {transformedData.caste === "अन्य" || transformedData.caste === "Other" 
-                    ? `${transformedData.caste} (${transformedData.otherCaste})` 
-                    : transformedData.caste}
-                </p>
+                <label className="text-sm font-medium text-muted-foreground">Age</label>
+                <p className="text-lg font-medium">{transformedData.age} years</p>
               </div>
               <div>
+                <label className="text-sm font-medium text-muted-foreground">Aadhaar Number</label>
+                <p className="text-lg font-medium">
+                  {transformedData.hasAadhaar === 'Yes' ? transformedData.aadhaarNumber : 'Not Available'}
+                </p>
+              </div>
+               <div>
                 <label className="text-sm font-medium text-muted-foreground">Mother Tongue</label>
                 <p className="text-lg font-medium">
                   {transformedData.motherTongue === "अन्य" && transformedData.motherTongueOther ? 
@@ -187,14 +179,57 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                     transformedData.motherTongue}
                 </p>
               </div>
+              
+             <div>
+                <label className="text-sm font-medium text-muted-foreground">Father's Name</label>
+                <p className="text-lg font-medium">{transformedData.fatherName}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Mother's Name</label>
+                <p className="text-lg font-medium">{transformedData.motherName}</p>
+              </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">House Number (Grih Kramank)</label>
                 <p className="text-lg font-medium">{transformedData.houseNumber}</p>
               </div>
-              {/* <div>
+
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Administrative Information */}
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                <path d="M3 21h18"></path>
+                <path d="M5 21V7l8-4v18"></path>
+                <path d="M19 21V11l-6-4"></path>
+                <path d="M9 9h1"></path>
+                <path d="M9 13h1"></path>
+                <path d="M9 17h1"></path>
+              </svg>
+              Administrative Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Village/Para</label>
+                <p className="text-lg font-medium">{transformedData.village}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Gram Panchayat</label>
+                <p className="text-lg font-medium">{transformedData.gramPanchayat}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Block</label>
+                <p className="text-lg font-medium">{transformedData.block}</p>
+              </div>
+              <div>
                 <label className="text-sm font-medium text-muted-foreground">Cluster</label>
                 <p className="text-lg font-medium">{transformedData.cluster}</p>
-              </div> */}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -209,14 +244,6 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Father's Name</label>
-                <p className="text-lg font-medium">{transformedData.fatherName}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Mother's Name</label>
-                <p className="text-lg font-medium">{transformedData.motherName}</p>
-              </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Father Educated</label>
                 <p className="text-lg font-medium">{transformedData.fatherEducated}</p>
@@ -234,6 +261,14 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                 </p>
               </div>
               <div>
+                <label className="text-sm font-medium text-muted-foreground">Caste</label>
+                <p className="text-lg font-medium">
+                  {transformedData.caste === "अन्य" || transformedData.caste === "Other" 
+                    ? `${transformedData.caste} (${transformedData.otherCaste})` 
+                    : transformedData.caste}
+                </p>
+              </div>
+              <div>
                 <label className="text-sm font-medium text-muted-foreground">Parents Status</label>
                 <p className="text-lg font-medium">{transformedData.parentsStatus}</p>
               </div>
@@ -245,18 +280,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                     : transformedData.livesWithWhom}
                 </p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Village</label>
-                <p className="text-lg font-medium">{transformedData.village}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Block</label>
-                <p className="text-lg font-medium">{transformedData.block}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Gram Panchayat</label>
-                <p className="text-lg font-medium">{transformedData.gramPanchayat}</p>
-              </div>
+
             </div>
           </CardContent>
         </Card>
@@ -297,6 +321,19 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               <div>
+                <label className="text-sm font-medium text-muted-foreground">Has Caste Certificate</label>
+                <p className="text-lg font-medium">{transformedData.hasCasteCertificate}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Has Residence Certificate</label>
+                <p className="text-lg font-medium">{transformedData.hasResidenceCertificate}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Has Aadhaar</label>
+                <p className="text-lg font-medium">{transformedData.hasAadhaar}</p>
+              </div>
+             
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Has Disability</label>
                 <p className="text-lg font-medium">{transformedData.hasDisability}</p>
@@ -313,18 +350,6 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                   <p className="text-lg font-medium">{transformedData.otherDisabilitySpecification}</p>
                 </div>
               )}
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Has Aadhaar</label>
-                <p className="text-lg font-medium">{transformedData.hasAadhaar}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Has Caste Certificate</label>
-                <p className="text-lg font-medium">{transformedData.hasCasteCertificate}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Has Residence Certificate</label>
-                <p className="text-lg font-medium">{transformedData.hasResidenceCertificate}</p>
-              </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Is Vulnerable</label>
                 <p className="text-lg font-medium">{transformedData.isVulnerable}</p>
