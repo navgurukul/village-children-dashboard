@@ -142,6 +142,60 @@ interface UpdateVillagePayload {
 
 interface Child {
   id: string;
+  surveyData?: {
+    "section-1": {
+      q1_1?: string; // fullName
+      q1_3?: object;
+      q1_4?: string; // gender
+      q1_5?: string; // para/village
+      q1_6?: string; // gram panchayat
+      q1_8?: string; // block
+      q1_9?: string; // mother tongue
+      q1_9_other?: string; // other mother tongue specification
+      q1_10?: string; // mother name
+      q1_11?: string; // father name
+      q1_12?: string; // mother education
+      q1_13?: string; // father education
+      q1_new_house?: string; // house number
+    };
+    "section-2"?: {
+      q2_1?: string; // family occupation
+      q2_1_other?: string; // other occupation specification
+      q2_2?: string; // caste
+      q2_2_other?: string; // other caste specification
+      q2_3?: string; // parents status
+      q2_4?: string; // lives with whom
+      q2_4_other?: string; // other specification for lives with whom
+    };
+    "section-3"?: {
+      q3_1?: string; // ration card type
+      q3_2?: string; // ration card number
+    };
+    "section-4"?: {
+      q4_1?: string; // goes to school
+      q4_2?: string; // school name
+      q4_3?: string; // attendance status
+      q4_4?: string; // current class
+      q4_5?: string; // attendance status
+      q4_6?: string; // education category (dropout/never enrolled)
+      q4_7?: string; // last class studied (for dropouts)
+      q4_8?: string | string[]; // dropout reasons
+      q4_9?: string; // other dropout reason
+      q4_10?: string | string[]; // never enrolled reasons
+      q4_11?: string; // other never enrolled reason
+    };
+    "section-5"?: {
+      q5_1?: string; // has caste certificate
+      q5_2?: string; // has residence certificate
+      q5_3?: string; // has aadhaar
+      q5_4?: string; // aadhaar number
+    };
+    "section-6"?: {
+      q6_1?: string; // has disability
+      q6_2?: string | string[]; // disability types
+      q6_3?: string; // other disability specification
+    };
+  };
   basicInfo: {
     fullName: string;
     age: number;
@@ -234,6 +288,7 @@ interface UpdateChildPayload {
       "q1_7": string; // cluster
       "q1_8": string; // block
       "q1_9": string; // motherTongue
+      "q1_9_other": string | null; // other mother tongue specification
       "q1_10": string; // motherName
       "q1_11": string; // fatherName
       "q1_12": string; // motherEducated
@@ -241,9 +296,12 @@ interface UpdateChildPayload {
     };
     "section-2": {
       "q2_1": string; // familyOccupation
+      "q2_1_other": string | null; // other occupation
       "q2_2": string; // caste
+      "q2_2_other": string | null; // other caste
       "q2_3": string; // parentsStatus
       "q2_4": string; // livesWithWhom
+      "q2_4_other": string | null; // other lives with whom
       "q2_5": string | null;
     };
     "section-3": {
@@ -252,13 +310,16 @@ interface UpdateChildPayload {
     };
     "section-4": {
       "q4_1": string; // goesToSchool
-      "q4_2": string | null;
+      "q4_2": string | null; // school name
       "q4_3": string | null;
-      "q4_4": string | null;
-      "q4_5": string; // educationStatus
-      "q4_6": string; // currentClass
-      "q4_7": string[]; // dropoutReasons
-      "q4_8": string | null;
+      "q4_4": string | null; // current class
+      "q4_5": string; // attendance status
+      "q4_6": string; // education category (dropout/never enrolled)
+      "q4_7": string | null; // last class studied
+      "q4_8": string[] | string | null; // dropout reasons
+      "q4_9": string | null; // other dropout reason
+      "q4_10": string[] | string | null; // never enrolled reasons
+      "q4_11": string | null; // other never enrolled reason
     };
     "section-5": {
       "q5_1": string; // hasAadhaar
@@ -268,7 +329,8 @@ interface UpdateChildPayload {
     };
     "section-6": {
       "q6_1": string; // hasDisability
-      "q6_2": string | null;
+      "q6_2": string | string[] | null; // disability types
+      "q6_3": string | null; // other disability specification
     };
   };
 }
@@ -456,6 +518,7 @@ class ApiClient {
     gramPanchayat?: string;
     page?: number;
     limit?: number;
+    search?: string;
   } = {}): Promise<ApiResponse<VillagesResponse>> {
     const searchParams = new URLSearchParams();
     
@@ -463,6 +526,7 @@ class ApiClient {
     if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
 
     const endpoint = `/villages${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     return this.request<VillagesResponse>(endpoint);
