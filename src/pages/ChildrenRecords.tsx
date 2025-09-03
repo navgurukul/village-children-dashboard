@@ -15,6 +15,7 @@ interface ChildrenRecordsProps {
 const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [blockFilter, setBlockFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,6 +51,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
 
       if (blockFilter !== 'all') params.block = blockFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
+      if (debouncedSearchTerm) params.search = debouncedSearchTerm;
 
       console.log('Fetching children with params:', params);
       const response = await apiClient.getChildren(params);
@@ -75,9 +77,25 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     fetchBlocksData();
   }, []);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
+
   useEffect(() => {
     fetchChildren();
-  }, [currentPage, blockFilter, statusFilter]);
+  }, [currentPage, blockFilter, statusFilter, debouncedSearchTerm]);
 
   // Get blocks from API data
   const blocks = useMemo(() => {
@@ -102,21 +120,10 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     }));
   }, [apiChildren]);
 
-  // Filter data (client-side filtering for search only)
-  // The API already handles block and status filtering
+  // No need for client-side filtering as search is now handled by the API
   const filteredData = useMemo(() => {
-    if (!searchTerm) return childrenData;
-    
-    return childrenData.filter(child => {
-      const matchesSearch = searchTerm === '' || 
-        child.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.block.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesSearch;
-    });
-  }, [childrenData, searchTerm]);
+    return childrenData;
+  }, [childrenData]);
 
   // Use filtered data for pagination
   const paginatedData = filteredData;
