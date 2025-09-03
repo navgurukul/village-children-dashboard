@@ -493,6 +493,7 @@ class ApiClient {
     educationStatus?: string;
     gender?: string;
     caste?: string;
+    search?: string;
     page?: number;
     limit?: number;
   } = {}): Promise<ApiResponse<ChildrenResponse>> {
@@ -506,6 +507,7 @@ class ApiClient {
     if (params.educationStatus) searchParams.append('educationStatus', params.educationStatus);
     if (params.gender) searchParams.append('gender', params.gender);
     if (params.caste) searchParams.append('caste', params.caste);
+    if (params.search) searchParams.append('search', params.search);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
 
