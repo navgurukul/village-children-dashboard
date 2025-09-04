@@ -15,27 +15,56 @@ interface ChildData {
   schoolStatus: string;
   block: string;
   gramPanchayat: string;
+  address: string;
+  disability: string;
+  caste: string;
+  religion: string;
+  fatherName: string;
+  motherName: string;
+  motherEducated: string;
+  fatherEducated: string;
+  dob: string;
+  familyOccupation: string;
+  parentsStatus: string;
+  livesWithWhom: string;
+  houseNumber?: string;
+  economicStatus?: string;
 }
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const headers = [
-    'ID', 'Name', 'Age', 'Gender', 'Village', 'Block', 'Gram Panchayat', 
-    'School Status', 'School Name', 'Aadhaar Number'
+    'ID', 'Name', 'Age', 'Gender', 'Aadhaar Number','Village', 'Block', 'Gram Panchayat', 
+      'DOB', 'Father Name',
+    'Mother Name','Mother Educated', 'Father Educated','Village', 'GramPanchayat', 'House Number', 'Family Occupation', 'Caste', 'Parents Status', 'Lives with', 'Economic Status', 'School Status', 'School Name', 'Disability', 
   ];
-
   const csvContent = [
     headers.join(','),
+
     ...data.map(child => [
       child.id,
       `"${child.name}"`,
       child.age,
       `"${child.gender}"`,
+      child.aadhaarNumber || '',
       `"${child.village}"`,
       `"${child.block}"`,
       `"${child.gramPanchayat}"`,
+      child.dob || '',
+      `"${child.fatherName}"`,
+      `"${child.motherName}"`,
+      `"${child.motherEducated}"`,
+      `"${child.fatherEducated}"`,
+      `"${child.village}"`,              // 2nd Village
+      `"${child.gramPanchayat}"`,        // 2nd GramPanchayat
+      `"${child.houseNumber || ''}"`,    // House Number
+      `"${child.familyOccupation}"`,
+      `"${child.caste}"`,
+      `"${child.parentsStatus}"`,
+      `"${child.livesWithWhom}"`,
+      `"${child.economicStatus || ''}"`, // Economic Status
       `"${child.schoolStatus}"`,
       child.schoolName ? `"${child.schoolName}"` : '',
-      child.aadhaarNumber || ''
+      `"${child.disability}"`,
     ].join(','))
   ].join('\n');
 
