@@ -6,6 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
+import { House } from 'lucide-react';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -116,7 +117,17 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       school: child.educationInfo.schoolName || '',
       schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
       block: child.basicInfo.block,
-      gramPanchayat: child.basicInfo.gramPanchayat || ''
+      gramPanchayat: child.basicInfo.gramPanchayat || '',
+      disability: child.healthInfo.hasDisability|| '',
+      caste: child.familyInfo.caste || '',
+      dob: child.basicInfo.dateOfBirth || '',
+      fatherName: child.familyInfo.fatherName || '',
+      motherName: child.familyInfo.motherName || '',
+      motherEducated: child.familyInfo.motherEducated || '',
+      fatherEducated: child.familyInfo.fatherEducated || '',
+      familyOccupation: child.familyInfo.familyOccupation || '',
+      parentsStatus: child.familyInfo.parentsStatus || '',
+      livesWithWhom: child.familyInfo.livesWithWhom || '',
     }));
   }, [apiChildren]);
 
