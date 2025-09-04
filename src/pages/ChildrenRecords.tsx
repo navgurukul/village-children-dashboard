@@ -27,7 +27,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [totalPages, setTotalPages] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
-  const itemsPerPage = 50;
+  const itemsPerPage = 20;
 
   // Fetch blocks data from API
   const fetchBlocksData = async () => {
