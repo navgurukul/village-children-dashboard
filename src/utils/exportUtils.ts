@@ -1,4 +1,3 @@
-
 import { StudentData } from '@/data/mockData';
 
 // Type for children data from API
@@ -15,10 +14,8 @@ interface ChildData {
   schoolStatus: string;
   block: string;
   gramPanchayat: string;
-  address: string;
   disability: string;
   caste: string;
-  religion: string;
   fatherName: string;
   motherName: string;
   motherEducated: string;
@@ -29,13 +26,40 @@ interface ChildData {
   livesWithWhom: string;
   houseNumber?: string;
   economicStatus?: string;
+  
+  // Additional survey fields
+  motherTongue?: string;
+  otherMotherTongue?: string;
+  otherOccupation?: string;
+  otherCaste?: string;
+  otherLivesWith?: string;
+  rationCardType?: string;
+  rationCardNumber?: string;
+  attendanceStatus?: string;
+  currentClass?: string;
+  educationCategory?: string;
+  lastClassStudied?: string;
+  dropoutReasons?: string | string[];
+  otherDropoutReason?: string;
+  neverEnrolledReasons?: string | string[];
+  otherNeverEnrolledReason?: string;
+  hasCasteCertificate?: string;
+  hasResidenceCertificate?: string;
+  hasAadhaar?: string;
+  disabilityTypes?: string | string[];
+  otherDisability?: string;
 }
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const headers = [
     'ID', 'Name', 'Age', 'Gender', 'Aadhaar Number','Village', 'Block', 'Gram Panchayat', 
-      'DOB', 'Father Name',
-    'Mother Name','Mother Educated', 'Father Educated','Village', 'GramPanchayat', 'House Number', 'Family Occupation', 'Caste', 'Parents Status', 'Lives with', 'Economic Status', 'School Status', 'School Name', 'Disability', 
+      'DOB', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
+    'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with', 
+    'Other Lives With', 'Economic Status', 'Mother Tongue', 'Other Mother Tongue', 
+    'School Status', 'School Name', 'Attendance Status', 'Current Class', 'Education Category', 
+    'Last Class Studied', 'Dropout Reasons', 'Other Dropout Reason', 'Never Enrolled Reasons', 
+    'Other Never Enrolled Reason', 'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
+    'Has Residence Certificate', 'Has Aadhaar', 'Disability', 'Disability Types', 'Other Disability'
   ];
   const csvContent = [
     headers.join(','),
@@ -45,26 +69,44 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
       `"${child.name}"`,
       child.age,
       `"${child.gender}"`,
-      child.aadhaarNumber || '',
-      `"${child.village}"`,
-      `"${child.block}"`,
-      `"${child.gramPanchayat}"`,
-      child.dob || '',
-      `"${child.fatherName}"`,
-      `"${child.motherName}"`,
-      `"${child.motherEducated}"`,
-      `"${child.fatherEducated}"`,
-      `"${child.village}"`,              // 2nd Village
-      `"${child.gramPanchayat}"`,        // 2nd GramPanchayat
-      `"${child.houseNumber || ''}"`,    // House Number
-      `"${child.familyOccupation}"`,
-      `"${child.caste}"`,
-      `"${child.parentsStatus}"`,
-      `"${child.livesWithWhom}"`,
-      `"${child.economicStatus || ''}"`, // Economic Status
-      `"${child.schoolStatus}"`,
-      child.schoolName ? `"${child.schoolName}"` : '',
-      `"${child.disability}"`,
+      child.aadhaarNumber || '-',
+      `"${child.village || '-'}"`,
+      `"${child.block || '-'}"`,
+      `"${child.gramPanchayat || '-'}"`,
+      child.dob || '-',
+      `"${child.fatherName || '-'}"`,
+      `"${child.motherName || '-'}"`,
+      `"${child.motherEducated || '-'}"`,
+      `"${child.fatherEducated || '-'}"`,
+      `"${child.houseNumber || '-'}"`,
+      `"${child.familyOccupation || '-'}"`,
+      `"${child.otherOccupation || '-'}"`,
+      `"${child.caste || '-'}"`,
+      `"${child.otherCaste || '-'}"`,
+      `"${child.parentsStatus || '-'}"`,
+      `"${child.livesWithWhom || '-'}"`,
+      `"${child.otherLivesWith || '-'}"`,
+      `"${child.economicStatus || '-'}"`,
+      `"${child.motherTongue || '-'}"`,
+      `"${child.otherMotherTongue || '-'}"`,
+      `"${child.schoolStatus || '-'}"`,
+      `"${child.schoolName || '-'}"`,
+      `"${child.attendanceStatus || '-'}"`,
+      `"${child.currentClass || '-'}"`,
+      `"${child.educationCategory || '-'}"`,
+      `"${child.lastClassStudied || '-'}"`,
+      `"${Array.isArray(child.dropoutReasons) ? child.dropoutReasons.join('; ') : (child.dropoutReasons || '-')}"`,
+      `"${child.otherDropoutReason || '-'}"`,
+      `"${Array.isArray(child.neverEnrolledReasons) ? child.neverEnrolledReasons.join('; ') : (child.neverEnrolledReasons || '-')}"`,
+      `"${child.otherNeverEnrolledReason || '-'}"`,
+      `"${child.rationCardType || '-'}"`,
+      `"${child.rationCardNumber || '-'}"`,
+      `"${child.hasCasteCertificate || '-'}"`,
+      `"${child.hasResidenceCertificate || '-'}"`,
+      `"${child.hasAadhaar || '-'}"`,
+      `"${child.disability || '-'}"`,
+      `"${Array.isArray(child.disabilityTypes) ? child.disabilityTypes.join('; ') : (child.disabilityTypes || '-')}"`,
+      `"${child.otherDisability || '-'}"`,
     ].join(','))
   ].join('\n');
 
@@ -92,15 +134,15 @@ export const downloadCSV = (data: StudentData[], filename: string) => {
       `"${student.name}"`,
       student.age,
       student.gender,
-      `"${student.block}"`,
-      `"${student.cluster}"`,
-      `"${student.village}"`,
-      `"${student.panchayat}"`,
-      `"${student.schoolStatus}"`,
-      student.class ? `"${student.class}"` : '',
-      student.school ? `"${student.school}"` : '',
-      student.enrollmentDate || '',
-      student.dropoutReason ? `"${student.dropoutReason}"` : ''
+      `"${student.block || '-'}"`,
+      `"${student.cluster || '-'}"`,
+      `"${student.village || '-'}"`,
+      `"${student.panchayat || '-'}"`,
+      `"${student.schoolStatus || '-'}"`,
+      student.class ? `"${student.class}"` : '"-"',
+      student.school ? `"${student.school}"` : '"-"',
+      student.enrollmentDate || '-',
+      student.dropoutReason ? `"${student.dropoutReason}"` : '"-"'
     ].join(','))
   ].join('\n');
 
