@@ -163,9 +163,11 @@ interface Child {
       q2_1_other?: string; // other occupation specification
       q2_2?: string; // caste
       q2_2_other?: string; // other caste specification
-      q2_3?: string; // parents status
-      q2_4?: string; // lives with whom
-      q2_4_other?: string; // other specification for lives with whom
+      q2_3?: string; // caste category
+      q2_4?: string; // caste specification (for "other" caste)
+      q2_5?: string; // parents status
+      q2_6?: string; // lives with whom
+      q2_7?: string; // other specification for lives with whom
     };
     "section-3"?: {
       q3_1?: string; // ration card type
@@ -322,9 +324,9 @@ interface UpdateChildPayload {
       "q4_11": string | null; // other never enrolled reason
     };
     "section-5": {
-      "q5_1": string; // hasAadhaar
-      "q5_2": string; // hasCasteCertificate
-      "q5_3": string; // hasResidenceCertificate
+      "q5_1": string; // hasCasteCertificate
+      "q5_2": string; // hasResidenceCertificate
+      "q5_3": string; // hasAadhaar
       "q5_4": string; // aadhaarNumber
     };
     "section-6": {
