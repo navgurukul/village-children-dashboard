@@ -16,7 +16,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
   // Transform API child data to display format
   const transformedData = propChildData ? {
     id: propChildData.id,
-    aadhaarNumber: (propChildData.surveyData?.['section-5']?.q5_1 === 'हाँ' ? propChildData.surveyData?.['section-5']?.q5_4 : null) || 
+    aadhaarNumber: (propChildData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? propChildData.surveyData?.['section-5']?.q5_4 : null) || 
                   (propChildData.documentsInfo?.hasAadhaar ? propChildData.documentsInfo?.aadhaarNumber : null) || 
                   'N/A',
     name: propChildData.surveyData?.['section-1']?.q1_1 || 'N/A',
@@ -77,14 +77,14 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                      propChildData.surveyData?.['section-6']?.q6_2.join(', ') :
                      propChildData.surveyData?.['section-6']?.q6_2 || 'N/A',
     otherDisabilitySpecification: propChildData.surveyData?.['section-6']?.q6_3 || 'N/A',
-    hasCasteCertificate: propChildData.surveyData?.['section-5']?.q5_2 === 'हाँ' ? 'Yes' :
-                         propChildData.surveyData?.['section-5']?.q5_2 === 'नहीं' ? 'No' :
+    hasCasteCertificate: propChildData.surveyData?.['section-5']?.q5_1 === 'हाँ' ? 'Yes' :
+                         propChildData.surveyData?.['section-5']?.q5_1 === 'नहीं' ? 'No' :
                          propChildData.documentsInfo?.hasCasteCertificate ? 'Yes' : 'No',
-    hasResidenceCertificate: propChildData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? 'Yes' :
-                             propChildData.surveyData?.['section-5']?.q5_3 === 'नहीं' ? 'No' :
+    hasResidenceCertificate: propChildData.surveyData?.['section-5']?.q5_2 === 'हाँ' ? 'Yes' :
+                             propChildData.surveyData?.['section-5']?.q5_2 === 'नहीं' ? 'No' :
                              propChildData.documentsInfo?.hasResidenceCertificate ? 'Yes' : 'No',
-    hasAadhaar: propChildData.surveyData?.['section-5']?.q5_1 === 'हाँ' ? 'Yes' :
-                propChildData.surveyData?.['section-5']?.q5_1 === 'नहीं' ? 'No' :
+    hasAadhaar: propChildData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? 'Yes' :
+                propChildData.surveyData?.['section-5']?.q5_3 === 'नहीं' ? 'No' :
                 propChildData.documentsInfo?.hasAadhaar ? 'Yes' : 'No',
     isVulnerable: propChildData.derivedFields?.isVulnerable ? 'Yes' : 'No',
     ageGroup: propChildData.derivedFields?.ageGroup || 'N/A',
