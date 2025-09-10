@@ -32,13 +32,13 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     motherTongueOther: propChildData.surveyData?.['section-1']?.q1_9_other || '',
     fatherName: propChildData.surveyData?.['section-1']?.q1_11 || propChildData.familyInfo?.fatherName || 'N/A',
     motherName: propChildData.surveyData?.['section-1']?.q1_10 || propChildData.familyInfo?.motherName || 'N/A',
-    caste: propChildData.surveyData?.['section-2']?.q2_2 || propChildData.familyInfo?.caste || 'N/A',
+    caste: propChildData.surveyData?.['section-2']?.q2_3 || propChildData.familyInfo?.caste || 'N/A',
     familyOccupation: propChildData.surveyData?.['section-2']?.q2_1 || propChildData.familyInfo?.familyOccupation || 'N/A',
     otherOccupation: propChildData.surveyData?.['section-2']?.q2_1_other || 'N/A',
-    otherCaste: propChildData.surveyData?.['section-2']?.q2_2_other || 'N/A',
-    parentsStatus: propChildData.surveyData?.['section-2']?.q2_3 || propChildData.familyInfo?.parentsStatus || 'N/A',
-    livesWithWhom: propChildData.surveyData?.['section-2']?.q2_4 || propChildData.familyInfo?.livesWithWhom || 'N/A',
-    otherLivesWith: propChildData.surveyData?.['section-2']?.q2_4_other || 'N/A',
+    otherCaste: propChildData.surveyData?.['section-2']?.q2_4 || 'N/A',
+    parentsStatus: propChildData.surveyData?.['section-2']?.q2_5 || propChildData.familyInfo?.parentsStatus || 'N/A',
+    livesWithWhom: propChildData.surveyData?.['section-2']?.q2_6 || propChildData.familyInfo?.livesWithWhom || 'N/A',
+    otherLivesWith: propChildData.surveyData?.['section-2']?.q2_7 || 'N/A',
     motherEducated: propChildData.surveyData?.['section-1']?.q1_12 ? 
                     (propChildData.surveyData?.['section-1']?.q1_12 === "नहीं" ? 'No' : 
                     propChildData.surveyData?.['section-1']?.q1_12) : 
