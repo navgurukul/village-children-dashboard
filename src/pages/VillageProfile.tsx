@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users, GraduationCap, AlertTriangle, UserX, MapPin, Calendar } from 'lucide-react';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { apiClient } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface VillageProfileProps {
   villageId: string | null;
@@ -10,37 +14,81 @@ interface VillageProfileProps {
   onBack: () => void;
 }
 
+interface Para {
+  id: string;
+  name: string;
+  nameHindi?: string;
+  totalChildren?: number;
+  enrolledChildren?: number;
+  dropoutChildren?: number;
+  neverEnrolledChildren?: number;
+  // Keep these for backward compatibility
+  district?: string;
+  blocks?: string[];
+  gramPanchayats?: string[];
+  gramPanchayat?: string;
+  totalPopulation?: number;
+  state?: string;
+}
+
+// Interface for a Gram Panchayat
+interface GramPanchayat {
+  id: string;
+  name: string;
+  district: string;
+  blocks?: string[];
+  state?: string;
+  totalChildren?: number;
+  enrolledChildren?: number;
+  dropoutChildren?: number;
+  neverEnrolledChildren?: number;
+  totalParas?: number;
+}
+
 const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps) => {
   const isMobile = useIsMobile();
+  const [relatedParas, setRelatedParas] = useState<Para[]>([]);
+  const { toast } = useToast();
 
-  // Use actual village data or fallback to defaults
+  // Set related paras directly from villageData
+  useEffect(() => {
+    if (villageData?.paras) {
+      setRelatedParas(villageData.paras);
+    } else {
+      setRelatedParas([]);
+    }
+  }, [villageData]);
+
+
+  
+  // Use actual para data or fallback to defaults
   const displayData = {
     id: villageData?.id || villageId,
-    name: villageData?.name || 'Unknown Village',
-    block: villageData?.block || 'Unknown Block',
-    gramPanchayat: villageData?.gramPanchayat || 'Unknown Gram Panchayat',
-    assignedBalMitra: villageData?.balMitraName || 'Not Assigned',
-    totalChildren: villageData?.['Total Children'] || 0,
+    name: villageData?.name || 'Unknown Para',
+    blocks: villageData?.blocks || [villageData?.block || 'Unknown Block'],
+    gramPanchayats: villageData?.gramPanchayats || [villageData?.gramPanchayat || 'Unknown Gram Panchayat'],
+    assignedBalMitra: villageData?.name || villageData?.balMitraName || villageData?.assignedBalMitra || 'Not Assigned',
+    totalChildren: villageData?.totalChildren || 0,
     enrolled: { 
-      count: villageData?.['Enrolled'] || 0, 
-      percentage: villageData?.['Total Children'] ? 
-        ((villageData?.['Enrolled'] || 0) / villageData?.['Total Children'] * 100).toFixed(1) : 0 
+      count: villageData?.enrolledChildren || 0, 
+      percentage: villageData?.totalChildren ? 
+        ((villageData?.enrolledChildren || 0) / villageData?.totalChildren * 100).toFixed(1) : 0 
     },
     dropout: { 
-      count: villageData?.['Dropout'] || 0, 
-      percentage: villageData?.['Total Children'] ? 
-        ((villageData?.['Dropout'] || 0) / villageData?.['Total Children'] * 100).toFixed(1) : 0 
+      count: villageData?.dropoutChildren || 0, 
+      percentage: villageData?.totalChildren ? 
+        ((villageData?.dropoutChildren || 0) / villageData?.totalChildren * 100).toFixed(1) : 0 
     },
     neverEnrolled: { 
-      count: villageData?.['Never Enrolled'] || 0, 
-      percentage: villageData?.['Total Children'] ? 
-        ((villageData?.['Never Enrolled'] || 0) / villageData?.['Total Children'] * 100).toFixed(1) : 0 
+      count: villageData?.neverEnrolledChildren || 0, 
+      percentage: villageData?.totalChildren ? 
+        ((villageData?.neverEnrolledChildren || 0) / villageData?.totalChildren * 100).toFixed(1) : 0 
     }
   };
 
-  // Additional village information from API
+  // Additional para information from API
   const additionalInfo = {
-    population: villageData?.population || null,
+    population: villageData?.totalPopulation || villageData?.population || null,
     district: villageData?.district || 'Unknown District',
     state: villageData?.state || 'Unknown State',
     cluster: villageData?.cluster || null,
@@ -59,14 +107,14 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
             className="gap-2 p-0 h-auto"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Villages
+            Back to Gram Panchayats
           </Button>
           
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-foreground">{displayData.name}</h1>
               <p className="text-lg text-muted-foreground mt-1">
-                {displayData.block} &gt; {displayData.gramPanchayat}
+                {displayData.blocks?.join(', ')}
               </p>
               <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground flex-wrap">
                 <div className="flex items-center gap-1">
@@ -88,7 +136,7 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Assigned Bal Mitra</p>
-              <p className="font-semibold">{displayData.assignedBalMitra}</p>
+              <p className="font-semibold">{displayData.name || 'Not Assigned'}</p>
             </div>
           </div>
         </div>
@@ -167,12 +215,12 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Calendar className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">Village Information</h3>
+                <h3 className="text-lg font-semibold">Gram Panchayat Information</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 {additionalInfo.createdAt && (
                   <div>
-                    <p className="text-muted-foreground">Village Added</p>
+                    <p className="text-muted-foreground">Added On</p>
                     <p className="font-medium">{new Date(additionalInfo.createdAt).toLocaleDateString('en-GB', { 
                       day: 'numeric', 
                       month: 'long', 
@@ -194,6 +242,66 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
             </CardContent>
           </Card>
         )}
+
+        {/* Paras in this Gram Panchayat */}
+        <Card className="shadow-card">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                <h3 className="text-lg font-semibold">Paras in {villageData.name}</h3>
+              </div>
+            </div>
+
+            {relatedParas.length === 0 ? (
+              <p className="text-muted-foreground py-4 text-center">No paras found in this Gram Panchayat</p>
+            ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-bold">Para Name</TableHead>
+                        <TableHead className="font-bold">Block</TableHead>
+                        <TableHead className="font-bold">Total Children</TableHead>
+                        <TableHead className="font-bold">Enrolled</TableHead>
+                        <TableHead className="font-bold">Dropout</TableHead>
+                        <TableHead className="font-bold">Never Enrolled</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {relatedParas.map((para, index) => (
+                        <TableRow 
+                          key={para.id} 
+                          className={`${index % 2 === 0 ? "bg-muted/30" : ""} cursor-pointer hover:bg-muted/50`}
+                        >
+                          <TableCell className="font-medium">
+                            {para.name}
+                          </TableCell>
+                          <TableCell>{villageData.block || ''}</TableCell>
+                          <TableCell>{para.totalChildren || 0}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-success/10 text-success border-success/20">
+                              {para.enrolledChildren || 0}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-destructive/10 text-destructive border-destructive/20">
+                              {para.dropoutChildren || 0}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-warning/10 text-warning border-warning/20">
+                              {para.neverEnrolledChildren || 0}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
       </div>
     </div>
   );
