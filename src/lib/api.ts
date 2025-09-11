@@ -87,6 +87,44 @@ interface Village {
   updatedAt: string;
 }
 
+interface Para {
+  id: string;
+  name: string;
+  district: string;
+  gramPanchayat?: string;
+  gramPanchayats?: string[];
+  blocks?: string[];
+  state: string;
+  totalPopulation?: number;
+  population?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  totalChildren?: number;
+  enrolledChildren?: number;
+  dropoutChildren?: number;
+  neverEnrolledChildren?: number;
+  assignedBalMitra?: string;
+}
+
+interface GramPanchayat {
+  id: string;
+  name: string;
+  district: string;
+  block?: string; // Single block property
+  blocks?: string[]; // Array of blocks for backward compatibility
+  state?: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  totalChildren?: number;
+  enrolledChildren?: number;
+  dropoutChildren?: number;
+  neverEnrolledChildren?: number;
+  totalParas?: number;
+  assignedBalMitra?: string; // Added assignedBalMitra field
+}
+
 interface BlockGramPanchayatData {
   block: string;
   gramPanchayat: Array<{
@@ -103,11 +141,21 @@ interface DistrictGramPanchayatData {
   }>;
 }
 
-interface GramPanchayatResponse {
+interface BlockGramPanchayatsItem {
+  block: string;
   gramPanchayats: string[];
-  total: number;
-  filters: {
-    district: string | null;
+}
+
+interface GramPanchayatResponse {
+  gramPanchayats?: string[];
+  blocks?: string[];
+  blockGramPanchayats?: {
+    block: string;
+    gramPanchayats: string[];
+  }[];
+  total?: number;
+  filters?: {
+    district?: string | null;
   };
 }
 
@@ -577,15 +625,113 @@ class ApiClient {
   }
 
   async getBlocksGramPanchayats(): Promise<ApiResponse<BlockGramPanchayatData[]>> {
-    return this.request<BlockGramPanchayatData[]>('/villages/blocks-gramPanchayats');
+    return this.request<BlockGramPanchayatData[]>('/paras/blocks-gramPanchayats');
   }
 
-  async getDistrictGramPanchayats(district?: string): Promise<ApiResponse<GramPanchayatResponse>> {
+  async getDistrictGramPanchayats(district?: string): Promise<ApiResponse<GramPanchayatResponse | BlockGramPanchayatsItem[]>> {
     const searchParams = new URLSearchParams();
     if (district) searchParams.append('district', district);
     
-    const endpoint = `/villages/district-gramPanchayats${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-    return this.request<GramPanchayatResponse>(endpoint);
+    const endpoint = `/paras/blocks-gramPanchayats${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<GramPanchayatResponse | BlockGramPanchayatsItem[]>(endpoint);
+  }
+
+  async getParas(params: {
+    district?: string;
+    gramPanchayat?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<ApiResponse<{items: Para[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.district) searchParams.append('district', params.district);
+    if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
+    if (params.page) searchParams.append('page', params.page.toString());
+    if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
+
+    const endpoint = `/paras${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<{items: Para[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>(endpoint);
+  }
+
+  async getGramPanchayats(params: {
+    district?: string;
+    block?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<ApiResponse<{items: GramPanchayat[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.district) searchParams.append('district', params.district);
+    if (params.block) searchParams.append('block', params.block);
+    if (params.page) searchParams.append('page', params.page.toString());
+    if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
+
+    try {
+      const endpoint = `/paras/gramPanchayat${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      console.log('Making API request to:', BASE_URL + endpoint);
+      const response = await this.request<{items: GramPanchayat[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>(endpoint);
+      console.log('API response received:', response);
+      
+      // Ensure data is in expected format
+      if (response.success && (!response.data.items || !Array.isArray(response.data.items))) {
+        console.error('API returned unexpected format:', response);
+        return {
+          ...response,
+          data: {
+            items: [],
+            pagination: {
+              page: params.page || 1,
+              limit: params.limit || 20,
+              totalCount: 0,
+              hasMore: false
+            }
+          }
+        };
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error in getGramPanchayats:', error);
+      throw error;
+    }
+  }
+
+  async createPara(paraData: {
+    name: string;
+    district: string;
+    gramPanchayats: string[];
+    blocks: string[];
+    state: string;
+    totalPopulation: number;
+  }): Promise<ApiResponse<Para>> {
+    return this.request<Para>('/paras', {
+      method: 'POST',
+      body: JSON.stringify(paraData),
+    });
+  }
+
+  async updatePara(paraId: string, paraData: {
+    name?: string;
+    district?: string;
+    gramPanchayats?: string[];
+    blocks?: string[];
+    state?: string;
+    totalPopulation?: number;
+  }): Promise<ApiResponse<Para>> {
+    return this.request<Para>(`/paras/${paraId}`, {
+      method: 'PUT',
+      body: JSON.stringify(paraData),
+    });
+  }
+
+  async deletePara(paraId: string): Promise<ApiResponse<void>> {
+    return this.request<void>(`/paras/${paraId}`, {
+      method: 'DELETE',
+    });
   }
 
   async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
@@ -625,5 +771,8 @@ export type {
   DashboardSummary,
   BlockGramPanchayatData,
   DistrictGramPanchayatData,
-  GramPanchayatResponse
+  GramPanchayatResponse,
+  BlockGramPanchayatsItem,
+  Para,
+  GramPanchayat
 };
