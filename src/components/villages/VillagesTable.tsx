@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   AlertDialog,
@@ -20,12 +19,17 @@ interface Village {
   id: string;
   name: string;
   district: string;
-  gramPanchayat: string;
+  block?: string; // Added single block property
+  blocks?: string[]; // For backward compatibility
   totalChildren: number;
   enrolled: number;
   dropout: number;
   neverEnrolled: number;
-  assignedBalMitra: string;
+  totalParas?: number;
+  // For backward compatibility
+  gramPanchayat?: string;
+  gramPanchayats?: string[];
+  assignedBalMitra?: string;
 }
 
 interface VillagesTableProps {
@@ -60,14 +64,14 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="font-bold">Village Name</TableHead>
+                  <TableHead className="font-bold">Gram Panchayat Name</TableHead>
                   <TableHead className="font-bold">District</TableHead>
-                  <TableHead className="font-bold">Gram Panchayat</TableHead>
+                  <TableHead className="font-bold">Block</TableHead>
                   <TableHead className="font-bold">Total Children</TableHead>
                   <TableHead className="font-bold">Enrolled Children</TableHead>
                   <TableHead className="font-bold">Dropout Children</TableHead>
                   <TableHead className="font-bold">Never Enrolled</TableHead>
-                  <TableHead className="font-bold">Assigned Bal Mitra</TableHead>
+                  <TableHead className="font-bold">Assigned Bal Mitra</TableHead> {/* New column */}
                   <TableHead className="font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -80,7 +84,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                   >
                     <TableCell className="font-medium">{village.name}</TableCell>
                     <TableCell>{village.district}</TableCell>
-                    <TableCell>{village.gramPanchayat}</TableCell>
+                    <TableCell>{village.block || (village.blocks && village.blocks.length > 0 ? village.blocks[0] : '')}</TableCell>
                     <TableCell>{village.totalChildren}</TableCell>
                     <TableCell>
                       <Badge className="bg-success/10 text-success border-success/20">
@@ -97,7 +101,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                         {village.neverEnrolled}
                       </Badge>
                     </TableCell>
-                    <TableCell>{village.assignedBalMitra}</TableCell>
+                    <TableCell>{village.assignedBalMitra || village.name || 'Not Assigned'}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="sm" onClick={() => onEditVillage(village.id)}>
@@ -120,9 +124,9 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Village</AlertDialogTitle>
+            <AlertDialogTitle>Delete Gram Panchayat</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this village? This action cannot be undone and will permanently remove all associated data.
+              Are you sure you want to delete this Gram Panchayat? This action cannot be undone and will permanently remove all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -131,7 +135,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
               onClick={confirmDeleteVillage}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete Village
+              Delete Gram Panchayat
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
