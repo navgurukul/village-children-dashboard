@@ -24,7 +24,7 @@ const VillagesSearchAndActions = ({
       <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-md'}`}>
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search villages..."
+          placeholder="Search Gram Panchayats..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10 bg-white"
@@ -37,7 +37,7 @@ const VillagesSearchAndActions = ({
           className={`gap-2 ${isMobile ? 'flex-1' : ''}`}
         >
           <Plus className="h-4 w-4" />
-          Add New Village
+          Add New Gram Panchayat
         </Button>
         <Button 
           onClick={onBulkUpload} 
