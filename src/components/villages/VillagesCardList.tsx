@@ -9,12 +9,16 @@ interface Village {
   id: string;
   name: string;
   district: string;
-  gramPanchayat: string;
+  blocks?: string[];
   totalChildren: number;
   enrolled: number;
   dropout: number;
   neverEnrolled: number;
-  assignedBalMitra: string;
+  totalParas?: number;
+  // For backward compatibility
+  gramPanchayat?: string;
+  gramPanchayats?: string[];
+  assignedBalMitra?: string;
 }
 
 interface VillagesCardListProps {
@@ -40,8 +44,9 @@ const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVil
               </div>
               
               <div className="text-sm text-muted-foreground">
-                <div>Bal Mitra: {village.assignedBalMitra}</div>
-                <div>Gram Panchayat: {village.gramPanchayat}</div>
+                <div>Block: {village.blocks || (village.blocks ? village.blocks.join(', ') : 'Not Assigned')}</div>
+                <div>Total Paras: {village.totalParas || 0}</div>
+                <div>Assigned Bal Mitra: {village.assignedBalMitra || 'Not Assigned'}</div>
               </div>
             </div>
             
@@ -73,7 +78,7 @@ const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVil
                     }}
                   >
                     <Edit className="h-4 w-4" />
-                    Edit Village
+                    Edit Gram Panchayat
                   </Button>
                   <Button
                     variant="ghost"
@@ -84,7 +89,7 @@ const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVil
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
-                    Delete Village
+                    Delete Gram Panchayat
                   </Button>
                 </div>
               </SheetContent>
