@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import ChildrenRecordsHeader from '../components/children-records/ChildrenRecordsHeader';
 import ChildrenRecordsContent from '../components/children-records/ChildrenRecordsContent';
@@ -134,7 +133,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       otherMotherTongue: child.surveyData?.['section-1']?.q1_9_other || '',
       otherOccupation: child.surveyData?.['section-2']?.q2_1_other || '',
       otherCaste: child.surveyData?.['section-2']?.q2_2_other || '',
-      otherLivesWith: child.surveyData?.['section-2']?.q2_4_other || '',
+      otherLivesWith: child.surveyData?.['section-2']?.q2_7 || '',
       rationCardType: child.economicInfo?.rationCardType || child.surveyData?.['section-3']?.q3_1 || '',
       rationCardNumber: child.economicInfo?.rationCardNumber || child.surveyData?.['section-3']?.q3_2 || '',
       attendanceStatus: child.surveyData?.['section-4']?.q4_3 || '',
