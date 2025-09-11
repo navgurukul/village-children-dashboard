@@ -18,7 +18,7 @@ const MobileHeader = ({ currentPage, onNavigate, onProfileClick }: MobileHeaderP
     switch (page) {
       case 'dashboard': return 'Dashboard';
       case 'children': return 'Children Records';
-      case 'villages': return 'Villages';
+      case 'villages': return 'Gram Panchayats';
       case 'users': return 'Users';
       case 'profile': return 'Profile';
       default: return 'Dashboard';
@@ -28,7 +28,7 @@ const MobileHeader = ({ currentPage, onNavigate, onProfileClick }: MobileHeaderP
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'children', label: 'Children Records', icon: FileText },
-    { id: 'villages', label: 'Villages', icon: MapPin },
+    { id: 'villages', label: 'Gram Panchayats', icon: MapPin },
     { id: 'users', label: 'Users', icon: Users },
   ];
 

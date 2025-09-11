@@ -50,7 +50,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     },
     {
       id: 'villages' as const,
-      label: 'Villages',
+      label: 'Gram Panchayats',
       icon: MapPin,
     },
     {

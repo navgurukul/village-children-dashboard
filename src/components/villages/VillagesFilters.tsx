@@ -5,21 +5,22 @@ import { Filter } from 'lucide-react';
 
 interface VillagesFiltersProps {
   districtFilter: string;
-  gramPanchayatFilter: string;
+  blockFilter: string;
   districts: string[];
-  gramPanchayats: string[];
+  blocks: string[];
   onDistrictFilterChange: (value: string) => void;
-  onGramPanchayatFilterChange: (value: string) => void;
+  onBlockFilterChange: (value: string) => void;
 }
 
 const VillagesFilters = ({ 
   districtFilter, 
-  gramPanchayatFilter, 
+  blockFilter, 
   districts, 
-  gramPanchayats, 
+  blocks, 
   onDistrictFilterChange, 
-  onGramPanchayatFilterChange 
+  onBlockFilterChange 
 }: VillagesFiltersProps) => {
+  console.log('VillagesFilters received blocks:', blocks);
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
@@ -40,14 +41,14 @@ const VillagesFilters = ({
         </SelectContent>
       </Select> */}
 
-      <Select value={gramPanchayatFilter} onValueChange={onGramPanchayatFilterChange}>
+      <Select value={blockFilter} onValueChange={onBlockFilterChange}>
         <SelectTrigger className="w-[180px] bg-white">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Gram Panchayats</SelectItem>
-          {gramPanchayats.map(gp => (
-            <SelectItem key={gp} value={gp}>{gp}</SelectItem>
+          <SelectItem value="all">All Blocks</SelectItem>
+          {blocks && blocks.map(block => (
+            <SelectItem key={block} value={block}>{block}</SelectItem>
           ))}
         </SelectContent>
       </Select>
