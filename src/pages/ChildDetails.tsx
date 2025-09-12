@@ -213,7 +213,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
           </CardContent>
         </Card>
 
-        {/* Administrative Information */}
+        {/* Administrative  Information */}
         <Card className="shadow-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
