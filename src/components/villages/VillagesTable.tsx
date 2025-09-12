@@ -85,7 +85,11 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                     <TableCell className="font-medium">{village.name}</TableCell>
                     <TableCell>{village.district}</TableCell>
                     <TableCell>{village.block || (village.blocks && village.blocks.length > 0 ? village.blocks[0] : '')}</TableCell>
-                    <TableCell>{village.totalChildren}</TableCell>
+                    <TableCell>
+                      <Badge className="bg-primary/10 text-primary border-primary/20">
+                        {village.totalChildren}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <Badge className="bg-success/10 text-success border-success/20">
                         {village.enrolled}
