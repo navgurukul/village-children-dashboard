@@ -28,6 +28,25 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
   const itemsPerPage = 20;
 
+  // Format date from ISO string to DD-MM-YYYY
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if not valid date
+      
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}-${month}-${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString || '';
+    }
+  };
+
   // Fetch blocks data from API
   const fetchBlocksData = async () => {
     try {
@@ -119,24 +138,27 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       gramPanchayat: child.basicInfo.gramPanchayat || '',
       disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
       caste: child.familyInfo.caste || '',
-      dob: child.basicInfo.dateOfBirth || '',
+      dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',
       fatherName: child.familyInfo.fatherName || '',
       motherName: child.familyInfo.motherName || '',
-      motherEducated: typeof child.familyInfo.motherEducated === 'boolean' ? (child.familyInfo.motherEducated ? 'Yes' : 'No') : child.familyInfo.motherEducated || '',
-      fatherEducated: typeof child.familyInfo.fatherEducated === 'boolean' ? (child.familyInfo.fatherEducated ? 'Yes' : 'No') : child.familyInfo.fatherEducated || '',
+      // Use education values directly from the survey data or fallback to basic yes/no
+      motherEducated: child.surveyData?.['section-1']?.q1_11 || 
+                    (child.familyInfo?.motherEducated ? 'Yes' : 'No'),
+      fatherEducated: child.surveyData?.['section-1']?.q1_12 || 
+                    (child.familyInfo?.fatherEducated ? 'Yes' : 'No'),
       familyOccupation: child.familyInfo.familyOccupation || '',
       parentsStatus: child.familyInfo.parentsStatus || '',
       livesWithWhom: child.familyInfo.livesWithWhom || '',
       economicStatus: child.economicInfo?.economicStatus || '',
-      houseNumber: child.surveyData?.['section-1']?.q1_new_house || '',
-      motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_9 || '',
-      otherMotherTongue: child.surveyData?.['section-1']?.q1_9_other || '',
-      otherOccupation: child.surveyData?.['section-2']?.q2_1_other || '',
-      otherCaste: child.surveyData?.['section-2']?.q2_2_other || '',
-      otherLivesWith: child.surveyData?.['section-2']?.q2_7 || '',
-      rationCardType: child.economicInfo?.rationCardType || child.surveyData?.['section-3']?.q3_1 || '',
-      rationCardNumber: child.economicInfo?.rationCardNumber || child.surveyData?.['section-3']?.q3_2 || '',
-      attendanceStatus: child.surveyData?.['section-4']?.q4_3 || '',
+      houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', // Updated to use correct q1_2 field
+      motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_8 || '', // Updated to use correct q1_8 field
+      otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', // Updated to use correct q1_8_other field
+      otherOccupation: child.surveyData?.['section-2']?.q2_2 || '', // Updated to use correct q2_2 field
+      otherCaste: child.surveyData?.['section-2']?.q2_4 || '', // Updated to use correct q2_4 field
+      otherLivesWith: child.surveyData?.['section-2']?.q2_7 || '', // Correct q2_7 field
+      rationCardType: child.economicInfo?.rationCardType || child.surveyData?.['section-3']?.q3_1 || '', // Correct q3_1 field
+      rationCardNumber: child.economicInfo?.rationCardNumber || child.surveyData?.['section-3']?.q3_2 || '', // Correct q3_2 field
+      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Updated to use correct q4_5 field
       currentClass: child.educationInfo?.currentClass || child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
       lastClassStudied: child.surveyData?.['section-4']?.q4_7 || '',
