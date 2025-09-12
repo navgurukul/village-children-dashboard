@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import ChildrenRecordsHeader from '../components/children-records/ChildrenRecordsHeader';
 import ChildrenRecordsContent from '../components/children-records/ChildrenRecordsContent';
@@ -6,6 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
+import { House } from 'lucide-react';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -15,6 +15,7 @@ interface ChildrenRecordsProps {
 const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [blockFilter, setBlockFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +26,26 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [totalPages, setTotalPages] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
-  const itemsPerPage = 50;
+  const itemsPerPage = 20;
+
+  // Format date from ISO string to DD-MM-YYYY
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if not valid date
+      
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}-${month}-${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString || '';
+    }
+  };
 
   // Fetch blocks data from API
   const fetchBlocksData = async () => {
@@ -50,6 +70,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
 
       if (blockFilter !== 'all') params.block = blockFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
+      if (debouncedSearchTerm) params.search = debouncedSearchTerm;
 
       console.log('Fetching children with params:', params);
       const response = await apiClient.getChildren(params);
@@ -75,9 +96,25 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     fetchBlocksData();
   }, []);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
+
   useEffect(() => {
     fetchChildren();
-  }, [currentPage, blockFilter, statusFilter]);
+  }, [currentPage, blockFilter, statusFilter, debouncedSearchTerm]);
 
   // Get blocks from API data
   const blocks = useMemo(() => {
@@ -98,25 +135,49 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       school: child.educationInfo.schoolName || '',
       schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
       block: child.basicInfo.block,
-      gramPanchayat: child.basicInfo.gramPanchayat || ''
+      gramPanchayat: child.basicInfo.gramPanchayat || '',
+      disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
+      caste: child.familyInfo.caste || '',
+      dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',
+      fatherName: child.familyInfo.fatherName || '',
+      motherName: child.familyInfo.motherName || '',
+      // Use education values directly from the survey data or fallback to basic yes/no
+      motherEducated: child.surveyData?.['section-1']?.q1_11 || 
+                    (child.familyInfo?.motherEducated ? 'Yes' : 'No'),
+      fatherEducated: child.surveyData?.['section-1']?.q1_12 || 
+                    (child.familyInfo?.fatherEducated ? 'Yes' : 'No'),
+      familyOccupation: child.familyInfo.familyOccupation || '',
+      parentsStatus: child.familyInfo.parentsStatus || '',
+      livesWithWhom: child.familyInfo.livesWithWhom || '',
+      economicStatus: child.economicInfo?.economicStatus || '',
+      houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', // Updated to use correct q1_2 field
+      motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_8 || '', // Updated to use correct q1_8 field
+      otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', // Updated to use correct q1_8_other field
+      otherOccupation: child.surveyData?.['section-2']?.q2_2 || '', // Updated to use correct q2_2 field
+      otherCaste: child.surveyData?.['section-2']?.q2_4 || '', // Updated to use correct q2_4 field
+      otherLivesWith: child.surveyData?.['section-2']?.q2_7 || '', // Correct q2_7 field
+      rationCardType: child.economicInfo?.rationCardType || child.surveyData?.['section-3']?.q3_1 || '', // Correct q3_1 field
+      rationCardNumber: child.economicInfo?.rationCardNumber || child.surveyData?.['section-3']?.q3_2 || '', // Correct q3_2 field
+      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Updated to use correct q4_5 field
+      currentClass: child.educationInfo?.currentClass || child.surveyData?.['section-4']?.q4_4 || '',
+      educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
+      lastClassStudied: child.surveyData?.['section-4']?.q4_7 || '',
+      dropoutReasons: child.surveyData?.['section-4']?.q4_8 || '',
+      otherDropoutReason: child.surveyData?.['section-4']?.q4_9 || '',
+      neverEnrolledReasons: child.surveyData?.['section-4']?.q4_10 || '',
+      otherNeverEnrolledReason: child.surveyData?.['section-4']?.q4_11 || '',
+      hasCasteCertificate: child.documentsInfo?.hasCasteCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_1 === 'yes' ? 'Yes' : 'No',
+      hasResidenceCertificate: child.documentsInfo?.hasResidenceCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_2 === 'yes' ? 'Yes' : 'No',
+      hasAadhaar: child.documentsInfo?.hasAadhaar ? 'Yes' : child.surveyData?.['section-5']?.q5_3 === 'yes' ? 'Yes' : 'No',
+      disabilityTypes: child.surveyData?.['section-6']?.q6_2 || '',
+      otherDisability: child.surveyData?.['section-6']?.q6_3 || '',
     }));
   }, [apiChildren]);
 
-  // Filter data (client-side filtering for search only)
-  // The API already handles block and status filtering
+  // No need for client-side filtering as search is now handled by the API
   const filteredData = useMemo(() => {
-    if (!searchTerm) return childrenData;
-    
-    return childrenData.filter(child => {
-      const matchesSearch = searchTerm === '' || 
-        child.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        child.block.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesSearch;
-    });
-  }, [childrenData, searchTerm]);
+    return childrenData;
+  }, [childrenData]);
 
   // Use filtered data for pagination
   const paginatedData = filteredData;

@@ -87,6 +87,44 @@ interface Village {
   updatedAt: string;
 }
 
+interface Para {
+  id: string;
+  name: string;
+  district: string;
+  gramPanchayat?: string;
+  gramPanchayats?: string[];
+  blocks?: string[];
+  state: string;
+  totalPopulation?: number;
+  population?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  totalChildren?: number;
+  enrolledChildren?: number;
+  dropoutChildren?: number;
+  neverEnrolledChildren?: number;
+  assignedBalMitra?: string;
+}
+
+interface GramPanchayat {
+  id: string;
+  name: string;
+  district: string;
+  block?: string; // Single block property
+  blocks?: string[]; // Array of blocks for backward compatibility
+  state?: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  totalChildren?: number;
+  enrolledChildren?: number;
+  dropoutChildren?: number;
+  neverEnrolledChildren?: number;
+  totalParas?: number;
+  assignedBalMitra?: string; // Added assignedBalMitra field
+}
+
 interface BlockGramPanchayatData {
   block: string;
   gramPanchayat: Array<{
@@ -103,11 +141,21 @@ interface DistrictGramPanchayatData {
   }>;
 }
 
-interface GramPanchayatResponse {
+interface BlockGramPanchayatsItem {
+  block: string;
   gramPanchayats: string[];
-  total: number;
-  filters: {
-    district: string | null;
+}
+
+interface GramPanchayatResponse {
+  gramPanchayats?: string[];
+  blocks?: string[];
+  blockGramPanchayats?: {
+    block: string;
+    gramPanchayats: string[];
+  }[];
+  total?: number;
+  filters?: {
+    district?: string | null;
   };
 }
 
@@ -142,6 +190,61 @@ interface UpdateVillagePayload {
 
 interface Child {
   id: string;
+  surveyData?: {
+    "section-1": {
+      q1_1?: string; // Child's full name
+      q1_2?: string; // House number
+      q1_3?: object; // Child's DOB
+      q1_4?: string; // Child's gender
+      q1_5?: string; // Development block
+      q1_6?: string; // Gram Panchayat name
+      q1_7?: string; // Which para (tola/place) does the child live in?
+      q1_8?: string; // Family's mother tongue or dialect
+      q1_8_other?: string; // Other mother tongue specification
+      q1_9?: string; // Child's mother's name
+      q1_10?: string; // Child's father's name
+      q1_11?: string; // Is the child's mother educated?
+      q1_12?: string; // Is the child's father educated?
+      q1_new_house?: string; // Legacy house number field
+    };
+    "section-2"?: {
+      q2_1?: string; // Head of family's occupation
+      q2_2?: string; // Please specify the occupation
+      q2_3?: string; // Caste category
+      q2_4?: string; // Please specify the caste
+      q2_5?: string; // Current status of child's parents
+      q2_6?: string; // Lives with whom
+      q2_7?: string; // Other specification for lives with whom
+    };
+    "section-3"?: {
+      q3_1?: string; // Family's economic classification (type of ration card)
+      q3_2?: string; // Ration card number
+    };
+    "section-4"?: {
+      q4_1?: string; // Does the child go to school?
+      q4_2?: string; // If yes, what is the full name of the school and in which para is the school located?
+      q4_3?: string; // Does the child go to school from home or live in a hostel?
+      q4_4?: string; // What class is the child currently studying in?
+      q4_5?: string; // Child's school attendance status
+      q4_6?: string; // If the child does not go to school, which category does he/she fall into?
+      q4_7?: string; // If the child is a school dropout, up to which class did he/she study?
+      q4_8?: string | string[]; // Reason for dropping out of school
+      q4_9?: string; // Please specify the reason for dropout
+      q4_10?: string | string[]; // If the child has never enrolled, what is the reason for not enrolling in school?
+      q4_11?: string; // Other reason for never enrolling
+    };
+    "section-5"?: {
+      q5_1?: string; // Does the child have a caste certificate?
+      q5_2?: string; // Does the child have a residence certificate?
+      q5_3?: string; // Does the child have an Aadhaar card?
+      q5_4?: string; // If yes, Write child's Aadhaar Number
+    };
+    "section-6"?: {
+      q6_1?: string; // Does the child fall under any category of disability?
+      q6_2?: string | string[]; // If yes, what type of disability is it?
+      q6_3?: string; // Other disability specification
+    };
+  };
   basicInfo: {
     fullName: string;
     age: number;
@@ -225,50 +328,57 @@ interface UpdateChildPayload {
   villageId: string;
   surveyData: {
     "section-1": {
-      "q1_1": string; // fullName
-      "q1_2": string; // age
-      "q1_3": string; // dateOfBirth
-      "q1_4": string; // gender
-      "q1_5": string; // para
-      "q1_6": string; // panchayat
-      "q1_7": string; // cluster
-      "q1_8": string; // block
-      "q1_9": string; // motherTongue
-      "q1_10": string; // motherName
-      "q1_11": string; // fatherName
-      "q1_12": string; // motherEducated
-      "q1_13": string; // fatherEducated
+      "q1_1": string; // Child's full name
+      "q1_2": string; // House number
+      "q1_3": string; // Child's DOB
+      "q1_4": string; // Child's gender
+      "q1_5": string; // Development block
+      "q1_6": string; // Gram Panchayat name
+      "q1_7": string; // Para (tola/place)
+      "q1_8": string; // Family's mother tongue
+      "q1_8_other": string | null; // Other mother tongue specification
+      "q1_9": string; // Child's mother's name
+      "q1_10": string; // Child's father's name
+      "q1_11": string; // Is mother educated
+      "q1_12": string; // Is father educated
+      "q1_13": string | null; // Additional field if needed
     };
     "section-2": {
-      "q2_1": string; // familyOccupation
-      "q2_2": string; // caste
-      "q2_3": string; // parentsStatus
-      "q2_4": string; // livesWithWhom
-      "q2_5": string | null;
+      "q2_1": string; // Head of family's occupation
+      "q2_2": string | null; // Specific occupation
+      "q2_3": string; // Caste category
+      "q2_4": string | null; // Specific caste
+      "q2_5": string; // Parents status
+      "q2_6": string; // Lives with whom
+      "q2_7": string | null; // Other specification for lives with
     };
     "section-3": {
-      "q3_1": string; // economicStatus
-      "q3_2": string; // aadhaarNumber
+      "q3_1": string; // Family's economic classification (type of ration card)
+      "q3_2": string; // Ration card number
     };
     "section-4": {
-      "q4_1": string; // goesToSchool
-      "q4_2": string | null;
-      "q4_3": string | null;
-      "q4_4": string | null;
-      "q4_5": string; // educationStatus
-      "q4_6": string; // currentClass
-      "q4_7": string[]; // dropoutReasons
-      "q4_8": string | null;
+      "q4_1": string; // Does the child go to school?
+      "q4_2": string | null; // If yes, what is the full name of the school and in which para is the school located?
+      "q4_3": string | null; // Does the child go to school from home or live in a hostel?
+      "q4_4": string | null; // What class is the child currently studying in?
+      "q4_5": string; // Child's school attendance status
+      "q4_6": string; // If the child does not go to school, which category does he/she fall into?
+      "q4_7": string | null; // If the child is a school dropout, up to which class did he/she study?
+      "q4_8": string[] | string | null; // Reason for dropping out of school
+      "q4_9": string | null; // Please specify the reason for dropout
+      "q4_10": string[] | string | null; // If the child has never enrolled, what is the reason for not enrolling in school?
+      "q4_11": string | null; // Other reason for never enrolling
     };
     "section-5": {
-      "q5_1": string; // hasAadhaar
-      "q5_2": string; // hasCasteCertificate
-      "q5_3": string; // hasResidenceCertificate
-      "q5_4": string; // aadhaarNumber
+      "q5_1": string; // Does the child have a caste certificate?
+      "q5_2": string; // Does the child have a residence certificate?
+      "q5_3": string; // Does the child have an Aadhaar card?
+      "q5_4": string; // If yes, Write child's Aadhaar Number
     };
     "section-6": {
-      "q6_1": string; // hasDisability
-      "q6_2": string | null;
+      "q6_1": string; // Does the child fall under any category of disability?
+      "q6_2": string | string[] | null; // If yes, what type of disability is it?
+      "q6_3": string | null; // Other disability specification
     };
   };
 }
@@ -431,6 +541,7 @@ class ApiClient {
     educationStatus?: string;
     gender?: string;
     caste?: string;
+    search?: string;
     page?: number;
     limit?: number;
   } = {}): Promise<ApiResponse<ChildrenResponse>> {
@@ -444,6 +555,7 @@ class ApiClient {
     if (params.educationStatus) searchParams.append('educationStatus', params.educationStatus);
     if (params.gender) searchParams.append('gender', params.gender);
     if (params.caste) searchParams.append('caste', params.caste);
+    if (params.search) searchParams.append('search', params.search);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
 
@@ -456,6 +568,7 @@ class ApiClient {
     gramPanchayat?: string;
     page?: number;
     limit?: number;
+    search?: string;
   } = {}): Promise<ApiResponse<VillagesResponse>> {
     const searchParams = new URLSearchParams();
     
@@ -463,6 +576,7 @@ class ApiClient {
     if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
 
     const endpoint = `/villages${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     return this.request<VillagesResponse>(endpoint);
@@ -509,15 +623,113 @@ class ApiClient {
   }
 
   async getBlocksGramPanchayats(): Promise<ApiResponse<BlockGramPanchayatData[]>> {
-    return this.request<BlockGramPanchayatData[]>('/villages/blocks-gramPanchayats');
+    return this.request<BlockGramPanchayatData[]>('/paras/blocks-gramPanchayats');
   }
 
-  async getDistrictGramPanchayats(district?: string): Promise<ApiResponse<GramPanchayatResponse>> {
+  async getDistrictGramPanchayats(district?: string): Promise<ApiResponse<GramPanchayatResponse | BlockGramPanchayatsItem[]>> {
     const searchParams = new URLSearchParams();
     if (district) searchParams.append('district', district);
     
-    const endpoint = `/villages/district-gramPanchayats${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-    return this.request<GramPanchayatResponse>(endpoint);
+    const endpoint = `/paras/blocks-gramPanchayats${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<GramPanchayatResponse | BlockGramPanchayatsItem[]>(endpoint);
+  }
+
+  async getParas(params: {
+    district?: string;
+    gramPanchayat?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<ApiResponse<{items: Para[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.district) searchParams.append('district', params.district);
+    if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
+    if (params.page) searchParams.append('page', params.page.toString());
+    if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
+
+    const endpoint = `/paras${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<{items: Para[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>(endpoint);
+  }
+
+  async getGramPanchayats(params: {
+    district?: string;
+    block?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<ApiResponse<{items: GramPanchayat[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.district) searchParams.append('district', params.district);
+    if (params.block) searchParams.append('block', params.block);
+    if (params.page) searchParams.append('page', params.page.toString());
+    if (params.limit) searchParams.append('limit', params.limit.toString());
+    if (params.search) searchParams.append('search', params.search);
+
+    try {
+      const endpoint = `/paras/gramPanchayat${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      console.log('Making API request to:', BASE_URL + endpoint);
+      const response = await this.request<{items: GramPanchayat[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>(endpoint);
+      console.log('API response received:', response);
+      
+      // Ensure data is in expected format
+      if (response.success && (!response.data.items || !Array.isArray(response.data.items))) {
+        console.error('API returned unexpected format:', response);
+        return {
+          ...response,
+          data: {
+            items: [],
+            pagination: {
+              page: params.page || 1,
+              limit: params.limit || 20,
+              totalCount: 0,
+              hasMore: false
+            }
+          }
+        };
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error in getGramPanchayats:', error);
+      throw error;
+    }
+  }
+
+  async createPara(paraData: {
+    name: string;
+    district: string;
+    gramPanchayats: string[];
+    blocks: string[];
+    state: string;
+    totalPopulation: number;
+  }): Promise<ApiResponse<Para>> {
+    return this.request<Para>('/paras', {
+      method: 'POST',
+      body: JSON.stringify(paraData),
+    });
+  }
+
+  async updatePara(paraId: string, paraData: {
+    name?: string;
+    district?: string;
+    gramPanchayats?: string[];
+    blocks?: string[];
+    state?: string;
+    totalPopulation?: number;
+  }): Promise<ApiResponse<Para>> {
+    return this.request<Para>(`/paras/${paraId}`, {
+      method: 'PUT',
+      body: JSON.stringify(paraData),
+    });
+  }
+
+  async deletePara(paraId: string): Promise<ApiResponse<void>> {
+    return this.request<void>(`/paras/${paraId}`, {
+      method: 'DELETE',
+    });
   }
 
   async updateChild(childId: string, childData: UpdateChildPayload): Promise<ApiResponse<any>> {
@@ -557,5 +769,8 @@ export type {
   DashboardSummary,
   BlockGramPanchayatData,
   DistrictGramPanchayatData,
-  GramPanchayatResponse
+  GramPanchayatResponse,
+  BlockGramPanchayatsItem,
+  Para,
+  GramPanchayat
 };

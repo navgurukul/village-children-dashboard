@@ -72,7 +72,7 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                 <TableHead className="font-bold">Village</TableHead>
                 <TableHead className="font-bold">Status</TableHead>
                 <TableHead className="font-bold">School</TableHead>
-                <TableHead className="font-bold">Actions</TableHead>
+                {/* <TableHead className="font-bold">Actions</TableHead> */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -90,7 +90,7 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                   <TableCell>{student.village}</TableCell>
                   <TableCell>{getStatusBadge(student.schoolStatus)}</TableCell>
                   <TableCell>{student.school || '-'}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <div className="flex gap-1">
                       <Button
                         size="sm"
@@ -112,7 +112,7 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
