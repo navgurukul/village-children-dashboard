@@ -64,50 +64,72 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const csvContent = [
     headers.join(','),
 
-    ...data.map(child => [
-      child.id,
-      `"${child.name}"`,
-      child.age,
-      `"${child.gender}"`,
-      child.aadhaarNumber || '-',
-      `"${child.village || '-'}"`,
-      `"${child.block || '-'}"`,
-      `"${child.gramPanchayat || '-'}"`,
-      child.dob || '-',
-      `"${child.fatherName || '-'}"`,
-      `"${child.motherName || '-'}"`,
-      `"${child.motherEducated || '-'}"`,
-      `"${child.fatherEducated || '-'}"`,
-      `"${child.houseNumber || '-'}"`,
-      `"${child.familyOccupation || '-'}"`,
-      `"${child.otherOccupation || '-'}"`,
-      `"${child.caste || '-'}"`,
-      `"${child.otherCaste || '-'}"`,
-      `"${child.parentsStatus || '-'}"`,
-      `"${child.livesWithWhom || '-'}"`,
-      `"${child.otherLivesWith || '-'}"`,
-      `"${child.economicStatus || '-'}"`,
-      `"${child.motherTongue || '-'}"`,
-      `"${child.otherMotherTongue || '-'}"`,
-      `"${child.schoolStatus || '-'}"`,
-      `"${child.schoolName || '-'}"`,
-      `"${child.attendanceStatus || '-'}"`,
-      `"${child.currentClass || '-'}"`,
-      `"${child.educationCategory || '-'}"`,
-      `"${child.lastClassStudied || '-'}"`,
-      `"${Array.isArray(child.dropoutReasons) ? child.dropoutReasons.join('; ') : (child.dropoutReasons || '-')}"`,
-      `"${child.otherDropoutReason || '-'}"`,
-      `"${Array.isArray(child.neverEnrolledReasons) ? child.neverEnrolledReasons.join('; ') : (child.neverEnrolledReasons || '-')}"`,
-      `"${child.otherNeverEnrolledReason || '-'}"`,
-      `"${child.rationCardType || '-'}"`,
-      `"${child.rationCardNumber || '-'}"`,
-      `"${child.hasCasteCertificate || '-'}"`,
-      `"${child.hasResidenceCertificate || '-'}"`,
-      `"${child.hasAadhaar || '-'}"`,
-      `"${child.disability || '-'}"`,
-      `"${Array.isArray(child.disabilityTypes) ? child.disabilityTypes.join('; ') : (child.disabilityTypes || '-')}"`,
-      `"${child.otherDisability || '-'}"`,
-    ].join(','))
+    ...data.map(child => {
+      // Format mother tongue to include "other" value if applicable
+      const motherTongueFormatted = (child.motherTongue === "अन्य" || child.motherTongue === "Other") && child.otherMotherTongue 
+        ? `${child.motherTongue} (${child.otherMotherTongue})` 
+        : child.motherTongue;
+
+      // Format family occupation to include "other" value if applicable
+      const familyOccupationFormatted = (child.familyOccupation === "अन्य" || child.familyOccupation === "Other") && child.otherOccupation 
+        ? `${child.familyOccupation} (${child.otherOccupation})` 
+        : child.familyOccupation;
+
+      // Format caste to include "other" value if applicable
+      const casteFormatted = (child.caste === "अन्य" || child.caste === "Other") && child.otherCaste 
+        ? `${child.caste} (${child.otherCaste})` 
+        : child.caste;
+
+      // Format "lives with" to include "other" value if applicable
+      const livesWithFormatted = (child.livesWithWhom === "अन्य" || child.livesWithWhom === "Other") && child.otherLivesWith 
+        ? `${child.livesWithWhom} (${child.otherLivesWith})` 
+        : child.livesWithWhom;
+
+      return [
+        child.id,
+        `"${child.name}"`,
+        child.age,
+        `"${child.gender}"`,
+        child.aadhaarNumber || '-',
+        `"${child.village || '-'}"`,
+        `"${child.block || '-'}"`,
+        `"${child.gramPanchayat || '-'}"`,
+        child.dob || '-', // DOB is already formatted as DD-MM-YYYY in ChildrenRecords.tsx
+        `"${child.fatherName || '-'}"`,
+        `"${child.motherName || '-'}"`,
+        `"${child.motherEducated || '-'}"`,
+        `"${child.fatherEducated || '-'}"`,
+        `"${child.houseNumber || '-'}"`,
+        `"${familyOccupationFormatted || '-'}"`,
+        `"${child.otherOccupation || '-'}"`,
+        `"${child.caste || '-'}"`,
+        `"${child.otherCaste || '-'}"`,
+        `"${child.parentsStatus || '-'}"`,
+        `"${child.livesWithWhom || '-'}"`,
+        `"${child.otherLivesWith || '-'}"`,
+        `"${child.economicStatus || '-'}"`,
+        `"${motherTongueFormatted || '-'}"`,
+        `"${child.otherMotherTongue || '-'}"`,
+        `"${child.schoolStatus || '-'}"`,
+        `"${child.schoolName || '-'}"`,
+        `"${child.attendanceStatus || '-'}"`,
+        `"${child.currentClass || '-'}"`,
+        `"${child.educationCategory || '-'}"`,
+        `"${child.lastClassStudied || '-'}"`,
+        `"${Array.isArray(child.dropoutReasons) ? child.dropoutReasons.join('; ') : (child.dropoutReasons || '-')}"`,
+        `"${child.otherDropoutReason || '-'}"`,
+        `"${Array.isArray(child.neverEnrolledReasons) ? child.neverEnrolledReasons.join('; ') : (child.neverEnrolledReasons || '-')}"`,
+        `"${child.otherNeverEnrolledReason || '-'}"`,
+        `"${child.rationCardType || '-'}"`,
+        `"${child.rationCardNumber || '-'}"`,
+        `"${child.hasCasteCertificate || '-'}"`,
+        `"${child.hasResidenceCertificate || '-'}"`,
+        `"${child.hasAadhaar || '-'}"`,
+        `"${child.disability || '-'}"`,
+        `"${Array.isArray(child.disabilityTypes) ? child.disabilityTypes.join('; ') : (child.disabilityTypes || '-')}"`,
+        `"${child.otherDisability || '-'}"`,
+      ].join(',');
+    })
   ].join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
