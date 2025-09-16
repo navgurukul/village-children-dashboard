@@ -135,7 +135,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       school: child.educationInfo.schoolName || '',
       schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
       block: child.basicInfo.block,
-      gramPanchayat: child.basicInfo.gramPanchayat || '',
+      gramPanchayat: child.surveyData?.['section-1']?.q1_6 || child.basicInfo.gramPanchayat || '',
       disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
       caste: child.familyInfo.caste || '',
       dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',

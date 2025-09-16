@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ interface Student {
   schoolStatus: string;
   school?: string;
   aadhaarNumber: string;
+  gramPanchayat?: string; 
 }
 
 interface ChildrenTableProps {
@@ -69,6 +69,7 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                 <TableHead className="font-bold">Age</TableHead>
                 <TableHead className="font-bold">Gender</TableHead>
                 <TableHead className="font-bold">Block</TableHead>
+                <TableHead className="font-bold">Gram Panchayat</TableHead>
                 <TableHead className="font-bold">Village</TableHead>
                 <TableHead className="font-bold">Status</TableHead>
                 <TableHead className="font-bold">School</TableHead>
@@ -87,6 +88,7 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                   <TableCell>{student.age}</TableCell>
                   <TableCell>{student.gender}</TableCell>
                   <TableCell>{student.block}</TableCell>
+                  <TableCell>{student.gramPanchayat || '-'}</TableCell>
                   <TableCell>{student.village}</TableCell>
                   <TableCell>{getStatusBadge(student.schoolStatus)}</TableCell>
                   <TableCell>{student.school || '-'}</TableCell>
