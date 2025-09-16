@@ -52,7 +52,7 @@ interface ChildData {
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const headers = [
-    'ID', 'Name', 'Age', 'Gender', 'Aadhaar Number','Village', 'Block', 'Gram Panchayat', 
+    'ID', 'Name', 'Age', 'Gender', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 
       'DOB', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
     'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with', 
     'Other Lives With', 'Economic Status', 'Mother Tongue', 'Other Mother Tongue', 
@@ -91,9 +91,9 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         child.age,
         `"${child.gender}"`,
         child.aadhaarNumber || '-',
-        `"${child.village || '-'}"`,
         `"${child.block || '-'}"`,
         `"${child.gramPanchayat || '-'}"`,
+        `"${child.village || '-'}"`,
         child.dob || '-', // DOB is already formatted as DD-MM-YYYY in ChildrenRecords.tsx
         `"${child.fatherName || '-'}"`,
         `"${child.motherName || '-'}"`,
