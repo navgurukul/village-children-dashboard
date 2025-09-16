@@ -278,7 +278,11 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
                             {para.name}
                           </TableCell>
                           <TableCell>{villageData.block || ''}</TableCell>
-                          <TableCell>{para.totalChildren || 0}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-primary/10 text-primary border-primary/20">
+                              {para.totalChildren || 0}
+                            </Badge>
+                          </TableCell>
                           <TableCell>
                             <Badge className="bg-success/10 text-success border-success/20">
                               {para.enrolledChildren || 0}

@@ -272,22 +272,22 @@ const Dashboard = () => {
     { 
       type: 'Dropouts', 
       count: dashboardData.recentSurveyFindings.dropouts?.total || 0, 
-      breakdown: `${dashboardData.recentSurveyFindings.dropouts?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.dropouts?.girls || 0} Girls` 
+      breakdown: `${dashboardData.recentSurveyFindings.dropouts?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.dropouts?.girls || 0} Girls, ${dashboardData.recentSurveyFindings.dropouts?.other || 0} Other` 
     },
     { 
       type: 'Enrollments', 
       count: dashboardData.recentSurveyFindings.enrollments?.total || 0, 
-      breakdown: `${dashboardData.recentSurveyFindings.enrollments?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.enrollments?.girls || 0} Girls` 
+      breakdown: `${dashboardData.recentSurveyFindings.enrollments?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.enrollments?.girls || 0} Girls, ${dashboardData.recentSurveyFindings.enrollments?.other || 0} Other` 
     },
     { 
       type: 'Never Enrolled', 
       count: dashboardData.recentSurveyFindings.neverEnrolled?.total || 0, 
-      breakdown: `${dashboardData.recentSurveyFindings.neverEnrolled?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.neverEnrolled?.girls || 0} Girls` 
+      breakdown: `${dashboardData.recentSurveyFindings.neverEnrolled?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.neverEnrolled?.girls || 0} Girls, ${dashboardData.recentSurveyFindings.neverEnrolled?.other || 0} Other` 
     }
   ] : [
-    { type: 'Dropouts', count: 0, breakdown: '0 Boys, 0 Girls' },
-    { type: 'Enrollments', count: 0, breakdown: '0 Boys, 0 Girls' },
-    { type: 'Never Enrolled', count: 0, breakdown: '0 Boys, 0 Girls' }
+    { type: 'Dropouts', count: 0, breakdown: '0 Boys, 0 Girls, 0 Other' },
+    { type: 'Enrollments', count: 0, breakdown: '0 Boys, 0 Girls, 0 Other' },
+    { type: 'Never Enrolled', count: 0, breakdown: '0 Boys, 0 Girls, 0 Other' }
   ];
 
   // Prepare long dropout data

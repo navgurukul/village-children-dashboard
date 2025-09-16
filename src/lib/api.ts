@@ -396,16 +396,19 @@ interface DashboardSummary {
       total: number;
       boys: number;
       girls: number;
+      other: number;
     };
     enrollments: {
       total: number;
       boys: number;
       girls: number;
+      other: number;
     };
     neverEnrolled: {
       total: number;
       boys: number;
       girls: number;
+      other: number;
     };
   };
   longDropoutPeriods: {
