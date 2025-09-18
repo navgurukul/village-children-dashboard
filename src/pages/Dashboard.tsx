@@ -1,30 +1,29 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { FileText } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import KPICards from '../components/dashboard/KPICards';
-import LocationFilters from '../components/dashboard/LocationFilters';
 import FilterChips from '../components/FilterChips';
-import RecentSurveyFindings from '../components/dashboard/RecentSurveyFindings';
-import LongDropoutPeriod from '../components/dashboard/LongDropoutPeriod';
-import TrendsChart from '../components/dashboard/TrendsChart';
+import SurveyAnalyticsFilters from '../components/survey-analytics/SurveyAnalyticsFilters';
+import SurveyAnalyticsDisplay from '../components/survey-analytics/SurveyAnalyticsDisplay';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { apiClient, DashboardSummary } from '../lib/api';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { Survey } from '@/types/survey';
 
 const Dashboard = () => {
-  const [locationFilters, setLocationFilters] = useState({
+  const [analyticsFilters, setAnalyticsFilters] = useState({
+    dateRange: { from: undefined as Date | undefined, to: undefined as Date | undefined },
     block: 'all',
-    gramPanchayat: 'all',
-    village: 'all'
+    gramPanchayat: 'all'
   });
 
   const [trendsDateRange, setTrendsDateRange] = useState('6months');
   const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
   const [blocksData, setBlocksData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true); // NEW
+  const [surveyData, setSurveyData] = useState<Survey | null>(null);
+  const [overviewData, setOverviewData] = useState<any | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
@@ -32,22 +31,98 @@ const Dashboard = () => {
     try {
       const response = await apiClient.getBlocksGramPanchayats();
       if (response.success) {
-        setBlocksData(response.data);
+        // Transform the data to match the expected format
+        const transformedData = response.data.map(block => ({
+          block: block.block,
+          gramPanchayat: (block as any).gramPanchayats?.map((name: string) => ({ name, isAssigned: false })) || []
+        }));
+        setBlocksData(transformedData);
       }
     } catch (error) {
       console.error('Error fetching blocks data:', error);
     }
   };
 
-  const fetchDashboardData = async () => {
+  const fetchSurveyQuestions = async () => {
     try {
-      setLoading(true);
-
-      const response = await apiClient.getDashboardSummary({
-        block: locationFilters.block !== 'all' ? locationFilters.block : undefined,
-        gramPanchayat: locationFilters.gramPanchayat !== 'all' ? locationFilters.gramPanchayat : undefined,
-        villageId: locationFilters.village !== 'all' ? locationFilters.village : undefined,
+      const response = await apiClient.getSurveyQuestions();
+      if (response.success) {
+        setSurveyData(response.data);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to fetch survey questions",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching survey questions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch survey questions",
+        variant: "destructive",
       });
+    }
+  };
+
+  const fetchDashboardOverview = async () => {
+    try {
+      // Include date range parameters in the API call
+      const params: any = {
+        block: analyticsFilters.block !== 'all' ? analyticsFilters.block : undefined,
+        gramPanchayat: analyticsFilters.gramPanchayat !== 'all' ? analyticsFilters.gramPanchayat : undefined,
+      };
+      
+      // Add date range parameters if they exist
+      if (analyticsFilters.dateRange.from) {
+        params.startDate = analyticsFilters.dateRange.from.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      }
+      
+      if (analyticsFilters.dateRange.to) {
+        params.endDate = analyticsFilters.dateRange.to.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      }
+      
+      const response = await apiClient.getDashboardOverview(params);
+
+      if (response.success) {
+        setOverviewData(response.data);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to fetch dashboard overview",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard overview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch dashboard overview",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchDashboardData = async (isInitial = false) => {
+    try {
+      if (isInitial) setLoading(true); // Only show loading on initial load
+
+      // Include date range parameters in the API call
+      const params: any = {
+        block: analyticsFilters.block !== 'all' ? analyticsFilters.block : undefined,
+        gramPanchayat: analyticsFilters.gramPanchayat !== 'all' ? analyticsFilters.gramPanchayat : undefined,
+      };
+      
+      // Add date range parameters if they exist
+      if (analyticsFilters.dateRange.from) {
+        params.startDate = analyticsFilters.dateRange.from.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      }
+      
+      if (analyticsFilters.dateRange.to) {
+        params.endDate = analyticsFilters.dateRange.to.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      }
+      
+      const response = await apiClient.getDashboardSummary(params);
 
       if (response.success) {
         setDashboardData(response.data);
@@ -66,7 +141,7 @@ const Dashboard = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false); // Only hide loading on initial load
     }
   };
 
@@ -75,181 +150,91 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [locationFilters]);
+    fetchSurveyQuestions();
+  }, []);
 
-  const handleExportPDF = async () => {
-    try {
-      // Show loading state
-      toast({
-        title: "Generating PDF",
-        description: "Capturing dashboard content...",
-      });
+  useEffect(() => {
+    fetchDashboardOverview();
+  }, [analyticsFilters]);
 
-      // Find the dashboard content (excluding header with export button)
-      const dashboardContent = document.querySelector('.dashboard-content');
-      if (!dashboardContent) {
-        throw new Error('Dashboard content not found');
-      }
+  // Initial load effect
+  useEffect(() => {
+    fetchDashboardData(true); // Only show loading spinner on initial load
+    setInitialLoad(false);
+    // eslint-disable-next-line
+  }, []);
 
-      // Generate canvas from the dashboard content
-      const canvas = await html2canvas(dashboardContent as HTMLElement, {
-        height: dashboardContent.scrollHeight,
-        width: dashboardContent.scrollWidth,
-        scale: 2, // Higher quality
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        onclone: (clonedDoc) => {
-          // Remove any animations or hover states from the cloned document
-          const clonedElement = clonedDoc.querySelector('.dashboard-content');
-          if (clonedElement) {
-            clonedElement.classList.add('print-mode');
-          }
-        }
-      });
-
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      // Calculate dimensions to fit the image properly
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-
-      // Calculate scale to fit content while maintaining aspect ratio
-      const widthScale = pdfWidth / (canvasWidth * 0.264583); // Convert px to mm
-      const heightScale = pdfHeight / (canvasHeight * 0.264583);
-      const scale = Math.min(widthScale, heightScale, 1); // Don't scale up
-
-      const scaledWidth = (canvasWidth * 0.264583) * scale;
-      const scaledHeight = (canvasHeight * 0.264583) * scale;
-
-      // Center the image on the page
-      const xOffset = (pdfWidth - scaledWidth) / 2;
-      const yOffset = Math.max(10, (pdfHeight - scaledHeight) / 2); // Minimum 10mm from top
-
-      // Add header with title and timestamp
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Village Children Register - Dashboard', pdfWidth / 2, 15, { align: 'center' });
-      
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      const now = new Date();
-      pdf.text(`Generated on: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`, pdfWidth / 2, 25, { align: 'center' });
-
-      // Add the dashboard image
-      const imgData = canvas.toDataURL('image/png');
-      
-      if (scaledHeight > pdfHeight - 40) {
-        // If content is too tall, we might need multiple pages
-        let currentY = 35;
-        const maxHeightPerPage = pdfHeight - 50;
-        let remainingHeight = scaledHeight;
-        let sourceY = 0;
-        
-        while (remainingHeight > 0) {
-          const heightForThisPage = Math.min(remainingHeight, maxHeightPerPage);
-          const sourceHeight = (heightForThisPage / scale) / 0.264583;
-          
-          // Create a cropped canvas for this page
-          const tempCanvas = document.createElement('canvas');
-          const tempCtx = tempCanvas.getContext('2d');
-          tempCanvas.width = canvasWidth;
-          tempCanvas.height = sourceHeight;
-          
-          if (tempCtx) {
-            tempCtx.drawImage(canvas, 0, sourceY, canvasWidth, sourceHeight, 0, 0, canvasWidth, sourceHeight);
-            const tempImgData = tempCanvas.toDataURL('image/png');
-            pdf.addImage(tempImgData, 'PNG', xOffset, currentY, scaledWidth, heightForThisPage);
-          }
-          
-          sourceY += sourceHeight;
-          remainingHeight -= heightForThisPage;
-          
-          if (remainingHeight > 0) {
-            pdf.addPage();
-            currentY = 10;
-          }
-        }
-      } else {
-        // Content fits on one page
-        pdf.addImage(imgData, 'PNG', xOffset, 35, scaledWidth, scaledHeight);
-      }
-
-      // Download the PDF
-      const fileName = `VCR_Dashboard_${now.toISOString().split('T')[0]}.pdf`;
-      pdf.save(fileName);
-
-      toast({
-        title: "Success",
-        description: "Dashboard exported successfully as PDF",
-      });
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      toast({
-        title: "Error",
-        description: "Failed to export dashboard. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  // Filter change effect (no loading spinner)
+  useEffect(() => {
+    if (!initialLoad) fetchDashboardData(false);
+    // eslint-disable-next-line
+  }, [analyticsFilters]);
 
   const handleFilterChange = (filterId: string, value: string) => {
-    setLocationFilters(prev => {
+    setAnalyticsFilters(prev => {
       const newFilters = { ...prev, [filterId]: value };
       
       // Reset dependent filters when parent changes
       if (filterId === 'block') {
         newFilters.gramPanchayat = 'all';
-        newFilters.village = 'all';
-      } else if (filterId === 'gramPanchayat') {
-        newFilters.village = 'all';
       }
       
       return newFilters;
     });
   };
 
-  // Get blocks from API data
-  const blocks = blocksData.map(block => block.block);
+  // Process and use analytics data directly from overview API
+  const totalSurveys = overviewData?.summary?.totalSurveys || 0;
   
-  // Get gram panchayats for selected block
-  const selectedBlockData = blocksData.find(block => block.block === locationFilters.block);
-  const gramPanchayats = selectedBlockData ? selectedBlockData.gramPanchayat.map((gp: any) => gp.name) : [];
-  
-  // Get villages for selected gram panchayat
-  const selectedGramPanchayat = selectedBlockData?.gramPanchayat.find((gp: any) => gp.name === locationFilters.gramPanchayat);
-  const villages = selectedGramPanchayat?.villages || [];
+  // Process sections data into a format compatible with our components
+  const analyticsData = React.useMemo(() => {
+    if (!overviewData || !overviewData.sections) return null;
+    
+    // Convert the sections/questions structure into a flat map of questionId -> analytics
+    const processedData: Record<string, any> = {};
+    
+    overviewData.sections.forEach(section => {
+      section.questions.forEach(question => {
+        // Important: match the key in the analytics object to the id in the question object
+        const questionKey = question.questionId;
+
+        // Map the API's questionId (q1_1) to the expected id format in our survey data
+        processedData[questionKey] = {
+          totalResponses: question.totalResponses,
+          responseRate: question.responseRate,
+          chartType: question.chartType,
+          // If the question has options (multiple choice, single choice)
+          data: question.options 
+            ? question.options.map((option: any) => ({
+                label: option.label,
+                count: option.count,
+                percentage: option.percentage
+              }))
+            // If the question has summary data (written, etc.)
+            : (question.data ? [question.data] : [])
+        };
+      });
+    });
+    
+    return processedData;
+  }, [overviewData]);
 
   const filterOptions = [
     {
       label: 'Block',
-      value: locationFilters.block,
+      value: analyticsFilters.block,
       options: [
         { label: 'All Blocks', value: 'all' },
-        ...blocks.map(block => ({ label: block, value: block }))
+        ...blocksData.map(block => ({ label: block.block, value: block.block }))
       ]
     },
     {
       label: 'Gram Panchayat',
-      value: locationFilters.gramPanchayat,
+      value: analyticsFilters.gramPanchayat,
       options: [
         { label: 'All Gram Panchayats', value: 'all' },
-        ...gramPanchayats.map(gp => ({ label: gp, value: gp }))
-      ]
-    },
-    {
-      label: 'Village',
-      value: locationFilters.village,
-      options: [
-        { label: 'All Villages', value: 'all' },
-        ...villages.map(village => ({ label: village, value: village }))
+        ...(blocksData.find(block => block.block === analyticsFilters.block)?.gramPanchayat || [])
+          .map((gp: any) => ({ label: gp.name, value: gp.name }))
       ]
     }
   ];
@@ -267,151 +252,64 @@ const Dashboard = () => {
     neverEnrolled: 0
   };
 
-  // Prepare recent survey findings
-  const recentSurveyFindings = dashboardData && dashboardData.recentSurveyFindings ? [
-    { 
-      type: 'Dropouts', 
-      count: dashboardData.recentSurveyFindings.dropouts?.total || 0, 
-      breakdown: `${dashboardData.recentSurveyFindings.dropouts?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.dropouts?.girls || 0} Girls, ${dashboardData.recentSurveyFindings.dropouts?.other || 0} Other` 
-    },
-    { 
-      type: 'Enrollments', 
-      count: dashboardData.recentSurveyFindings.enrollments?.total || 0, 
-      breakdown: `${dashboardData.recentSurveyFindings.enrollments?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.enrollments?.girls || 0} Girls, ${dashboardData.recentSurveyFindings.enrollments?.other || 0} Other` 
-    },
-    { 
-      type: 'Never Enrolled', 
-      count: dashboardData.recentSurveyFindings.neverEnrolled?.total || 0, 
-      breakdown: `${dashboardData.recentSurveyFindings.neverEnrolled?.boys || 0} Boys, ${dashboardData.recentSurveyFindings.neverEnrolled?.girls || 0} Girls, ${dashboardData.recentSurveyFindings.neverEnrolled?.other || 0} Other` 
-    }
-  ] : [
-    { type: 'Dropouts', count: 0, breakdown: '0 Boys, 0 Girls, 0 Other' },
-    { type: 'Enrollments', count: 0, breakdown: '0 Boys, 0 Girls, 0 Other' },
-    { type: 'Never Enrolled', count: 0, breakdown: '0 Boys, 0 Girls, 0 Other' }
-  ];
 
-  // Prepare long dropout data
-  const longDropoutData = dashboardData && dashboardData.longDropoutPeriods ? [
-    { 
-      period: '> 1 year', 
-      count: dashboardData.longDropoutPeriods.moreThan1Year || 0, 
-      breakdown: (dashboardData.longDropoutPeriods.moreThan1Year || 0) > 0 ? 'Data from API' : '0'
-    },
-    { 
-      period: '6-12 months', 
-      count: dashboardData.longDropoutPeriods.sixToTwelveMonths || 0, 
-      breakdown: (dashboardData.longDropoutPeriods.sixToTwelveMonths || 0) > 0 ? 'Data from API' : '0'
-    },
-    { 
-      period: '3-6 months', 
-      count: dashboardData.longDropoutPeriods.threeToSixMonths || 0, 
-      breakdown: (dashboardData.longDropoutPeriods.threeToSixMonths || 0) > 0 ? 'Data from API' : '0'
-    }
-  ] : [
-    { period: '> 1 year', count: 0, breakdown: '0' },
-    { period: '6-12 months', count: 0, breakdown: '0' },
-    { period: '3-6 months', count: 0, breakdown: '0' }
-  ];
-
-  // Mock trends data (this would need a separate API endpoint)
-  const trendsData = [
-    { month: 'Jan', enrolled: kpiData.enrolled, dropout: kpiData.dropout, neverEnrolled: kpiData.neverEnrolled },
-    { month: 'Feb', enrolled: kpiData.enrolled, dropout: kpiData.dropout, neverEnrolled: kpiData.neverEnrolled },
-    { month: 'Mar', enrolled: kpiData.enrolled, dropout: kpiData.dropout, neverEnrolled: kpiData.neverEnrolled },
-    { month: 'Apr', enrolled: kpiData.enrolled, dropout: kpiData.dropout, neverEnrolled: kpiData.neverEnrolled },
-    { month: 'May', enrolled: kpiData.enrolled, dropout: kpiData.dropout, neverEnrolled: kpiData.neverEnrolled },
-    { month: 'Jun', enrolled: kpiData.enrolled, dropout: kpiData.dropout, neverEnrolled: kpiData.neverEnrolled }
-  ];
+  if (loading) {
+    return (
+      <div className="p-6 bg-background min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading dashboard data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">Survey Analytics Dashboard</h1>
         </div>
-
         {/* Dashboard Content for PDF Export */}
         <div className="dashboard-content space-y-6">
-          {/* Location Filters */}
+          {/* Analytics Filters */}
           {isMobile ? (
             <FilterChips
               filters={filterOptions}
               onFilterChange={handleFilterChange}
             />
           ) : (
-            <LocationFilters 
-              filters={locationFilters} 
-              onFiltersChange={setLocationFilters}
+            <SurveyAnalyticsFilters
+              filters={analyticsFilters}
+              onFiltersChange={setAnalyticsFilters}
               blocksData={blocksData}
             />
           )}
 
-          {/* Row 1: KPI Cards */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-card p-6 rounded-lg border">
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                    <div className="h-8 bg-muted rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <KPICards data={kpiData} />
-          )}
+          {/* KPI Cards */}
+          <KPICards data={kpiData} />
 
-          {/* Row 2: Key Insights - Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {loading ? (
+          {/* Survey Analytics */}
+          {surveyData && (
+            overviewData ? (
               <>
-                <div className="bg-card p-6 rounded-lg border">
-                  <div className="animate-pulse">
-                    <div className="h-5 bg-muted rounded w-1/2 mb-4"></div>
-                    <div className="space-y-3">
-                      <div className="h-4 bg-muted rounded"></div>
-                      <div className="h-4 bg-muted rounded"></div>
-                      <div className="h-4 bg-muted rounded"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-card p-6 rounded-lg border">
-                  <div className="animate-pulse">
-                    <div className="h-5 bg-muted rounded w-1/2 mb-4"></div>
-                    <div className="space-y-3">
-                      <div className="h-4 bg-muted rounded"></div>
-                      <div className="h-4 bg-muted rounded"></div>
-                      <div className="h-4 bg-muted rounded"></div>
-                    </div>
-                  </div>
-                </div>
+                <SurveyAnalyticsDisplay
+                  survey={surveyData}
+                  analyticsData={analyticsData}
+                  totalSurveys={totalSurveys}
+                />
               </>
             ) : (
-              <>
-                <RecentSurveyFindings 
-                  findings={recentSurveyFindings}
-                />
-                <LongDropoutPeriod data={longDropoutData} />
-              </>
-            )}
-          </div>
-
-          {/* Row 3: Overall Trend Chart */}
-          {loading ? (
-            <div className="bg-card p-6 rounded-lg border">
-              <div className="animate-pulse">
-                <div className="h-5 bg-muted rounded w-1/3 mb-4"></div>
-                <div className="h-64 bg-muted rounded"></div>
+              <div className="text-center p-6">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading survey analytics data...</p>
               </div>
-            </div>
-          ) : (
-            <TrendsChart 
-              data={trendsData}
-              dateRange={trendsDateRange}
-              onDateRangeChange={setTrendsDateRange}
-            />
+            )
           )}
         </div>
       </div>

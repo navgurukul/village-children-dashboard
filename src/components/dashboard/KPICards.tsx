@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, GraduationCap, AlertTriangle, UserX } from 'lucide-react';
+import { Users, GraduationCap, AlertTriangle, UserX, Info } from 'lucide-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface KPIData {
@@ -20,10 +20,10 @@ const KPICards = ({ data }: KPICardsProps) => {
 
   if (isMobile) {
     return (
-      <Card className="shadow-card">
+      <Card className="bg-white shadow-sm border-border/40">
         <CardContent className="p-6">
           <div className="grid grid-cols-2 gap-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 p-3 rounded-md bg-accent/50">
               <div className="p-2 rounded-lg bg-primary/10">
                 <Users className="h-5 w-5 text-primary" />
               </div>
@@ -33,7 +33,7 @@ const KPICards = ({ data }: KPICardsProps) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 p-3 rounded-md bg-accent/50">
               <div className="p-2 rounded-lg bg-success/10">
                 <GraduationCap className="h-5 w-5 text-success" />
               </div>
@@ -43,7 +43,7 @@ const KPICards = ({ data }: KPICardsProps) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 p-3 rounded-md bg-accent/50">
               <div className="p-2 rounded-lg bg-destructive/10">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
               </div>
@@ -53,7 +53,7 @@ const KPICards = ({ data }: KPICardsProps) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 p-3 rounded-md bg-accent/50">
               <div className="p-2 rounded-lg bg-warning/10">
                 <UserX className="h-5 w-5 text-warning" />
               </div>
@@ -63,15 +63,20 @@ const KPICards = ({ data }: KPICardsProps) => {
               </div>
             </div>
           </div>
+          
+          <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
+            <Info className="h-3 w-3" />
+            <p>Note: These summary metrics show all-time data and are not affected by date filters.</p>
+          </div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card className="shadow-card">
-        <CardContent className="p-6">
+    <Card className="bg-white shadow-sm border-border/40 p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="p-4 bg-accent/50 rounded-md shadow-sm">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-primary/10">
               <Users className="h-8 w-8 text-primary" />
@@ -81,11 +86,9 @@ const KPICards = ({ data }: KPICardsProps) => {
               <p className="text-3xl font-bold text-foreground">{data.totalChildren}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card className="shadow-card">
-        <CardContent className="p-6">
+        <div className="p-4 bg-accent/50 rounded-md shadow-sm">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-success/10">
               <GraduationCap className="h-8 w-8 text-success" />
@@ -95,11 +98,9 @@ const KPICards = ({ data }: KPICardsProps) => {
               <p className="text-3xl font-bold text-foreground">{data.enrolled}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card className="shadow-card">
-        <CardContent className="p-6">
+        <div className="p-4 bg-accent/50 rounded-md shadow-sm">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-destructive/10">
               <AlertTriangle className="h-8 w-8 text-destructive" />
@@ -109,11 +110,9 @@ const KPICards = ({ data }: KPICardsProps) => {
               <p className="text-3xl font-bold text-foreground">{data.dropout}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card className="shadow-card">
-        <CardContent className="p-6">
+        <div className="p-4 bg-accent/50 rounded-md shadow-sm">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-warning/10">
               <UserX className="h-8 w-8 text-warning" />
@@ -123,9 +122,14 @@ const KPICards = ({ data }: KPICardsProps) => {
               <p className="text-3xl font-bold text-foreground">{data.neverEnrolled}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+        <Info className="h-4 w-4" />
+        <p>Note: These summary metrics show all-time data and are not affected by date range filters.</p>
+      </div>
+    </Card>
   );
 };
 
