@@ -134,7 +134,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       schoolName: child.educationInfo.schoolName || '',
       school: child.educationInfo.schoolName || '',
       schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
-      block: child.basicInfo.block,
+      block: child.surveyData?.['section-1']?.q1_5 || child.basicInfo.block,
       gramPanchayat: child.surveyData?.['section-1']?.q1_6 || child.basicInfo.gramPanchayat || '',
       disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
       caste: child.familyInfo.caste || '',
