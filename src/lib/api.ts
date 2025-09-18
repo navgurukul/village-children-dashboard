@@ -1,4 +1,5 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { Survey } from '@/types/survey';
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -487,15 +488,42 @@ class ApiClient {
     block?: string;
     gramPanchayat?: string;
     villageId?: string;
+    startDate?: string;
+    endDate?: string;
   } = {}): Promise<ApiResponse<DashboardSummary>> {
     const searchParams = new URLSearchParams();
     
     if (params.block) searchParams.append('block', params.block);
     if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
     if (params.villageId) searchParams.append('villageId', params.villageId);
+    if (params.startDate) searchParams.append('startDate', params.startDate);
+    if (params.endDate) searchParams.append('endDate', params.endDate);
 
     const endpoint = `/dashboard/summary${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     return this.request<DashboardSummary>(endpoint);
+  }
+
+  async getSurveyQuestions(): Promise<ApiResponse<Survey>> {
+    return this.request<Survey>('/surveys/questions');
+  }
+
+  async getDashboardOverview(params: {
+    block?: string;
+    gramPanchayat?: string;
+    villageId?: string;
+    startDate?: string;
+    endDate?: string;
+  } = {}): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.block) searchParams.append('block', params.block);
+    if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
+    if (params.villageId) searchParams.append('villageId', params.villageId);
+    if (params.startDate) searchParams.append('startDate', params.startDate);
+    if (params.endDate) searchParams.append('endDate', params.endDate);
+
+    const endpoint = `/dashboard/overview${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    return this.request<any>(endpoint);
   }
 
   async getUsers(params: {
