@@ -57,6 +57,7 @@ const SurveyAnalyticsDisplay = ({ survey, analyticsData, totalSurveys }: SurveyA
               {/* Section Questions Analytics */}
               <div className="space-y-6">
                 {section.questions
+                  .filter(q => q.id !== 'q4_11' && q.id !== 'q4_9') // Hide q4_11 and q4_9 from analytics
                   .sort((a, b) => a.order - b.order)
                   .map(question => (
                     <QuestionAnalytics
