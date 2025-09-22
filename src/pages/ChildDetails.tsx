@@ -43,7 +43,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     age: propChildData.basicInfo?.age || 'N/A',
     gender: propChildData.surveyData?.['section-1']?.q1_4 || propChildData.basicInfo?.gender || 'N/A',
     dateOfBirth: formatDate((propChildData.surveyData?.['section-1']?.q1_3 || propChildData.basicInfo?.dateOfBirth) as string | undefined) || 'N/A', // Format DOB properly
-    block: propChildData.surveyData?.['section-1']?.q1_5 || propChildData.basicInfo?.block || 'N/A', // Fixed block mapping to q1_5
+    block: propChildData.surveyData?.['section-1']?.q1_5 ||  'N/A', // Fixed block mapping to q1_5
     village: propChildData.surveyData?.['section-1']?.q1_7 || propChildData.basicInfo?.para || 'N/A', // Fixed village/para mapping to q1_7
     gramPanchayat: propChildData.surveyData?.['section-1']?.q1_6 || propChildData.basicInfo?.gramPanchayat || 'N/A',
     cluster: propChildData.basicInfo?.cluster || 'N/A',
