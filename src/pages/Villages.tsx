@@ -385,7 +385,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               onExportCSV={() => {
                 // Export filteredData as CSV
                 const headers = [
-                  'ID', 'Gram Panchayat Name', 'District', 'Block', 'Total Children', 'Enrolled', 'Dropout', 'Never Enrolled', 'Assigned Bal Mitra'
+                  'ID', 'Gram Panchayat Name', 'District', 'Block', 'Total Children', 'Enrolled Children', 'Dropout Children', 'Never Enrolled Children', 'Assigned Bal Mitra'
                 ];
                 const csvContent = [
                   headers.join(','),
