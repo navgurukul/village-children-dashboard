@@ -322,7 +322,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               onExportCSV={() => {
                 // Export filteredData as CSV
                 const headers = [
-                  'ID', 'Name', 'District', 'Block', 'Total Children', 'Enrolled', 'Dropout', 'Never Enrolled', 'Total Paras', 'Assigned Bal Mitra'
+                  'ID', 'Name', 'District', 'Block', 'Total Children', 'Enrolled', 'Dropout', 'Never Enrolled', 'Assigned Bal Mitra'
                 ];
                 const csvContent = [
                   headers.join(','),
@@ -335,7 +335,6 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
                     gramPanchayat.enrolled,
                     gramPanchayat.dropout,
                     gramPanchayat.neverEnrolled,
-                    gramPanchayat.totalParas ?? '-',
                     `${gramPanchayat.assignedBalMitra || gramPanchayat.name || 'Not Assigned'}`
                   ].join(','))
                 ].join('\n');
@@ -386,7 +385,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               onExportCSV={() => {
                 // Export filteredData as CSV
                 const headers = [
-                  'ID', 'Name', 'District', 'Block', 'Total Children', 'Enrolled', 'Dropout', 'Never Enrolled', 'Total Paras', 'Assigned Bal Mitra'
+                  'ID', 'Gram Panchayat Name', 'District', 'Block', 'Total Children', 'Enrolled', 'Dropout', 'Never Enrolled', 'Assigned Bal Mitra'
                 ];
                 const csvContent = [
                   headers.join(','),
@@ -399,7 +398,6 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
                     gramPanchayat.enrolled,
                     gramPanchayat.dropout,
                     gramPanchayat.neverEnrolled,
-                    gramPanchayat.totalParas ?? '-',
                     `${gramPanchayat.assignedBalMitra || gramPanchayat.name || 'Not Assigned'}`
                   ].join(','))
                 ].join('\n');
