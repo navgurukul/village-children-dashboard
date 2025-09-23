@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ interface VillagesSearchAndActionsProps {
   onSearchChange: (value: string) => void;
   onAddVillage: () => void;
   onBulkUpload: () => void;
+  onExportCSV: () => void; // Added prop for export
   isMobile?: boolean;
 }
 
@@ -17,6 +17,7 @@ const VillagesSearchAndActions = ({
   onSearchChange, 
   onAddVillage, 
   onBulkUpload,
+  onExportCSV, // Added prop for export
   isMobile = false 
 }: VillagesSearchAndActionsProps) => {
   return (
@@ -46,6 +47,14 @@ const VillagesSearchAndActions = ({
         >
           <Upload className="h-4 w-4" />
           Bulk Upload
+        </Button>
+        <Button
+          onClick={onExportCSV}
+          variant="outline"
+          className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}
+        >
+          {/* You can use a download icon if available, else just text */}
+          Export CSV
         </Button>
       </div>
     </div>
