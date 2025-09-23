@@ -319,6 +319,35 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               onSearchChange={setSearchTerm}
               onAddVillage={onAddVillage}
               onBulkUpload={onBulkUpload}
+              onExportCSV={() => {
+                // Export filteredData as CSV
+                const headers = [
+                  'ID', 'Name', 'District', 'Block', 'Total Children', 'Enrolled', 'Dropout', 'Never Enrolled', 'Assigned Bal Mitra'
+                ];
+                const csvContent = [
+                  headers.join(','),
+                  ...filteredData.map((gramPanchayat) => [
+                    gramPanchayat.id,
+                    `"${gramPanchayat.name}"`,
+                    `"${gramPanchayat.district}"`,
+                    `"${gramPanchayat.block || ''}"`,
+                    gramPanchayat.totalChildren,
+                    gramPanchayat.enrolled,
+                    gramPanchayat.dropout,
+                    gramPanchayat.neverEnrolled,
+                    `${gramPanchayat.assignedBalMitra || gramPanchayat.name || 'Not Assigned'}`
+                  ].join(','))
+                ].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'gram_panchayats.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
               isMobile={true}
             />
 
@@ -353,6 +382,35 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
               onSearchChange={setSearchTerm}
               onAddVillage={onAddVillage}
               onBulkUpload={onBulkUpload}
+              onExportCSV={() => {
+                // Export filteredData as CSV
+                const headers = [
+                  'ID', 'Gram Panchayat Name', 'District', 'Block', 'Total Children', 'Enrolled Children', 'Dropout Children', 'Never Enrolled Children', 'Assigned Bal Mitra'
+                ];
+                const csvContent = [
+                  headers.join(','),
+                  ...filteredData.map((gramPanchayat) => [
+                    gramPanchayat.id,
+                    `"${gramPanchayat.name}"`,
+                    `"${gramPanchayat.district}"`,
+                    `"${gramPanchayat.block || ''}"`,
+                    gramPanchayat.totalChildren,
+                    gramPanchayat.enrolled,
+                    gramPanchayat.dropout,
+                    gramPanchayat.neverEnrolled,
+                    `${gramPanchayat.assignedBalMitra || gramPanchayat.name || 'Not Assigned'}`
+                  ].join(','))
+                ].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'gram_panchayats.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
             />
 
             <VillagesFilters
