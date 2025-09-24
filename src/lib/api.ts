@@ -128,18 +128,12 @@ interface GramPanchayat {
 
 interface BlockGramPanchayatData {
   block: string;
-  gramPanchayat: Array<{
-    name: string;
-    isAssigned: boolean;
-  }>;
+   gramPanchayats: string[];
 }
 
 interface DistrictGramPanchayatData {
   district: string;
-  gramPanchayat: Array<{
-    name: string;
-    isAssigned: boolean;
-  }>;
+   gramPanchayats: string[];
 }
 
 interface BlockGramPanchayatsItem {
