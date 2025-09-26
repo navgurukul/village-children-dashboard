@@ -560,7 +560,7 @@ class ApiClient {
 
   async getChildren(params: {
     block?: string;
-    panchayat?: string;
+    gramPanchayat?: string; 
     cluster?: string;
     villageId?: string;
     surveyedBy?: string;
@@ -574,7 +574,7 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     
     if (params.block) searchParams.append('block', params.block);
-    if (params.panchayat) searchParams.append('panchayat', params.panchayat);
+    if (params.gramPanchayat) searchParams.append('gramPanchayat', params.gramPanchayat);
     if (params.cluster) searchParams.append('cluster', params.cluster);
     if (params.villageId) searchParams.append('villageId', params.villageId);
     if (params.surveyedBy) searchParams.append('surveyedBy', params.surveyedBy);
