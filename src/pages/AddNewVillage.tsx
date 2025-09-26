@@ -207,9 +207,9 @@ const AddNewVillage = ({ onCancel, onSuccess }: AddNewVillageProps) => {
                 {formData.block && 
                   blocksData
                     .find(blockData => blockData.block === formData.block)
-                    ?.gramPanchayat?.map((panchayatObj) => (
-                      <SelectItem key={panchayatObj.name} value={panchayatObj.name}>
-                        {panchayatObj.name}
+                    ?.gramPanchayats?.map((panchayatName) => (
+                      <SelectItem key={panchayatName} value={panchayatName}>
+                        {panchayatName}
                       </SelectItem>
                     ))
                 }
