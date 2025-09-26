@@ -200,6 +200,7 @@ interface Child {
       q1_10?: string; // Child's father's name
       q1_11?: string; // Is the child's mother educated?
       q1_12?: string; // Is the child's father educated?
+      q1_13?: string;
       q1_new_house?: string; // Legacy house number field
     };
     "section-2"?: {

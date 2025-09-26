@@ -11,7 +11,8 @@ interface Student {
   age: number;
   gender: string;
   block: string;
-  village: string;
+  para: string; 
+  village: string; 
   schoolStatus: string;
   school?: string;
   aadhaarNumber: string;
@@ -70,6 +71,7 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                 <TableHead className="font-bold">Gender</TableHead>
                 <TableHead className="font-bold">Block</TableHead>
                 <TableHead className="font-bold">Gram Panchayat</TableHead>
+                <TableHead className="font-bold">Village</TableHead>
                 <TableHead className="font-bold">Para</TableHead>
                 <TableHead className="font-bold">Status</TableHead>
                 <TableHead className="font-bold">School</TableHead>
@@ -89,7 +91,8 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                   <TableCell>{student.gender}</TableCell>
                   <TableCell>{student.block}</TableCell>
                   <TableCell>{student.gramPanchayat || '-'}</TableCell>
-                  <TableCell>{student.village}</TableCell>
+                  <TableCell>{student.village || '-'}</TableCell>
+                  <TableCell>{student.para || '-'}</TableCell>
                   <TableCell>{getStatusBadge(student.schoolStatus)}</TableCell>
                   <TableCell>{student.school || '-'}</TableCell>
                   {/* <TableCell>

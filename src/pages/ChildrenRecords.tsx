@@ -128,24 +128,24 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       name: child.basicInfo.fullName,
       age: child.basicInfo.age,
       gender: child.basicInfo.gender,
-      village: child.basicInfo.para,
       aadhaar: child.documentsInfo.aadhaarNumber,
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
       schoolName: child.educationInfo.schoolName || '',
       school: child.educationInfo.schoolName || '',
       schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
-      block: child.surveyData?.['section-1']?.q1_5 || child.basicInfo.block,
-      gramPanchayat: child.surveyData?.['section-1']?.q1_6 || child.basicInfo.gramPanchayat || '',
+      // Map from surveyData question ids for block, gram panchayat, village, para
+      block: child.surveyData?.['section-1']?.q1_5 || '', // Development block
+      gramPanchayat: child.surveyData?.['section-1']?.q1_6 || '', // Gram Panchayat name
+      village: child.surveyData?.['section-1']?.q1_7 || '', // Village name
+      para: child.surveyData?.['section-1']?.q1_8 || '', // Para (tola/place)
       disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
       caste: child.familyInfo.caste || '',
       dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',
       fatherName: child.familyInfo.fatherName || '',
       motherName: child.familyInfo.motherName || '',
       // Use education values directly from the survey data or fallback to basic yes/no
-      motherEducated: child.surveyData?.['section-1']?.q1_11 || 
-                    (child.familyInfo?.motherEducated ? 'Yes' : 'No'),
-      fatherEducated: child.surveyData?.['section-1']?.q1_12 || 
-                    (child.familyInfo?.fatherEducated ? 'Yes' : 'No'),
+      motherEducated: child.surveyData?.['section-1']?.q1_12 || (child.familyInfo?.motherEducated ? 'Yes' : 'No') || 'N/A',
+      fatherEducated: child.surveyData?.['section-1']?.q1_13 || (child.familyInfo?.fatherEducated ? 'Yes' : 'No') || 'N/A',
       familyOccupation: child.familyInfo.familyOccupation || '',
       parentsStatus: child.familyInfo.parentsStatus || '',
       livesWithWhom: child.familyInfo.livesWithWhom || '',
@@ -159,7 +159,11 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       rationCardType: child.economicInfo?.rationCardType || child.surveyData?.['section-3']?.q3_1 || '', // Correct q3_1 field
       rationCardNumber: child.economicInfo?.rationCardNumber || child.surveyData?.['section-3']?.q3_2 || '', // Correct q3_2 field
       attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Updated to use correct q4_5 field
-      currentClass: child.educationInfo?.currentClass || child.surveyData?.['section-4']?.q4_4 || '',
+      currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी')
+        ? ''
+        : child.surveyData?.['section-4']?.q4_2 || child.educationInfo?.currentClass || '',
+      // Add schoolCommuteType for reference if needed in future
+      schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
       lastClassStudied: child.surveyData?.['section-4']?.q4_7 || '',
       dropoutReasons: child.surveyData?.['section-4']?.q4_8 || '',
