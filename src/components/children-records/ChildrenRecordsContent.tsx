@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import SearchAndExportBar from './SearchAndExportBar';
@@ -21,6 +20,7 @@ interface Child {
   schoolStatus: string;
   block: string;
   gramPanchayat: string;
+  para: string; 
 }
 
 interface ChildrenRecordsContentProps {
@@ -31,6 +31,9 @@ interface ChildrenRecordsContentProps {
   blocks: string[];
   onBlockFilterChange: (value: string) => void;
   onStatusFilterChange: (value: string) => void;
+  gramPanchayatFilter: string;
+  gramPanchayats: string[];
+  onGramPanchayatFilterChange: (value: string) => void;
   paginatedData: Child[];
   filteredData: Child[];
   currentPage: number;
@@ -56,6 +59,9 @@ const ChildrenRecordsContent = ({
   blocks,
   onBlockFilterChange,
   onStatusFilterChange,
+  gramPanchayatFilter,
+  gramPanchayats,
+  onGramPanchayatFilterChange,
   paginatedData,
   filteredData,
   currentPage,
@@ -113,6 +119,9 @@ const ChildrenRecordsContent = ({
             blocks={blocks}
             onBlockFilterChange={onBlockFilterChange}
             onStatusFilterChange={onStatusFilterChange}
+            gramPanchayatFilter={gramPanchayatFilter}
+            gramPanchayats={gramPanchayats}
+            onGramPanchayatFilterChange={onGramPanchayatFilterChange}
           />
 
           <div className="text-muted-foreground text-xs">
