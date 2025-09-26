@@ -5,7 +5,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
-import { House } from 'lucide-react';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -17,6 +16,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [blockFilter, setBlockFilter] = useState('all');
+  const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [apiChildren, setApiChildren] = useState<Child[]>([]);
@@ -69,12 +69,11 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       };
 
       if (blockFilter !== 'all') params.block = blockFilter;
+      if (gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
       if (debouncedSearchTerm) params.search = debouncedSearchTerm;
 
-      console.log('Fetching children with params:', params);
       const response = await apiClient.getChildren(params);
-      console.log('API response:', response);
       // Filter out deleted children
       const activeChildren = response.data.children.filter(child => !child.auditInfo.isDeleted);
       setApiChildren(activeChildren);
@@ -114,12 +113,19 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
 
   useEffect(() => {
     fetchChildren();
-  }, [currentPage, blockFilter, statusFilter, debouncedSearchTerm]);
+  }, [currentPage, blockFilter, gramPanchayatFilter, statusFilter, debouncedSearchTerm]);
 
   // Get blocks from API data
   const blocks = useMemo(() => {
     return blocksData.map(blockData => blockData.block);
   }, [blocksData]);
+
+  // Get Gram Panchayats for selected block
+  const gramPanchayats = useMemo(() => {
+    if (blockFilter === 'all') return [];
+    const blockObj = blocksData.find(b => b.block === blockFilter);
+    return blockObj ? blockObj.gramPanchayats : [];
+  }, [blocksData, blockFilter]);
 
   // Transform API data to match expected interface for components
   const childrenData = useMemo(() => {
@@ -229,13 +235,46 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     }
   };
 
+  const filterOptions = [
+    {
+      label: 'Block',
+      value: blockFilter,
+      options: [
+        { label: 'All Blocks', value: 'all' },
+        ...blocks.map(block => ({ label: block, value: block }))
+      ]
+    },
+    {
+      label: 'Gram Panchayat',
+      value: gramPanchayatFilter,
+      options: [
+        { label: 'All Gram Panchayats', value: 'all' },
+        ...gramPanchayats.map(gp => ({ label: gp, value: gp }))
+      ]
+    },
+    {
+      label: 'Status',
+      value: statusFilter,
+      options: [
+        { label: 'All Statuses', value: 'all' },
+        { label: 'Enrolled', value: 'enrolled' },
+        { label: 'Dropout', value: 'dropout' },
+        { label: 'Never Enrolled', value: 'never_enrolled' }
+      ]
+    }
+  ];
+
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'block') {
       setBlockFilter(value);
-      setCurrentPage(1); // Reset to first page when filter changes
+      setGramPanchayatFilter('all'); // Reset Gram Panchayat when block changes
+      setCurrentPage(1);
+    } else if (filterId === 'gramPanchayat') {
+      setGramPanchayatFilter(value);
+      setCurrentPage(1);
     } else if (filterId === 'status') {
       setStatusFilter(value);
-      setCurrentPage(1); // Reset to first page when filter changes
+      setCurrentPage(1);
     }
   };
 
@@ -283,27 +322,6 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     fetchChildren();
   };
 
-  const filterOptions = [
-    {
-      label: 'Block',
-      value: blockFilter,
-      options: [
-        { label: 'All Blocks', value: 'all' },
-        ...blocks.map(block => ({ label: block, value: block }))
-      ]
-    },
-    {
-      label: 'Status',
-      value: statusFilter,
-      options: [
-        { label: 'All Statuses', value: 'all' },
-        { label: 'Enrolled', value: 'enrolled' },
-        { label: 'Dropout', value: 'dropout' },
-        { label: 'Never Enrolled', value: 'never_enrolled' }
-      ]
-    }
-  ];
-
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -313,9 +331,12 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           blockFilter={blockFilter}
+          gramPanchayatFilter={gramPanchayatFilter}
           statusFilter={statusFilter}
           blocks={blocks}
+          gramPanchayats={gramPanchayats}
           onBlockFilterChange={setBlockFilter}
+          onGramPanchayatFilterChange={setGramPanchayatFilter}
           onStatusFilterChange={setStatusFilter}
           paginatedData={paginatedData}
           filteredData={filteredData}
