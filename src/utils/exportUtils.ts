@@ -50,6 +50,7 @@ interface ChildData {
   hasAadhaar?: string;
   disabilityTypes?: string | string[];
   otherDisability?: string;
+  goesToSchool?: string;
 }
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
@@ -58,6 +59,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
     'DOB', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
     'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with', 
     'Other Lives With', 'Economic Status', 'Mother Tongue', 'Other Mother Tongue', 
+    'Goes To School', 
     'School Status', 'School Name', 'Attendance Status', 'Current Class', 'Commute Type', 'Education Category', 
     'Last Class Studied', 'Dropout Reasons', 'Other Dropout Reason', 'Never Enrolled Reasons', 
     'Other Never Enrolled Reason', 'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
@@ -97,7 +99,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.gramPanchayat || '-'}"`,
         `"${child.village || '-'}"`,
         `"${child.para || '-'}"`,
-        child.dob || '-', // DOB is already formatted as DD-MM-YYYY in ChildrenRecords.tsx
+        child.dob || '-', 
         `"${child.fatherName || '-'}"`,
         `"${child.motherName || '-'}"`,
         `"${child.motherEducated || '-'}"`,
@@ -113,6 +115,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.economicStatus || '-'}"`,
         `"${motherTongueFormatted || '-'}"`,
         `"${child.otherMotherTongue || '-'}"`,
+        `"${child.goesToSchool || '-'}"`,
         `"${child.schoolStatus || '-'}"`,
         `"${child.schoolName || '-'}"`,
         `"${child.attendanceStatus || '-'}"`,
