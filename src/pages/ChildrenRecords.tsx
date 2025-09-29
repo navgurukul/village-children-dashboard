@@ -145,25 +145,23 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       village: child.surveyData?.['section-1']?.q1_7 || '', // Village name
       para: child.surveyData?.['section-1']?.q1_8 || '', // Para (tola/place)
       disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
-      caste: child.familyInfo.caste || '',
+      caste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_3 || child.familyInfo.caste || '',
+      otherCaste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? child.surveyData?.['section-2']?.q2_4 || '' : '',
       dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',
       fatherName: child.familyInfo.fatherName || '',
       motherName: child.familyInfo.motherName || '',
       // Use education values directly from the survey data or fallback to basic yes/no
       motherEducated: child.surveyData?.['section-1']?.q1_12 || (child.familyInfo?.motherEducated ? 'Yes' : 'No') || 'N/A',
       fatherEducated: child.surveyData?.['section-1']?.q1_13 || (child.familyInfo?.fatherEducated ? 'Yes' : 'No') || 'N/A',
-      familyOccupation: child.familyInfo.familyOccupation || '',
+      familyOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_1 || child.familyInfo.familyOccupation || '',
+      otherOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? child.surveyData?.['section-2']?.q2_2 || '' : '',
       parentsStatus: child.familyInfo.parentsStatus || '',
-      livesWithWhom: child.familyInfo.livesWithWhom || '',
+      livesWithWhom: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_6 || child.familyInfo.livesWithWhom || '',
+      otherLivesWith: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? child.surveyData?.['section-2']?.q2_7 || '' : '',
       economicStatus: child.economicInfo?.economicStatus || '',
       houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', // Updated to use correct q1_2 field
       motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_8 || '', // Updated to use correct q1_8 field
       otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', // Updated to use correct q1_8_other field
-      otherOccupation: child.surveyData?.['section-2']?.q2_2 || '', // Updated to use correct q2_2 field
-      otherCaste: child.surveyData?.['section-2']?.q2_4 || '', // Updated to use correct q2_4 field
-      otherLivesWith: child.surveyData?.['section-2']?.q2_7 || '', // Correct q2_7 field
-      rationCardType: child.economicInfo?.rationCardType || child.surveyData?.['section-3']?.q3_1 || '', // Correct q3_1 field
-      rationCardNumber: child.economicInfo?.rationCardNumber || child.surveyData?.['section-3']?.q3_2 || '', // Correct q3_2 field
       attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Updated to use correct q4_5 field
       currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी')
         ? ''
@@ -181,6 +179,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       hasAadhaar: child.documentsInfo?.hasAadhaar ? 'Yes' : child.surveyData?.['section-5']?.q5_3 === 'yes' ? 'Yes' : 'No',
       disabilityTypes: child.surveyData?.['section-6']?.q6_2 || '',
       otherDisability: child.surveyData?.['section-6']?.q6_3 || '',
+      goesToSchool: child.surveyData?.['section-4']?.q4_1 || '',
     }));
   }, [apiChildren]);
 
@@ -302,7 +301,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         caste: childData.familyInfo.caste,
         parentsStatus: childData.familyInfo.parentsStatus,
         livesWithWhom: childData.familyInfo.livesWithWhom,
-        goesToSchool: childData.educationInfo.goesToSchool,
+        goesToSchool: childData.surveyData?.['section-4']?.q4_1 || '',
         schoolName: childData.educationInfo.schoolName || '',
         currentClass: childData.educationInfo.currentClass,
         attendanceStatus: childData.educationInfo.attendanceStatus,
