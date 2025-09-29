@@ -219,6 +219,12 @@ const Dashboard = () => {
     return processedData;
   }, [overviewData]);
 
+  const gramPanchayats = React.useMemo(() => {
+    if (analyticsFilters.block === 'all') return [];
+    const blockObj = blocksData.find(b => b.block === analyticsFilters.block);
+    return blockObj ? blockObj.gramPanchayat.map((gp: any) => gp.name) : [];
+  }, [blocksData, analyticsFilters.block]);
+
   const filterOptions = [
     {
       label: 'Block',
@@ -233,8 +239,7 @@ const Dashboard = () => {
       value: analyticsFilters.gramPanchayat,
       options: [
         { label: 'All Gram Panchayats', value: 'all' },
-        ...(blocksData.find(block => block.block === analyticsFilters.block)?.gramPanchayat || [])
-          .map((gp: any) => ({ label: gp.name, value: gp.name }))
+        ...gramPanchayats.map(gp => ({ label: gp, value: gp }))
       ]
     }
   ];
