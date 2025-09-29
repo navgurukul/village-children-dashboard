@@ -41,7 +41,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     name: propChildData.surveyData?.['section-1']?.q1_1 || 'N/A',
     houseNumber: propChildData.surveyData?.['section-1']?.q1_2 || 'N/A',
     dateOfBirth: formatDate((propChildData.surveyData?.['section-1']?.q1_3 || propChildData.basicInfo?.dateOfBirth) as string | undefined) || 'N/A',
-    age: propChildData.basicInfo?.age || 'N/A',
+    age: propChildData.basicInfo?.age || '0',
     gender: propChildData.surveyData?.['section-1']?.q1_4 || propChildData.basicInfo?.gender || 'N/A',
     block: propChildData.surveyData?.['section-1']?.q1_5 || 'N/A',
     gramPanchayat: propChildData.surveyData?.['section-1']?.q1_6 || propChildData.basicInfo?.gramPanchayat || 'N/A',
@@ -64,8 +64,9 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     economicStatus: propChildData.surveyData?.['section-3']?.q3_1 || propChildData.economicInfo?.economicStatus || propChildData.derivedFields?.economicStatus || 'N/A',
     rationCardType: propChildData.surveyData?.['section-3']?.q3_1 || propChildData.economicInfo?.rationCardType || 'N/A',
     rationCardNumber: propChildData.surveyData?.['section-3']?.q3_2 || propChildData.economicInfo?.rationCardNumber || 'N/A',
-    goesToSchool: (propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' || propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Yes' : 
-                  propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' ? 'No' : 
+    goesToSchool: propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' ? 'Yes' :
+                  propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' ? 'No' :
+                  propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी' ? 'Aanganwadi' :
                   propChildData.educationInfo?.goesToSchool ? 'Yes' : 'No',
     attendanceStatus: propChildData.surveyData?.['section-4']?.q4_5 || propChildData.educationInfo?.attendanceStatus || 'N/A',
     educationCategory: propChildData.surveyData?.['section-4']?.q4_6 || 'N/A',
