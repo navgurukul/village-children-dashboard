@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Trash2, Copy, Plus, Upload, Search } from 'lucide-react';
+import { Edit, Trash2, Copy, Plus, Upload, Search, Filter } from 'lucide-react';
 import FilterChips from '../components/FilterChips';
 import UsersCardList from '../components/users/UsersCardList';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -248,7 +248,11 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             </div>
 
             {/* Desktop Filters */}
-            <div className="flex gap-4">
+            <div className="flex gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                <span className="font-medium">Filters</span>
+              </div>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="w-[200px] bg-white">
                   <SelectValue placeholder="Filter by Role" />

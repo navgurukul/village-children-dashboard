@@ -157,8 +157,8 @@ const SurveyAnalyticsFilters = ({ filters, onFiltersChange, blocksData }: Survey
 
       {/* Gram Panchayat Filter */}
       <div className="flex-none">
-        <Select value={filters.gramPanchayat} onValueChange={handleGramPanchayatChange}>
-          <SelectTrigger className="w-[150px] bg-white">
+        <Select value={filters.gramPanchayat} onValueChange={handleGramPanchayatChange} disabled={filters.block === 'all'}>
+          <SelectTrigger className="w-[150px] bg-white" disabled={filters.block === 'all'}>
             <SelectValue placeholder="Gram Panchayat" />
           </SelectTrigger>
           <SelectContent>

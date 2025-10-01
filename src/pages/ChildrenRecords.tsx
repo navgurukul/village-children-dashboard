@@ -5,7 +5,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
-import { House } from 'lucide-react';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -17,6 +16,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [blockFilter, setBlockFilter] = useState('all');
+  const [gramPanchayatFilter, setGramPanchayatFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [apiChildren, setApiChildren] = useState<Child[]>([]);
@@ -69,12 +69,11 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       };
 
       if (blockFilter !== 'all') params.block = blockFilter;
+      if (gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
       if (debouncedSearchTerm) params.search = debouncedSearchTerm;
 
-      console.log('Fetching children with params:', params);
       const response = await apiClient.getChildren(params);
-      console.log('API response:', response);
       // Filter out deleted children
       const activeChildren = response.data.children.filter(child => !child.auditInfo.isDeleted);
       setApiChildren(activeChildren);
@@ -114,12 +113,19 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
 
   useEffect(() => {
     fetchChildren();
-  }, [currentPage, blockFilter, statusFilter, debouncedSearchTerm]);
+  }, [currentPage, blockFilter, gramPanchayatFilter, statusFilter, debouncedSearchTerm]);
 
   // Get blocks from API data
   const blocks = useMemo(() => {
     return blocksData.map(blockData => blockData.block);
   }, [blocksData]);
+
+  // Get Gram Panchayats for selected block
+  const gramPanchayats = useMemo(() => {
+    if (blockFilter === 'all') return [];
+    const blockObj = blocksData.find(b => b.block === blockFilter);
+    return blockObj ? blockObj.gramPanchayats : [];
+  }, [blocksData, blockFilter]);
 
   // Transform API data to match expected interface for components
   const childrenData = useMemo(() => {
@@ -128,38 +134,40 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       name: child.basicInfo.fullName,
       age: child.basicInfo.age,
       gender: child.basicInfo.gender,
-      village: child.basicInfo.para,
       aadhaar: child.documentsInfo.aadhaarNumber,
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
       schoolName: child.educationInfo.schoolName || '',
       school: child.educationInfo.schoolName || '',
       schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
-      block: child.surveyData?.['section-1']?.q1_5 || child.basicInfo.block,
-      gramPanchayat: child.surveyData?.['section-1']?.q1_6 || child.basicInfo.gramPanchayat || '',
+      // Map from surveyData question ids for block, gram panchayat, village, para
+      block: child.surveyData?.['section-1']?.q1_5 || '', // Development block
+      gramPanchayat: child.surveyData?.['section-1']?.q1_6 || '', // Gram Panchayat name
+      village: child.surveyData?.['section-1']?.q1_7 || '', // Village name
+      para: child.surveyData?.['section-1']?.q1_8 || '', // Para (tola/place)
       disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
-      caste: child.familyInfo.caste || '',
+      caste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_3 || child.familyInfo.caste || '',
+      otherCaste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? child.surveyData?.['section-2']?.q2_4 || '' : '',
       dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',
       fatherName: child.familyInfo.fatherName || '',
       motherName: child.familyInfo.motherName || '',
       // Use education values directly from the survey data or fallback to basic yes/no
-      motherEducated: child.surveyData?.['section-1']?.q1_11 || 
-                    (child.familyInfo?.motherEducated ? 'Yes' : 'No'),
-      fatherEducated: child.surveyData?.['section-1']?.q1_12 || 
-                    (child.familyInfo?.fatherEducated ? 'Yes' : 'No'),
-      familyOccupation: child.familyInfo.familyOccupation || '',
+      motherEducated: child.surveyData?.['section-1']?.q1_12 || (child.familyInfo?.motherEducated ? 'Yes' : 'No') || 'N/A',
+      fatherEducated: child.surveyData?.['section-1']?.q1_13 || (child.familyInfo?.fatherEducated ? 'Yes' : 'No') || 'N/A',
+      familyOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_1 || child.familyInfo.familyOccupation || '',
+      otherOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? child.surveyData?.['section-2']?.q2_2 || '' : '',
       parentsStatus: child.familyInfo.parentsStatus || '',
-      livesWithWhom: child.familyInfo.livesWithWhom || '',
+      livesWithWhom: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_6 || child.familyInfo.livesWithWhom || '',
+      otherLivesWith: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? child.surveyData?.['section-2']?.q2_7 || '' : '',
       economicStatus: child.economicInfo?.economicStatus || '',
       houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', // Updated to use correct q1_2 field
       motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_8 || '', // Updated to use correct q1_8 field
       otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', // Updated to use correct q1_8_other field
-      otherOccupation: child.surveyData?.['section-2']?.q2_2 || '', // Updated to use correct q2_2 field
-      otherCaste: child.surveyData?.['section-2']?.q2_4 || '', // Updated to use correct q2_4 field
-      otherLivesWith: child.surveyData?.['section-2']?.q2_7 || '', // Correct q2_7 field
-      rationCardType: child.economicInfo?.rationCardType || child.surveyData?.['section-3']?.q3_1 || '', // Correct q3_1 field
-      rationCardNumber: child.economicInfo?.rationCardNumber || child.surveyData?.['section-3']?.q3_2 || '', // Correct q3_2 field
       attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Updated to use correct q4_5 field
-      currentClass: child.educationInfo?.currentClass || child.surveyData?.['section-4']?.q4_4 || '',
+      currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी')
+        ? ''
+        : child.surveyData?.['section-4']?.q4_2 || child.educationInfo?.currentClass || '',
+      // Add schoolCommuteType for reference if needed in future
+      schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
       lastClassStudied: child.surveyData?.['section-4']?.q4_7 || '',
       dropoutReasons: child.surveyData?.['section-4']?.q4_8 || '',
@@ -171,6 +179,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       hasAadhaar: child.documentsInfo?.hasAadhaar ? 'Yes' : child.surveyData?.['section-5']?.q5_3 === 'yes' ? 'Yes' : 'No',
       disabilityTypes: child.surveyData?.['section-6']?.q6_2 || '',
       otherDisability: child.surveyData?.['section-6']?.q6_3 || '',
+      goesToSchool: child.surveyData?.['section-4']?.q4_1 || '',
     }));
   }, [apiChildren]);
 
@@ -225,13 +234,46 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     }
   };
 
+  const filterOptions = [
+    {
+      label: 'Block',
+      value: blockFilter,
+      options: [
+        { label: 'All Blocks', value: 'all' },
+        ...blocks.map(block => ({ label: block, value: block }))
+      ]
+    },
+    {
+      label: 'Gram Panchayat',
+      value: gramPanchayatFilter,
+      options: [
+        { label: 'All Gram Panchayats', value: 'all' },
+        ...gramPanchayats.map(gp => ({ label: gp, value: gp }))
+      ]
+    },
+    {
+      label: 'Status',
+      value: statusFilter,
+      options: [
+        { label: 'All Statuses', value: 'all' },
+        { label: 'Enrolled', value: 'enrolled' },
+        { label: 'Dropout', value: 'dropout' },
+        { label: 'Never Enrolled', value: 'never_enrolled' }
+      ]
+    }
+  ];
+
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'block') {
       setBlockFilter(value);
-      setCurrentPage(1); // Reset to first page when filter changes
+      setGramPanchayatFilter('all'); // Reset Gram Panchayat when block changes
+      setCurrentPage(1);
+    } else if (filterId === 'gramPanchayat') {
+      setGramPanchayatFilter(value);
+      setCurrentPage(1);
     } else if (filterId === 'status') {
       setStatusFilter(value);
-      setCurrentPage(1); // Reset to first page when filter changes
+      setCurrentPage(1);
     }
   };
 
@@ -259,7 +301,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         caste: childData.familyInfo.caste,
         parentsStatus: childData.familyInfo.parentsStatus,
         livesWithWhom: childData.familyInfo.livesWithWhom,
-        goesToSchool: childData.educationInfo.goesToSchool,
+        goesToSchool: childData.surveyData?.['section-4']?.q4_1 || '',
         schoolName: childData.educationInfo.schoolName || '',
         currentClass: childData.educationInfo.currentClass,
         attendanceStatus: childData.educationInfo.attendanceStatus,
@@ -279,27 +321,6 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
     fetchChildren();
   };
 
-  const filterOptions = [
-    {
-      label: 'Block',
-      value: blockFilter,
-      options: [
-        { label: 'All Blocks', value: 'all' },
-        ...blocks.map(block => ({ label: block, value: block }))
-      ]
-    },
-    {
-      label: 'Status',
-      value: statusFilter,
-      options: [
-        { label: 'All Statuses', value: 'all' },
-        { label: 'Enrolled', value: 'enrolled' },
-        { label: 'Dropout', value: 'dropout' },
-        { label: 'Never Enrolled', value: 'never_enrolled' }
-      ]
-    }
-  ];
-
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -309,9 +330,12 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           blockFilter={blockFilter}
+          gramPanchayatFilter={gramPanchayatFilter}
           statusFilter={statusFilter}
           blocks={blocks}
+          gramPanchayats={gramPanchayats}
           onBlockFilterChange={setBlockFilter}
+          onGramPanchayatFilterChange={setGramPanchayatFilter}
           onStatusFilterChange={setStatusFilter}
           paginatedData={paginatedData}
           filteredData={filteredData}

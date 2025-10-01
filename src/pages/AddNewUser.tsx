@@ -47,7 +47,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
   useEffect(() => {
     if (formData.block) {
       const selectedBlockData = blocksData.find(block => block.block === formData.block);
-      const gramPanchayatNames = selectedBlockData?.gramPanchayat?.map(gp => gp.name) || [];
+      const gramPanchayatNames = selectedBlockData?.gramPanchayats || [];
       setAvailableGramPanchayats(gramPanchayatNames);
       // Reset panchayat selection when block changes
       setFormData(prev => ({ ...prev, panchayat: '' }));

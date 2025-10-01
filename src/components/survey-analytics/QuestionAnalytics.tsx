@@ -3,7 +3,7 @@ import { Question } from '@/types/survey';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Calendar, CheckCircle, Circle, Edit3, Users } from 'lucide-react';
+import { CheckCircle, Circle, Edit3, Users } from 'lucide-react';
 
 interface QuestionAnalyticsData {
   totalResponses: number;
@@ -47,14 +47,11 @@ const COLORS = [
 const QuestionAnalytics = ({ question, analytics }: QuestionAnalyticsProps) => {
   const getQuestionIcon = () => {
     switch (question.type) {
-      case 'calendar':
-        return <Calendar className="h-4 w-4 text-primary" />;
       case 'single_choose':
       case 'yes_no':
         return <Circle className="h-4 w-4 text-primary" />;
       case 'multi_choose':
         return <CheckCircle className="h-4 w-4 text-primary" />;
-      case 'written':
       default:
         return <Edit3 className="h-4 w-4 text-primary" />;
     }
@@ -157,131 +154,6 @@ const QuestionAnalytics = ({ question, analytics }: QuestionAnalyticsProps) => {
             </div>
           </div>
         );
-
-      case 'written':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Users className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Responses</div>
-                    <div className="text-2xl font-bold text-foreground">{analytics.totalResponses.toLocaleString()}</div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Edit3 className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Response Type</div>
-                    <div className="text-lg font-bold text-foreground">Written Responses</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'calendar':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Users className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Children</div>
-                    <div className="text-2xl font-bold text-foreground">{analytics.totalResponses.toLocaleString()}</div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
-                    <Calendar className="h-4 w-4 text-blue-500" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Age Range</div>
-                    <div className="text-lg font-bold text-foreground">
-                      {analytics.data[0]?.minAge || 0} - {analytics.data[0]?.maxAge || 18} years
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <Users className="h-4 w-4 text-green-500" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Average Age</div>
-                    <div className="text-2xl font-bold text-foreground">
-                      {analytics.data[0]?.avgAge || 0} years
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-orange-500/10">
-                    <CheckCircle className="h-4 w-4 text-orange-500" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Common Age</div>
-                    <div className="text-2xl font-bold text-foreground">
-                      {analytics.data[0]?.mostCommonAge || 0} years
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Age Distribution Chart */}
-            {analytics.data[0]?.ageDistribution && (
-              <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/10">
-                <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  Age Distribution
-                </h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analytics.data[0].ageDistribution} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis 
-                        dataKey="age" 
-                        tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                        axisLine={{ stroke: 'hsl(var(--border))' }}
-                      />
-                      <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
-                      <Tooltip 
-                        formatter={(value, name) => [`${value} children`, `Age ${name}`]}
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--background))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
-                        }}
-                      />
-                      <Bar 
-                        dataKey="count" 
-                        fill="hsl(var(--primary))"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-
       default:
         return null;
     }

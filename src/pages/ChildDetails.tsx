@@ -39,18 +39,20 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                   (propChildData.documentsInfo?.hasAadhaar ? propChildData.documentsInfo?.aadhaarNumber : null) || 
                   'N/A',
     name: propChildData.surveyData?.['section-1']?.q1_1 || 'N/A',
-    houseNumber: propChildData.surveyData?.['section-1']?.q1_2 || 'N/A', // Fixed house number mapping to q1_2
-    age: propChildData.basicInfo?.age || 'N/A',
+    houseNumber: propChildData.surveyData?.['section-1']?.q1_2 || 'N/A',
+    dateOfBirth: formatDate((propChildData.surveyData?.['section-1']?.q1_3 || propChildData.basicInfo?.dateOfBirth) as string | undefined) || 'N/A',
+    age: propChildData.basicInfo?.age || '0',
     gender: propChildData.surveyData?.['section-1']?.q1_4 || propChildData.basicInfo?.gender || 'N/A',
-    dateOfBirth: formatDate((propChildData.surveyData?.['section-1']?.q1_3 || propChildData.basicInfo?.dateOfBirth) as string | undefined) || 'N/A', // Format DOB properly
-    block: propChildData.surveyData?.['section-1']?.q1_5 ||  'N/A', // Fixed block mapping to q1_5
-    village: propChildData.surveyData?.['section-1']?.q1_7 || propChildData.basicInfo?.para || 'N/A', // Fixed village/para mapping to q1_7
+    block: propChildData.surveyData?.['section-1']?.q1_5 || 'N/A',
     gramPanchayat: propChildData.surveyData?.['section-1']?.q1_6 || propChildData.basicInfo?.gramPanchayat || 'N/A',
-    cluster: propChildData.basicInfo?.cluster || 'N/A',
-    motherTongue: propChildData.surveyData?.['section-1']?.q1_8 || propChildData.basicInfo?.motherTongue || 'N/A', // Fixed mother tongue mapping to q1_8
+    village: propChildData.surveyData?.['section-1']?.q1_7 || 'N/A',
+    para: propChildData.surveyData?.['section-1']?.q1_8 || propChildData.basicInfo?.para || 'N/A',
+    motherTongue: propChildData.surveyData?.['section-1']?.q1_9 || propChildData.basicInfo?.motherTongue || 'N/A',
     motherTongueOther: propChildData.surveyData?.['section-1']?.q1_8_other || '',
-    fatherName: propChildData.surveyData?.['section-1']?.q1_10 || propChildData.familyInfo?.fatherName || 'N/A', // Fixed father name mapping to q1_10
-    motherName: propChildData.surveyData?.['section-1']?.q1_9 || propChildData.familyInfo?.motherName || 'N/A', // Fixed mother name mapping to q1_9
+    motherName: propChildData.surveyData?.['section-1']?.q1_10 || propChildData.familyInfo?.motherName || 'N/A',
+    fatherName: propChildData.surveyData?.['section-1']?.q1_11 || propChildData.familyInfo?.fatherName || 'N/A',
+    motherEducated: propChildData.surveyData?.['section-1']?.q1_12 || (propChildData.familyInfo?.motherEducated ? 'Yes' : 'No') || 'N/A',
+    fatherEducated: propChildData.surveyData?.['section-1']?.q1_13 || (propChildData.familyInfo?.fatherEducated ? 'Yes' : 'No') || 'N/A',
     caste: propChildData.surveyData?.['section-2']?.q2_3 || propChildData.familyInfo?.caste || 'N/A',
     familyOccupation: propChildData.surveyData?.['section-2']?.q2_1 || propChildData.familyInfo?.familyOccupation || 'N/A',
     otherOccupation: propChildData.surveyData?.['section-2']?.q2_2 || 'N/A', // Fixed other occupation to q2_2
@@ -59,20 +61,18 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     livesWithWhom: propChildData.surveyData?.['section-2']?.q2_6 || propChildData.familyInfo?.livesWithWhom || 'N/A',
     otherLivesWith: propChildData.surveyData?.['section-2']?.q2_7 || 'N/A',
     // Use education values directly from the survey data or fallback to basic yes/no
-    motherEducated: propChildData.surveyData?.['section-1']?.q1_11 || 
-                    (propChildData.familyInfo?.motherEducated ? 'Yes' : 'No'), // Fixed mother educated mapping to q1_11
-    fatherEducated: propChildData.surveyData?.['section-1']?.q1_12 || 
-                    (propChildData.familyInfo?.fatherEducated ? 'Yes' : 'No'), // Fixed father educated mapping to q1_12
     economicStatus: propChildData.surveyData?.['section-3']?.q3_1 || propChildData.economicInfo?.economicStatus || propChildData.derivedFields?.economicStatus || 'N/A',
     rationCardType: propChildData.surveyData?.['section-3']?.q3_1 || propChildData.economicInfo?.rationCardType || 'N/A',
     rationCardNumber: propChildData.surveyData?.['section-3']?.q3_2 || propChildData.economicInfo?.rationCardNumber || 'N/A',
-    goesToSchool: propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' ? 'Yes' : 
-                  propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' ? 'No' : 
+    goesToSchool: propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' ? 'Yes' :
+                  propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' ? 'No' :
+                  propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी' ? 'Aanganwadi' :
                   propChildData.educationInfo?.goesToSchool ? 'Yes' : 'No',
     attendanceStatus: propChildData.surveyData?.['section-4']?.q4_5 || propChildData.educationInfo?.attendanceStatus || 'N/A',
     educationCategory: propChildData.surveyData?.['section-4']?.q4_6 || 'N/A',
-    school: propChildData.surveyData?.['section-4']?.q4_2 || propChildData.educationInfo?.schoolName || 'N/A',
-    currentClass: propChildData.surveyData?.['section-4']?.q4_4 || propChildData.educationInfo?.currentClass || 'N/A',
+    currentClass: propChildData.surveyData?.['section-4']?.q4_2 || propChildData.educationInfo?.currentClass || 'N/A', // Now maps to q4_2
+    school: propChildData.surveyData?.['section-4']?.q4_3 || propChildData.educationInfo?.schoolName || 'N/A', // Now maps to q4_3
+    schoolCommuteType: propChildData.surveyData?.['section-4']?.q4_4 || 'N/A', // New field for commute type
     lastStudiedClass: propChildData.surveyData?.['section-4']?.q4_7 || 'N/A',
     dropoutReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_8) ? 
                      propChildData.surveyData?.['section-4']?.q4_8.join(', ') : 
@@ -84,7 +84,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     neverEnrolledReasonOther: propChildData.surveyData?.['section-4']?.q4_11 || '',
     schoolStatus: propChildData.surveyData?.['section-4']?.q4_6 === 'शाला त्यागी' ? 'Dropout' :
                   propChildData.surveyData?.['section-4']?.q4_6 === 'अप्रवेशी' ? 'Never Enrolled' :
-                  propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' ? 'Enrolled' :
+                  (propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' || propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled' :
                   propChildData.educationInfo?.educationStatus || propChildData.derivedFields?.educationStatus || 'N/A',
     hasDisability: propChildData.surveyData?.['section-6']?.q6_1 === 'हाँ' ? 'Yes' :
                    propChildData.surveyData?.['section-6']?.q6_1 === 'नहीं' ? 'No' : 
@@ -230,10 +230,17 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Village/Para</label>
+                <label className="text-sm font-medium text-muted-foreground">Para</label>
+                <p className="text-lg font-medium">{transformedData.para}</p>
+              </div>
+
+               <div>
+                <label className="text-sm font-medium text-muted-foreground">Village</label>
                 <p className="text-lg font-medium">{transformedData.village}</p>
               </div>
+              
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Gram Panchayat</label>
                 <p className="text-lg font-medium">{transformedData.gramPanchayat}</p>
@@ -411,12 +418,16 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
               {transformedData.schoolStatus === 'Enrolled' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">School</label>
+                    <label className="text-sm font-medium text-muted-foreground">School Name & Para</label>
                     <p className="text-lg font-medium">{transformedData.school}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Current Class</label>
                     <p className="text-lg font-medium">{transformedData.currentClass}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Commute Type</label>
+                    <p className="text-lg font-medium">{transformedData.schoolCommuteType}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Attendance Status</label>

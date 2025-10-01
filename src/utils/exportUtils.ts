@@ -7,6 +7,7 @@ interface ChildData {
   age: number;
   gender: string;
   village: string;
+  para: string; 
   aadhaar: string;
   aadhaarNumber: string;
   schoolName: string;
@@ -39,6 +40,7 @@ interface ChildData {
   currentClass?: string;
   educationCategory?: string;
   lastClassStudied?: string;
+  schoolCommuteType?: string; 
   dropoutReasons?: string | string[];
   otherDropoutReason?: string;
   neverEnrolledReasons?: string | string[];
@@ -48,15 +50,17 @@ interface ChildData {
   hasAadhaar?: string;
   disabilityTypes?: string | string[];
   otherDisability?: string;
+  goesToSchool?: string;
 }
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const headers = [
-    'ID', 'Name', 'Age', 'Gender', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 
-      'DOB', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
+    'ID', 'Name', 'Age', 'Gender', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 'Para',
+    'DOB', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
     'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with', 
     'Other Lives With', 'Economic Status', 'Mother Tongue', 'Other Mother Tongue', 
-    'School Status', 'School Name', 'Attendance Status', 'Current Class', 'Education Category', 
+    'Goes To School', 
+    'School Status', 'School Name', 'Attendance Status', 'Current Class', 'Commute Type', 'Education Category', 
     'Last Class Studied', 'Dropout Reasons', 'Other Dropout Reason', 'Never Enrolled Reasons', 
     'Other Never Enrolled Reason', 'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
     'Has Residence Certificate', 'Has Aadhaar', 'Disability', 'Disability Types', 'Other Disability'
@@ -94,7 +98,8 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.block || '-'}"`,
         `"${child.gramPanchayat || '-'}"`,
         `"${child.village || '-'}"`,
-        child.dob || '-', // DOB is already formatted as DD-MM-YYYY in ChildrenRecords.tsx
+        `"${child.para || '-'}"`,
+        child.dob || '-', 
         `"${child.fatherName || '-'}"`,
         `"${child.motherName || '-'}"`,
         `"${child.motherEducated || '-'}"`,
@@ -110,10 +115,12 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.economicStatus || '-'}"`,
         `"${motherTongueFormatted || '-'}"`,
         `"${child.otherMotherTongue || '-'}"`,
+        `"${child.goesToSchool || '-'}"`,
         `"${child.schoolStatus || '-'}"`,
         `"${child.schoolName || '-'}"`,
         `"${child.attendanceStatus || '-'}"`,
         `"${child.currentClass || '-'}"`,
+        `"${child.schoolCommuteType || '-'}"`,
         `"${child.educationCategory || '-'}"`,
         `"${child.lastClassStudied || '-'}"`,
         `"${Array.isArray(child.dropoutReasons) ? child.dropoutReasons.join('; ') : (child.dropoutReasons || '-')}"`,
