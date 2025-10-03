@@ -49,6 +49,7 @@ interface ChildrenRecordsContentProps {
     value: string;
     options: Array<{ label: string; value: string }>;
   }>;
+  totalCount: number;
 }
 
 const ChildrenRecordsContent = ({
@@ -72,7 +73,8 @@ const ChildrenRecordsContent = ({
   onDeleteChild,
   handleExportCSV,
   handleFilterChange,
-  filterOptions
+  filterOptions,
+  totalCount
 }: ChildrenRecordsContentProps) => {
   const isMobile = useIsMobile();
 
@@ -95,7 +97,7 @@ const ChildrenRecordsContent = ({
           />
 
           <div className="text-muted-foreground text-xs">
-            Showing {paginatedData.length} of {filteredData.length} children
+            Showing {paginatedData.length} of {totalCount} children
           </div>
 
           <ChildrenCardList
@@ -125,7 +127,7 @@ const ChildrenRecordsContent = ({
           />
 
           <div className="text-muted-foreground text-xs">
-            Showing {paginatedData.length} of {filteredData.length} children
+            Showing {paginatedData.length} of {totalCount} children
           </div>
 
           <ChildrenTable
