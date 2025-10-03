@@ -69,7 +69,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       };
 
       if (blockFilter !== 'all') params.block = blockFilter;
-      if (gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
+      if (blockFilter !== 'all' && gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
       if (debouncedSearchTerm) params.search = debouncedSearchTerm;
 
@@ -351,6 +351,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           handleExportCSV={handleExportCSV}
           handleFilterChange={handleFilterChange}
           filterOptions={filterOptions}
+          totalCount={totalCount}
         />
       </div>
 

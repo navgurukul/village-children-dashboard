@@ -42,7 +42,11 @@ const FiltersRow = ({
         </SelectContent>
       </Select>
 
-      <Select value={gramPanchayatFilter} onValueChange={onGramPanchayatFilterChange} disabled={blockFilter === 'all'}>
+      <Select
+        value={blockFilter === 'all' ? 'all' : gramPanchayatFilter}
+        onValueChange={onGramPanchayatFilterChange}
+        disabled={blockFilter === 'all'}
+      >
         <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="All Gram Panchayats" />
         </SelectTrigger>
