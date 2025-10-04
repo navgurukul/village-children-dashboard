@@ -14,17 +14,17 @@ import EditChildDetails from '../pages/EditChildDetails';
 import BalMitraDetails from '../pages/BalMitraDetails';
 import EditUser from '../pages/EditUser';
 import Villages from '../pages/Villages';
-import AddNewVillage from '../pages/AddNewVillage';
+import AddNewGramPanchayat from '../pages/AddNewVillage';
 import VillageProfile from '../pages/VillageProfile';
 import BulkUploadVillages from '../pages/BulkUploadVillages';
-import EditVillage from '../pages/EditVillage';
+import EditGramPanchayat from '../pages/EditVillage';
 import Profile from '../pages/Profile';
 
 interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-village' | 'village-profile' | 'edit-village' | 'profile';
+type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-gram-panchayat' | 'village-profile' | 'edit-gram-panchayat' | 'profile';
 
 const AppShell = ({ onLogout }: AppShellProps) => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -81,8 +81,8 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     if (page === 'village-profile' && data?.villageData) {
       setSelectedVillage(data.villageData);
     }
-    if (page === 'edit-village' && data?.village) {
-      setSelectedVillage(data.village);
+    if (page === 'edit-gram-panchayat' && data?.gramPanchayat) {
+      setSelectedVillage(data.gramPanchayat);
     }
   };
 
@@ -99,10 +99,10 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'villages':
         return <Villages 
           key={`villages-${Date.now()}`}
-          onAddVillage={() => handleNavigation('add-village')}
+          onAddGramPanchayat={() => handleNavigation('add-gram-panchayat')}
           onBulkUpload={() => handleNavigation('bulk-upload-villages')}
           onVillageClick={(villageData) => handleNavigation('village-profile', { villageData })}
-          onEditVillage={(village) => handleNavigation('edit-village', { village })}
+          onEditVillage={(gramPanchayat) => handleNavigation('edit-gram-panchayat', { gramPanchayat })}
           onDeleteVillage={(villageId) => console.log('Delete village:', villageId)}
         />;
       case 'users':
@@ -114,8 +114,8 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         />;
       case 'add-user':
         return <AddNewUser onCancel={() => handleNavigation('users')} onSuccess={() => handleNavigation('users')} />;
-      case 'add-village':
-        return <AddNewVillage onCancel={() => handleNavigation('villages')} onSuccess={() => handleNavigation('villages')} />;
+      case 'add-gram-panchayat':
+        return <AddNewGramPanchayat onCancel={() => handleNavigation('villages')} onSuccess={() => handleNavigation('villages')} />;
       case 'bulk-upload':
         return <BulkUploadUsers onComplete={() => handleNavigation('users')} />;
       case 'bulk-upload-villages':
@@ -141,12 +141,8 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           villageData={selectedVillage}
           onBack={() => handleNavigation('villages')} 
         />;
-      case 'edit-village':
-        return <EditVillage 
-          village={selectedVillage} 
-          onCancel={() => handleNavigation('villages')} 
-          onSuccess={() => handleNavigation('villages')} 
-        />;
+      case 'edit-gram-panchayat':
+        return <EditGramPanchayat gramPanchayat={selectedVillage} onCancel={() => handleNavigation('villages')} onSuccess={() => handleNavigation('villages')} />;
       case 'bal-mitra-details':
         return <BalMitraDetails balMitraId={selectedBalMitraId} balMitraData={selectedBalMitra} onBack={() => handleNavigation('users')} />;
       case 'edit-user':
