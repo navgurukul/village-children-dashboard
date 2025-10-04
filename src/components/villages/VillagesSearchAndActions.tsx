@@ -6,7 +6,7 @@ import { Search, Plus, Upload } from 'lucide-react';
 interface VillagesSearchAndActionsProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  onAddVillage: () => void;
+  onAddGramPanchayat: () => void;
   onBulkUpload: () => void;
   onExportCSV: () => void; // Added prop for export
   isMobile?: boolean;
@@ -15,7 +15,7 @@ interface VillagesSearchAndActionsProps {
 const VillagesSearchAndActions = ({ 
   searchTerm, 
   onSearchChange, 
-  onAddVillage, 
+  onAddGramPanchayat, 
   onBulkUpload,
   onExportCSV, // Added prop for export
   isMobile = false 
@@ -34,7 +34,7 @@ const VillagesSearchAndActions = ({
       
       <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
         <Button 
-          onClick={onAddVillage} 
+          onClick={onAddGramPanchayat} 
           className={`gap-2 ${isMobile ? 'flex-1' : ''}`}
         >
           <Plus className="h-4 w-4" />
