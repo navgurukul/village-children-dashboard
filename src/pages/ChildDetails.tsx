@@ -73,17 +73,17 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     currentClass: propChildData.surveyData?.['section-4']?.q4_2 || propChildData.educationInfo?.currentClass || 'N/A', // Now maps to q4_2
     school: propChildData.surveyData?.['section-4']?.q4_3 || propChildData.educationInfo?.schoolName || 'N/A', // Now maps to q4_3
     schoolCommuteType: propChildData.surveyData?.['section-4']?.q4_4 || 'N/A', // New field for commute type
-    lastStudiedClass: propChildData.surveyData?.['section-4']?.q4_7 || 'N/A',
-    dropoutReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_8) ? 
-                     propChildData.surveyData?.['section-4']?.q4_8.join(', ') : 
-                     propChildData.surveyData?.['section-4']?.q4_8 || 'N/A',
-    dropoutReasonOther: propChildData.surveyData?.['section-4']?.q4_9 || '',
-    neverEnrolledReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_10) ? 
-                          propChildData.surveyData?.['section-4']?.q4_10.join(', ') : 
-                          propChildData.surveyData?.['section-4']?.q4_10 || 'N/A',
-    neverEnrolledReasonOther: propChildData.surveyData?.['section-4']?.q4_11 || '',
-    schoolStatus: propChildData.surveyData?.['section-4']?.q4_6 === 'शाला त्यागी' ? 'Dropout' :
-                  propChildData.surveyData?.['section-4']?.q4_6 === 'अप्रवेशी' ? 'Never Enrolled' :
+    lastStudiedClass: propChildData.surveyData?.['section-4']?.q4_8 || 'N/A',
+    dropoutReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_9) ? 
+                     propChildData.surveyData?.['section-4']?.q4_9.join(', ') : 
+                     propChildData.surveyData?.['section-4']?.q4_9 || 'N/A',
+    dropoutReasonOther: propChildData.surveyData?.['section-4']?.q4_10 || '',
+    neverEnrolledReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_11) ? 
+                          propChildData.surveyData?.['section-4']?.q4_11.join(', ') : 
+                          propChildData.surveyData?.['section-4']?.q4_11 || 'N/A',
+    neverEnrolledReasonOther: propChildData.surveyData?.['section-4']?.q4_12 || 'NA',
+    schoolStatus: propChildData.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी' ? 'Dropout' :
+                  propChildData.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी' ? 'Never Enrolled' :
                   (propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' || propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled' :
                   propChildData.educationInfo?.educationStatus || propChildData.derivedFields?.educationStatus || 'N/A',
     hasDisability: propChildData.surveyData?.['section-6']?.q6_1 === 'हाँ' ? 'Yes' :
