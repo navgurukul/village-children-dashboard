@@ -69,7 +69,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       };
 
       if (blockFilter !== 'all') params.block = blockFilter;
-      if (blockFilter !== 'all' && gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
+       if (gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
       if (debouncedSearchTerm) params.search = debouncedSearchTerm;
 
@@ -138,7 +138,10 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
       schoolName: child.educationInfo.schoolName || '',
       school: child.educationInfo.schoolName || '',
-      schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
+      schoolStatus: (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
+        : (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
+        : (child.surveyData?.['section-4']?.q4_1 === 'हाँ' || child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
+        : child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', 
       // Map from surveyData question ids for block, gram panchayat, village, para
       block: child.surveyData?.['section-1']?.q1_5 || '', // Development block
       gramPanchayat: child.surveyData?.['section-1']?.q1_6 || '', // Gram Panchayat name
@@ -169,17 +172,19 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       // Add schoolCommuteType for reference if needed in future
       schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
-      lastClassStudied: child.surveyData?.['section-4']?.q4_7 || '',
-      dropoutReasons: child.surveyData?.['section-4']?.q4_8 || '',
-      otherDropoutReason: child.surveyData?.['section-4']?.q4_9 || '',
-      neverEnrolledReasons: child.surveyData?.['section-4']?.q4_10 || '',
-      otherNeverEnrolledReason: child.surveyData?.['section-4']?.q4_11 || '',
+      lastClassStudied: child.surveyData?.['section-4']?.q4_8 || '',
+      dropoutReasons: child.surveyData?.['section-4']?.q4_9 || '',
+      otherDropoutReason: child.surveyData?.['section-4']?.q4_10 || '',
+      neverEnrolledReasons: child.surveyData?.['section-4']?.q4_11 || '',
+      otherNeverEnrolledReason: child.surveyData?.['section-4']?.q4_12 || '',
       hasCasteCertificate: child.documentsInfo?.hasCasteCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_1 === 'yes' ? 'Yes' : 'No',
       hasResidenceCertificate: child.documentsInfo?.hasResidenceCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_2 === 'yes' ? 'Yes' : 'No',
       hasAadhaar: child.documentsInfo?.hasAadhaar ? 'Yes' : child.surveyData?.['section-5']?.q5_3 === 'yes' ? 'Yes' : 'No',
       disabilityTypes: child.surveyData?.['section-6']?.q6_2 || '',
       otherDisability: child.surveyData?.['section-6']?.q6_3 || '',
       goesToSchool: child.surveyData?.['section-4']?.q4_1 || '',
+      rationCardType: child.surveyData?.['section-3']?.q3_1 || child.economicInfo?.rationCardType || '',
+      rationCardNumber: child.surveyData?.['section-3']?.q3_2 || child.economicInfo?.rationCardNumber || '',
     }));
   }, [apiChildren]);
 

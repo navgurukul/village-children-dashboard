@@ -228,6 +228,7 @@ interface Child {
       q4_9?: string; // Please specify the reason for dropout
       q4_10?: string | string[]; // If the child has never enrolled, what is the reason for not enrolling in school?
       q4_11?: string; // Other reason for never enrolling
+      q4_12?: string; 
     };
     "section-5"?: {
       q5_1?: string; // Does the child have a caste certificate?
