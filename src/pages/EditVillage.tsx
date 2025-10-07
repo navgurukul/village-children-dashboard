@@ -52,7 +52,7 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
   }, [toast]);
 
   useEffect(() => {
-    if (gramPanchayat) {
+    if (gramPanchayat && blocksData.length > 0) {
       setFormData({
         gramPanchayatName: gramPanchayat.name || '',
         block: gramPanchayat.block || '',
@@ -62,7 +62,7 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
         }))
       });
     }
-  }, [gramPanchayat]);
+  }, [gramPanchayat, blocksData]);
 
   // Add/Remove Villages
   const addVillage = () => {
