@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +6,11 @@ import { ArrowLeft, Upload, Download, FileText, CheckCircle } from 'lucide-react
 import { apiClient } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 
-interface BulkUploadVillagesProps {
+interface BulkUploadGramPanchayatProps {
   onComplete: () => void;
 }
 
-const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
+const BulkUploadGramPanchayat = ({ onComplete }: BulkUploadGramPanchayatProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -26,25 +25,17 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
 
   const handleUpload = async () => {
     if (!file) return;
-    
     setIsUploading(true);
-    
     try {
-      // Create FormData and append the file
       const formData = new FormData();
       formData.append('file', file);
-
-      // Call API with file upload
-      const response = await apiClient.bulkUploadVillages(formData);
-      
+      const response = await apiClient.bulkUploadGramPanchayats(formData);
       if (response.success) {
         setUploadComplete(true);
         toast({
           title: "Success",
-          description: "Successfully uploaded villages",
+          description: `Successfully uploaded gram panchayats`,
         });
-        
-        // Auto-complete after 2 seconds
         setTimeout(() => {
           onComplete();
         }, 2000);
@@ -55,7 +46,7 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
       console.error('Upload error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to upload villages",
+        description: error instanceof Error ? error.message : `Failed to upload gram panchayats`,
         variant: "destructive",
       });
     } finally {
@@ -64,38 +55,22 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
   };
 
   const downloadTemplate = () => {
-    // CSV headers
-    const headers = ['name', 'district', 'gramPanchayat', 'block', 'cluster', 'state'];
-    
-    // Sample data rows
+    // Updated template: gram panchayat, district, block, village, para
+    const headers = ['gramPanchayatName', 'district', 'block', 'village', 'para'];
     const sampleData = [
-      ['Bahera', 'Dhanbad', 'Sijua', 'Jharia', 'Sijua-1', 'Jharkhand'],
-      ['Lodna', 'Dhanbad', 'Katras', 'Jharia', 'Katras-2', 'Jharkhand'],
-      ['Dhansar', 'Dhanbad', 'Bhaga', 'Jharia', 'Bhaga-3', 'Jharkhand'],
-      ['Tisra', 'Dhanbad', 'Sijua', 'Jharia', 'Sijua-2', 'Jharkhand'],
-      ['Kendua', 'Dhanbad', 'Katras', 'Jharia', 'Katras-1', 'Jharkhand'],
-      ['Putki', 'Dhanbad', 'Putki', 'Jharia', 'Putki-1', 'Jharkhand'],
-      ['Alakdiha', 'Dhanbad', 'Bhaga', 'Jharia', 'Bhaga-1', 'Jharkhand'],
-      ['Bastacola', 'Dhanbad', 'Bastacola', 'Jharia', 'Bastacola-1', 'Jharkhand'],
-      ['Sindri', 'Dhanbad', 'Sindri', 'Jharia', 'Sindri-1', 'Jharkhand'],
-      ['Kusunda', 'Dhanbad', 'Kusunda', 'Jharia', 'Kusunda-1', 'Jharkhand']
+      ['Sijua', 'Dhanbad', 'Jharia', 'Bahera', 'Para 1'],
+      ['Katras', 'Dhanbad', 'Jharia', 'Lodna', 'Para 2'],
     ];
-
-    // Create CSV content
     const csvContent = [
       headers.join(','),
       ...sampleData.map(row => row.join(','))
     ].join('\n');
-
-    // Create and download file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
     link.setAttribute('href', url);
-    link.setAttribute('download', 'village_template.csv');
+    link.setAttribute('download', 'gram_panchayat_template.csv');
     link.style.visibility = 'hidden';
-    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -112,9 +87,9 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
             className="gap-2 p-0 h-auto"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Villages
+            Back to Gram Panchayats
           </Button>
-          <h1 className="text-3xl font-bold text-foreground">Bulk Upload Villages</h1>
+          <h1 className="text-3xl font-bold text-foreground">Bulk Upload Gram Panchayats</h1>
         </div>
 
         {/* Instructions */}
@@ -129,21 +104,19 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
             <div className="space-y-2">
               <h4 className="font-medium">Step 1: Download Template</h4>
               <p className="text-sm text-muted-foreground">
-                Download the CSV template with the required column headers for village data.
+                Download the CSV template with the required column headers for gram panchayat data.
               </p>
               <Button onClick={downloadTemplate} variant="outline" className="gap-2">
                 <Download className="h-4 w-4" />
                 Download Template
               </Button>
             </div>
-            
             <div className="space-y-2">
-              <h4 className="font-medium">Step 2: Fill in Village Data</h4>
+              <h4 className="font-medium">Step 2: Fill in Data</h4>
               <p className="text-sm text-muted-foreground">
-                Fill in the template with village information including name, block, cluster, and panchayat details.
+                Fill in the template with gram panchayat information including all required details as per the template.
               </p>
             </div>
-            
             <div className="space-y-2">
               <h4 className="font-medium">Step 3: Upload File</h4>
               <p className="text-sm text-muted-foreground">
@@ -158,7 +131,7 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
-              Upload Villages File
+              Upload Gram Panchayats File
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -177,7 +150,6 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
                     </p>
                   )}
                 </div>
-                
                 <div className="flex justify-center gap-4">
                   <Button 
                     onClick={onComplete} 
@@ -189,7 +161,7 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
                     onClick={handleUpload}
                     disabled={!file || isUploading}
                   >
-                    {isUploading ? 'Uploading...' : 'Upload Villages'}
+                    {isUploading ? 'Uploading...' : 'Upload Gram Panchayats'}
                   </Button>
                 </div>
               </>
@@ -199,7 +171,7 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
                 <div>
                   <h3 className="font-semibold text-success">Upload Successful!</h3>
                   <p className="text-sm text-muted-foreground">
-                    Villages have been successfully uploaded to the system.
+                    Gram panchayats have been successfully uploaded to the system.
                   </p>
                 </div>
               </div>
@@ -211,4 +183,4 @@ const BulkUploadVillages = ({ onComplete }: BulkUploadVillagesProps) => {
   );
 };
 
-export default BulkUploadVillages;
+export default BulkUploadGramPanchayat;

@@ -25,14 +25,14 @@ interface GramPanchayatDisplayData {
 }
 
 interface VillagesProps {
-  onAddVillage: () => void;
+  onAddGramPanchayat: () => void;
   onBulkUpload: () => void;
   onVillageClick: (villageData: any) => void;
   onEditVillage: (village: any) => void;
   onDeleteVillage: (villageId: string) => void;
 }
 
-const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, onDeleteVillage }: VillagesProps) => {
+const Villages = ({ onAddGramPanchayat, onBulkUpload, onVillageClick, onEditVillage, onDeleteVillage }: VillagesProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [districtFilter, setDistrictFilter] = useState('all');
@@ -317,7 +317,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             <VillagesSearchAndActions
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
-              onAddVillage={onAddVillage}
+              onAddGramPanchayat={onAddGramPanchayat}
               onBulkUpload={onBulkUpload}
               onExportCSV={() => {
                 // Export filteredData as CSV
@@ -380,7 +380,7 @@ const Villages = ({ onAddVillage, onBulkUpload, onVillageClick, onEditVillage, o
             <VillagesSearchAndActions
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
-              onAddVillage={onAddVillage}
+              onAddGramPanchayat={onAddGramPanchayat}
               onBulkUpload={onBulkUpload}
               onExportCSV={() => {
                 // Export filteredData as CSV

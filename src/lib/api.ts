@@ -629,18 +629,8 @@ class ApiClient {
     });
   }
 
-  async bulkUploadVillages(formData: FormData): Promise<ApiResponse<any>> {
-    return this.request<any>('/villages/bulk-upload', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        // Don't set Content-Type header, let browser set it with boundary
-      },
-    });
-  }
-
-  async bulkUploadUsers(formData: FormData): Promise<ApiResponse<any>> {
-    return this.request<any>('/users/bulk-upload/balmitra', {
+  async bulkUploadGramPanchayats(formData: FormData): Promise<ApiResponse<any>> {
+    return this.request<any>('/gramPanchayats/bulk-upload', {
       method: 'POST',
       body: formData,
       headers: {
@@ -775,6 +765,20 @@ class ApiClient {
   async getProfile(): Promise<ApiResponse<any>> {
     return this.request<any>('/users/profile', {
       method: 'GET',
+    });
+  }
+
+  async createGramPanchayat(payload: { name: string; block: string; villages: { name: string; paras: { name: string }[] }[] }): Promise<ApiResponse<any>> {
+    return this.request<any>('/gramPanchayats', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateGramPanchayat(gpId: string, payload: { name: string; block: string; villages: { name: string; paras: { name: string }[] }[] }): Promise<ApiResponse<any>> {
+    return this.request<any>(`/gramPanchayats/${gpId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
     });
   }
 }
