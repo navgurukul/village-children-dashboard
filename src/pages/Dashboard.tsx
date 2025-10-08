@@ -20,8 +20,9 @@ const Dashboard = () => {
   const [trendsDateRange, setTrendsDateRange] = useState('6months');
   const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
   const [blocksData, setBlocksData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true); // NEW
+  const [loadingSummary, setLoadingSummary] = useState(true);
+  const [loadingOverview, setLoadingOverview] = useState(true);
   const [surveyData, setSurveyData] = useState<Survey | null>(null);
   const [overviewData, setOverviewData] = useState<any | null>(null);
   const isMobile = useIsMobile();
@@ -66,6 +67,7 @@ const Dashboard = () => {
   };
 
   const fetchDashboardOverview = async () => {
+    setLoadingOverview(true);
     try {
       // Include date range parameters in the API call
       const params: any = {
@@ -100,12 +102,14 @@ const Dashboard = () => {
         description: "Failed to fetch dashboard overview",
         variant: "destructive",
       });
+    } finally {
+      setLoadingOverview(false);
     }
   };
 
   const fetchDashboardData = async (isInitial = false) => {
     try {
-      if (isInitial) setLoading(true); // Only show loading on initial load
+      setLoadingSummary(true);
 
       // Include date range parameters in the API call
       const params: any = {
@@ -141,7 +145,7 @@ const Dashboard = () => {
         variant: "destructive",
       });
     } finally {
-      if (isInitial) setLoading(false); // Only hide loading on initial load
+      setLoadingSummary(false);
     }
   };
 
@@ -159,10 +163,19 @@ const Dashboard = () => {
 
   // Initial load effect
   useEffect(() => {
+    // Call both APIs in parallel so each section can render as soon as it arrives
     fetchDashboardData(true); // Only show loading spinner on initial load
+    fetchDashboardOverview();
     setInitialLoad(false);
     // eslint-disable-next-line
   }, []);
+
+  // Keep initialLoad true until both initial requests complete (so skeletons only during initial dashboard load)
+  useEffect(() => {
+    if (!loadingSummary && !loadingOverview) {
+      setInitialLoad(false);
+    }
+  }, [loadingSummary, loadingOverview]);
 
   // Filter change effect (no loading spinner)
   useEffect(() => {
@@ -258,21 +271,6 @@ const Dashboard = () => {
   };
 
 
-  if (loading) {
-    return (
-      <div className="p-6 bg-background min-h-screen">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading dashboard data...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -297,23 +295,27 @@ const Dashboard = () => {
           )}
 
           {/* KPI Cards */}
-          <KPICards data={kpiData} />
+          {initialLoad && loadingSummary && !dashboardData ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 rounded bg-muted/20 h-24 animate-pulse" />
+              <div className="p-4 rounded bg-muted/20 h-24 animate-pulse" />
+              <div className="p-4 rounded bg-muted/20 h-24 animate-pulse" />
+              <div className="p-4 rounded bg-muted/20 h-24 animate-pulse" />
+            </div>
+          ) : (
+            <KPICards data={kpiData} />
+          )}
 
           {/* Survey Analytics */}
           {surveyData && (
             overviewData ? (
-              <>
-                <SurveyAnalyticsDisplay
-                  survey={surveyData}
-                  analyticsData={analyticsData}
-                  totalSurveys={totalSurveys}
-                />
-              </>
+              <SurveyAnalyticsDisplay
+                survey={surveyData}
+                analyticsData={analyticsData}
+                totalSurveys={totalSurveys}
+              />
             ) : (
-              <div className="text-center p-6">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Loading survey analytics data...</p>
-              </div>
+              <div className="text-muted-foreground">No analytics available</div>
             )
           )}
         </div>
