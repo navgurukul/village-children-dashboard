@@ -7,7 +7,7 @@ import { CheckCircle, Circle, Edit3, Users } from 'lucide-react';
 
 interface QuestionAnalyticsData {
   totalResponses: number;
-  data: any[];
+  data: { label: string; count: number; percentage?: string }[];
 }
 
 interface QuestionAnalyticsProps {
@@ -73,9 +73,7 @@ const QuestionAnalytics = ({ question, analytics }: QuestionAnalyticsProps) => {
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                   </div>
                   <div className="text-lg font-bold text-foreground">{item.count.toLocaleString()}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {((item.count / analytics.totalResponses) * 100).toFixed(1)}%
-                  </div>
+                  <div className="text-xs text-muted-foreground">{item.percentage ?? ''}</div>
                 </div>
               ))}
             </div>
@@ -99,14 +97,34 @@ const QuestionAnalytics = ({ question, analytics }: QuestionAnalyticsProps) => {
                         outerRadius={90}
                         paddingAngle={3}
                         dataKey="count"
-                        label={({ label, percent }) => `${(percent * 100).toFixed(1)}%`}
-                      >
+                        label={(entry: any) => {
+                        const pct = parseFloat(entry?.payload?.percentage ?? '0'); 
+                        if (pct < 3) return ''; // hide label if less than 3%
+                            return `${pct}%`; 
+                        }}
+                        labelLine={false}
+                        >
                         {analytics.data.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value, name) => [`${value} responses`, name]} />
-                    </PieChart>
+                      <Tooltip
+                        formatter={(value, name, props) => {
+                        const label = props?.payload?.label ?? name; 
+                        let pct = props?.payload?.percentage ?? '';  
+                        if (pct && !pct.toString().trim().endsWith('%')) {
+                        pct = `${pct}%`;
+                        }
+                        return [pct, label]; 
+                        }}
+                        labelStyle={{ color: 'hsl(var(--foreground))' }}
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--background))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px'
+                        }}
+                      />
+                  </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
