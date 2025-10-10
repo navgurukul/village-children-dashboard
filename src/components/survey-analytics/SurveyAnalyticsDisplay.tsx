@@ -57,7 +57,7 @@ const SurveyAnalyticsDisplay = ({ survey, analyticsData, totalSurveys }: SurveyA
               {/* Section Questions Analytics */}
               <div className="space-y-6">
                 {section.questions
-                  .filter(q => q.id !== 'q4_11' && q.id !== 'q4_9') // Hide q4_11 and q4_9 from analytics
+                  .filter(q => q.id !== 'q4_10' && q.id !== 'q4_12') // Hide q4_10 and q4_12 from analytics
                   .filter(q => q.type !== 'written') // Hide all written type questions from analytics
                   .filter(q => q.type !== 'calendar') // Hide all calendar type questions (e.g., Child's DOB)
                   .sort((a, b) => a.order - b.order)
