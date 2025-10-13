@@ -29,6 +29,12 @@ const AddNewGramPanchayat = ({ onCancel, onSuccess }: AddNewGramPanchayatProps) 
   const [loading, setLoading] = useState(false);
   const [blocksData, setBlocksData] = useState<BlockGramPanchayatData[]>([]);
   const [loadingBlocks, setLoadingBlocks] = useState(true);
+  // existingGPs comes from API as an array of gram panchayat names (string[])
+  const [existingGPs, setExistingGPs] = useState<string[]>([]);
+  const [gpNameWarning, setGpNameWarning] = useState<string>('');
+  const [existingVillages, setExistingVillages] = useState<{ name: string; paras: string[] }[]>([]);
+  const [villageWarnings, setVillageWarnings] = useState<string[]>([]); // Array for each village input
+  const [paraWarnings, setParaWarnings] = useState<string[][]>([]); // Array for each village, then for each para
 
   useEffect(() => {
     const fetchBlocksData = async () => {
@@ -50,6 +56,84 @@ const AddNewGramPanchayat = ({ onCancel, onSuccess }: AddNewGramPanchayatProps) 
     };
     fetchBlocksData();
   }, [toast]);
+
+  // Update existingGPs when block changes
+  useEffect(() => {
+    if (!formData.block) {
+      setExistingGPs([]);
+      return;
+    }
+    const blockObj = blocksData.find(b => b.block === formData.block);
+    setExistingGPs(blockObj ? blockObj.gramPanchayats : []);
+  }, [formData.block, blocksData]);
+
+  useEffect(() => {
+    if (!formData.gramPanchayatName.trim() || existingGPs.length === 0) {
+      setGpNameWarning('');
+      return;
+    }
+    const inputName = formData.gramPanchayatName.trim().toLowerCase();
+    const found = existingGPs.find(gp => gp.trim().toLowerCase() === inputName);
+    if (found) {
+      // Show the selected block name in the warning instead of the GP name
+      setGpNameWarning(`A Gram Panchayat with this name already exists in block "${formData.block}".`);
+    } else {
+      setGpNameWarning('');
+    }
+  }, [formData.gramPanchayatName, existingGPs, formData.block]);
+
+  // Update existingVillages when GP name matches an existing GP
+  useEffect(() => {
+    if (!formData.gramPanchayatName.trim() || !formData.block) {
+      setExistingVillages([]);
+      return;
+    }
+    // We only have GP names, not village lists. Clear existingVillages for now.
+    setExistingVillages([]);
+  }, [formData.gramPanchayatName, existingGPs, formData.block]);
+
+  // Realtime duplicate check for villages
+  useEffect(() => {
+    const warnings: string[] = [];
+    formData.villages.forEach((v, idx) => {
+      if (!v.name.trim()) {
+        warnings[idx] = '';
+        return;
+      }
+      const inputName = v.name.trim().toLowerCase();
+      const found = existingVillages.find(ev => ev.name.trim().toLowerCase() === inputName);
+      if (found) {
+        warnings[idx] = `This village already exists in this Gram Panchayat: "${found.name}"`;
+      } else {
+        warnings[idx] = '';
+      }
+    });
+    setVillageWarnings(warnings);
+  }, [formData.villages, existingVillages]);
+
+  // Realtime duplicate check for paras
+  useEffect(() => {
+    const warnings: string[][] = [];
+    formData.villages.forEach((v, vIdx) => {
+      const paraWarn: string[] = [];
+      const existingParas = existingVillages.find(ev => ev.name.trim().toLowerCase() === v.name.trim().toLowerCase())?.paras || [];
+      v.paras.forEach((p, pIdx) => {
+        if (!p.name.trim()) {
+          paraWarn[pIdx] = '';
+          return;
+        }
+        const inputName = p.name.trim().toLowerCase();
+        // Check against existing paras
+        if (existingParas.some(ep => ep.trim().toLowerCase() === inputName)) {
+          paraWarn[pIdx] = `This para already exists in this village: "${p.name}"`;
+        } else {
+          paraWarn[pIdx] = '';
+        }
+      });
+      warnings[vIdx] = paraWarn;
+    });
+    setParaWarnings(warnings);
+  }, [formData.villages, existingVillages]);
 
   // Add/Remove Villages (now Gram Panchayat Villages)
   const addVillage = () => {
@@ -105,6 +189,10 @@ const AddNewGramPanchayat = ({ onCancel, onSuccess }: AddNewGramPanchayatProps) 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       toast({ title: "Validation Error", description: "Please fix the errors in the form.", variant: "destructive" });
+      return;
+    }
+    if (gpNameWarning || villageWarnings.some(w => w) || paraWarnings.some(arr => arr.some(w => w))) {
+      toast({ title: "Duplicate Name", description: "Please fix duplicate Gram Panchayat, Village, or Para names.", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -164,6 +252,7 @@ const AddNewGramPanchayat = ({ onCancel, onSuccess }: AddNewGramPanchayatProps) 
               autoComplete="off"
             />
             {errors.gramPanchayatName && <p className="text-red-500 text-xs mt-1">{errors.gramPanchayatName}</p>}
+            {gpNameWarning && <p className="text-yellow-600 text-xs mt-1">{gpNameWarning}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="block">Block *</Label>
@@ -207,6 +296,7 @@ const AddNewGramPanchayat = ({ onCancel, onSuccess }: AddNewGramPanchayatProps) 
                   className={`bg-white${errors[`villageName_${vIdx}`] ? ' border-2 border-red-500' : ''}`}
                 />
                 {errors[`villageName_${vIdx}`] && <p className="text-red-500 text-xs mt-1">{errors[`villageName_${vIdx}`]}</p>}
+                {villageWarnings[vIdx] && <p className="text-yellow-600 text-xs mt-1">{villageWarnings[vIdx]}</p>}
                 {/* Paras Section */}
                 <div className="space-y-2 mt-2">
                   <div className="flex items-center justify-between">
@@ -224,6 +314,7 @@ const AddNewGramPanchayat = ({ onCancel, onSuccess }: AddNewGramPanchayatProps) 
                         placeholder="Enter para name"
                         className={`bg-white${errors[`paraName_${vIdx}_${pIdx}`] ? ' border-2 border-red-500' : ''}`}
                       />
+                      {paraWarnings[vIdx] && paraWarnings[vIdx][pIdx] && <p className="text-yellow-600 text-xs mt-1">{paraWarnings[vIdx][pIdx]}</p>}
                       <Button type="button" variant="ghost" size="sm" onClick={() => removePara(vIdx, pIdx)} title="Remove Para">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>

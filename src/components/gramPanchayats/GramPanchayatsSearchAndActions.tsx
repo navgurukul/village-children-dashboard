@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Upload } from 'lucide-react';
 
-interface VillagesSearchAndActionsProps {
+interface GramPanchayatSearchAndActionsProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onAddGramPanchayat: () => void;
@@ -12,14 +12,14 @@ interface VillagesSearchAndActionsProps {
   isMobile?: boolean;
 }
 
-const VillagesSearchAndActions = ({ 
+const GramPanchayatSearchAndActions = ({ 
   searchTerm, 
   onSearchChange, 
   onAddGramPanchayat, 
   onBulkUpload,
   onExportCSV, // Added prop for export
   isMobile = false 
-}: VillagesSearchAndActionsProps) => {
+}: GramPanchayatSearchAndActionsProps) => {
   return (
     <div className={`${isMobile ? 'space-y-3' : 'flex items-center justify-between gap-4'}`}>
       <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-md'}`}>
@@ -61,4 +61,4 @@ const VillagesSearchAndActions = ({
   );
 };
 
-export default VillagesSearchAndActions;
+export default GramPanchayatSearchAndActions;
