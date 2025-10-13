@@ -29,6 +29,8 @@ interface Para {
   gramPanchayat?: string;
   totalPopulation?: number;
   state?: string;
+  villageId?: string;
+  villageName?: string;
 }
 
 // Interface for a Gram Panchayat
@@ -52,7 +54,16 @@ const GramPanchayatProfile = ({ gramPanchayatId, gramPanchayatData, onBack }: Gr
 
   // Set related paras directly from gramPanchayatData
   useEffect(() => {
-    if (gramPanchayatData?.paras) {
+    if (gramPanchayatData?.villages && Array.isArray(gramPanchayatData.villages)) {
+      const parasFromVillages: Para[] = gramPanchayatData.villages.flatMap((v: any) =>
+        (v.paras || []).map((p: any) => ({
+          ...p,
+          villageId: v.id,
+          villageName: v.name
+        }))
+      );
+      setRelatedParas(parasFromVillages);
+    } else if (gramPanchayatData?.paras) {
       setRelatedParas(gramPanchayatData.paras);
     } else {
       setRelatedParas([]);
@@ -261,6 +272,7 @@ const GramPanchayatProfile = ({ gramPanchayatId, gramPanchayatData, onBack }: Gr
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold">Para Name</TableHead>
+                        <TableHead className="font-bold">Village</TableHead>
                         <TableHead className="font-bold">Block</TableHead>
                         <TableHead className="font-bold">Total Children</TableHead>
                         <TableHead className="font-bold">Enrolled</TableHead>
@@ -277,6 +289,7 @@ const GramPanchayatProfile = ({ gramPanchayatId, gramPanchayatData, onBack }: Gr
                           <TableCell className="font-medium">
                             {para.name}
                           </TableCell>
+                          <TableCell>{para.villageName || '-'}</TableCell>
                           <TableCell>{gramPanchayatData?.block || ''}</TableCell>
                           <TableCell>
                             <Badge className="bg-primary/10 text-primary border-primary/20">
