@@ -687,13 +687,9 @@ class ApiClient {
 
     try {
       const endpoint = `/paras/gramPanchayat${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-      console.log('Making API request to:', BASE_URL + endpoint);
       const response = await this.request<{items: GramPanchayat[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>(endpoint);
-      console.log('API response received:', response);
-      
       // Ensure data is in expected format
       if (response.success && (!response.data.items || !Array.isArray(response.data.items))) {
-        console.error('API returned unexpected format:', response);
         return {
           ...response,
           data: {
