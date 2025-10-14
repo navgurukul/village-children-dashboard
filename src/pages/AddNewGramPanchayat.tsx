@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient, type BlockGramPanchayatData } from '../lib/api';
-
+import { Alert, AlertDescription } from "@/components/ui/alert";
 interface AddNewGramPanchayatProps {
   onCancel: () => void;
   onSuccess: () => void;
@@ -237,6 +237,14 @@ const AddNewGramPanchayat = ({ onCancel, onSuccess }: AddNewGramPanchayatProps) 
             Back
           </Button>
           <h1 className="text-3xl font-bold text-foreground">Add New Gram Panchayat</h1>
+
+          {/* Important informational banner (match input bg for branding) */}
+          <Alert className="flex items-start gap-3 bg-white border-blue-200 rounded-md p-3">
+            <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
+            <AlertDescription className="text-sm text-foreground">
+              Creating a Gram Panchayat will also create a Balmitra user for the same Gram Panchayat. 
+            </AlertDescription>
+          </Alert>
         </div>
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">

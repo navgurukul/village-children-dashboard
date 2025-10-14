@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Trash2, Copy, Plus, Upload, Search, Filter } from 'lucide-react';
+import { Edit, Trash2, Copy, Plus, Search, Filter } from 'lucide-react';
 import FilterChips from '../components/FilterChips';
 import UsersCardList from '../components/users/UsersCardList';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,12 +15,11 @@ import { useToast } from "@/hooks/use-toast";
 
 interface UserManagementProps {
   onAddUser: () => void;
-  onBulkUpload: () => void;
   onBalMitraClick: (balMitraData: User) => void;
   onEditUser: (user: User) => void;
 }
 
-const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }: UserManagementProps) => {
+const UserManagement = ({ onAddUser, onBalMitraClick, onEditUser }: UserManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -184,11 +183,8 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             <div className="flex gap-2 w-full">
               <Button onClick={onAddUser} className="gap-2 flex-1">
                 <Plus className="h-4 w-4" />
-                Add New User
-              </Button>
-              <Button onClick={onBulkUpload} variant="outline" className="gap-2 bg-white flex-1">
-                <Upload className="h-4 w-4" />
-                Bulk Upload
+
+                Add New Admin
               </Button>
             </div>
 
@@ -199,7 +195,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             />
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {totalCount} users (Page {currentPage})
+              Showing {paginatedData.length} of {totalCount} users
             </div>
 
             {/* Users Card List */}
@@ -238,11 +234,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
               <div className="flex gap-2">
                 <Button onClick={onAddUser} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add New User
-                </Button>
-                <Button onClick={onBulkUpload} variant="outline" className="gap-2 bg-white">
-                  <Upload className="h-4 w-4" />
-                  Bulk Upload Users
+                  Add New Admin
                 </Button>
               </div>
             </div>
@@ -266,7 +258,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
             </div>
 
             <div className="text-muted-foreground text-xs">
-              Showing {paginatedData.length} of {totalCount} users (Page {currentPage})
+              Showing {paginatedData.length} of {totalCount} users
             </div>
 
             {/* Desktop Table */}
@@ -363,7 +355,7 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
         )}
 
         {/* Pagination */}
-        {(currentPage > 1 || hasMore) && (
+        {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2">
             <Button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -373,11 +365,11 @@ const UserManagement = ({ onAddUser, onBulkUpload, onBalMitraClick, onEditUser }
               Previous
             </Button>
             <span className="text-muted-foreground text-xs">
-              Page {currentPage} {hasMore ? '(More available)' : '(Last page)'}
+              Page {currentPage} of {totalPages}
             </span>
             <Button 
-              onClick={() => setCurrentPage(prev => prev + 1)}
-              disabled={!hasMore}
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
               variant="outline"
             >
               Next

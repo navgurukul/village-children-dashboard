@@ -108,7 +108,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       case 'users':
         return <UserManagement 
           onAddUser={() => handleNavigation('add-user')}
-          onBulkUpload={() => handleNavigation('bulk-upload')}
           onBalMitraClick={(balMitraData) => handleNavigation('bal-mitra-details', { balMitraData })}
           onEditUser={(user) => handleNavigation('edit-user', { user })}
         />;
