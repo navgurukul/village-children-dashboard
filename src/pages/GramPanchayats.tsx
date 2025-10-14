@@ -228,6 +228,100 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
     ];
   }, [availableBlocks, blockFilter]);
 
+  // CSV helpers
+  const csvEscape = (v: any) => {
+    if (v === null || v === undefined) return '""';
+    const s = String(v);
+    return `"${s.replace(/"/g, '""')}"`;
+  };
+
+  const exportGramPanchayatsCSV = (rows: GramPanchayatDisplayData[], filename = 'gram_panchayats.csv') => {
+    const headers = [
+      'ID',
+      'Gram Panchayat Name',
+      'District',
+      'Block',
+      'Total Children',
+      'Enrolled Children',
+      'Dropout Children',
+      'Never Enrolled Children',
+      'Assigned Bal Mitra'
+    ];
+
+    const csv = [
+      headers.join(','),
+      ...rows.map(r =>
+        [
+          csvEscape(r.id),
+          csvEscape(r.name),
+          csvEscape(r.district),
+          csvEscape(r.block || ''),
+          csvEscape(r.totalChildren ?? 0),
+          csvEscape(r.enrolled ?? 0),
+          csvEscape(r.dropout ?? 0),
+          csvEscape(r.neverEnrolled ?? 0),
+          csvEscape(r.assignedBalMitra ?? 'Not Assigned')
+        ].join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Unified export handler passed to child component
+  const handleExportCSV = async (type: 'current' | 'all') => {
+    if (type === 'current') {
+      exportGramPanchayatsCSV(filteredData, 'gram_panchayats_page.csv');
+      return;
+    }
+
+    // export all
+    toast({ title: 'Exporting', description: 'Preparing full export. This may take a while.' });
+    try {
+      const all: any[] = [];
+      const limit = 500;
+      let page = 1;
+      while (true) {
+        const resp = await apiClient.getGramPanchayats({
+          page,
+          limit,
+          district: districtFilter !== 'all' ? districtFilter : undefined,
+          block: blockFilter !== 'all' ? blockFilter : undefined,
+          search: debouncedSearchTerm || undefined
+        });
+        if (!resp || !resp.success) throw new Error('Failed to fetch');
+        const items = resp.data.items || [];
+        all.push(...items.map((gp: any) => ({
+          id: gp.id,
+          name: gp.name,
+          district: gp.district,
+          block: gp.block || (gp.blocks && gp.blocks.length ? gp.blocks[0] : ''),
+          totalChildren: gp.totalChildren || 0,
+          enrolled: gp.enrolledChildren || 0,
+          dropout: gp.dropoutChildren || 0,
+          neverEnrolled: gp.neverEnrolledChildren || 0,
+          assignedBalMitra: gp.assignedBalMitra || ''
+        })));
+        if (items.length < limit) break;
+        page += 1;
+      }
+
+      exportGramPanchayatsCSV(all, 'gram_panchayats_all.csv');
+      toast({ title: 'Export ready', description: 'All Gram Panchayats exported.' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Export failed', description: 'Could not export all Gram Panchayats', variant: 'destructive' });
+    }
+  };
+
   // Load blocks data on initial mount
   useEffect(() => {
     fetchBlocksData();
@@ -260,35 +354,7 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
                onSearchChange={setSearchTerm}
                onAddGramPanchayat={onAddGramPanchayat}
                onBulkUpload={onBulkUpload}
-               onExportCSV={() => {
-                 // Export filteredData as CSV
-                 const headers = [
-                   'ID', 'Name', 'District', 'Block', 'Total Children', 'Enrolled', 'Dropout', 'Never Enrolled', 'Assigned Bal Mitra'
-                 ];
-                 const csvContent = [
-                   headers.join(','),
-                   ...filteredData.map((gramPanchayat) => [
-                     gramPanchayat.id,
-                     `"${gramPanchayat.name}"`,
-                     `"${gramPanchayat.district}"`,
-                     `"${gramPanchayat.block || ''}"`,
-                     gramPanchayat.totalChildren,
-                     gramPanchayat.enrolled,
-                     gramPanchayat.dropout,
-                     gramPanchayat.neverEnrolled,
-                     `${gramPanchayat.assignedBalMitra || gramPanchayat.name || 'Not Assigned'}`
-                   ].join(','))
-                 ].join('\n');
-                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                 const link = document.createElement('a');
-                 const url = URL.createObjectURL(blob);
-                 link.setAttribute('href', url);
-                 link.setAttribute('download', 'gram_panchayats.csv');
-                 link.style.visibility = 'hidden';
-                 document.body.appendChild(link);
-                 link.click();
-                 document.body.removeChild(link);
-               }}
+               onExportCSV={handleExportCSV}
                isMobile={true}
              />
 
@@ -323,36 +389,8 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
                onSearchChange={setSearchTerm}
                onAddGramPanchayat={onAddGramPanchayat}
                onBulkUpload={onBulkUpload}
-               onExportCSV={() => {
-                 // Export filteredData as CSV
-                 const headers = [
-                   'ID', 'Gram Panchayat Name', 'District', 'Block', 'Total Children', 'Enrolled Children', 'Dropout Children', 'Never Enrolled Children', 'Assigned Bal Mitra'
-                 ];
-                 const csvContent = [
-                   headers.join(','),
-                   ...filteredData.map((gramPanchayat) => [
-                     gramPanchayat.id,
-                     `"${gramPanchayat.name}"`,
-                     `"${gramPanchayat.district}"`,
-                     `"${gramPanchayat.block || ''}"`,
-                     gramPanchayat.totalChildren,
-                     gramPanchayat.enrolled,
-                     gramPanchayat.dropout,
-                     gramPanchayat.neverEnrolled,
-                     `${gramPanchayat.assignedBalMitra || gramPanchayat.name || 'Not Assigned'}`
-                   ].join(','))
-                 ].join('\n');
-                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                 const link = document.createElement('a');
-                 const url = URL.createObjectURL(blob);
-                 link.setAttribute('href', url);
-                 link.setAttribute('download', 'gram_panchayats.csv');
-                 link.style.visibility = 'hidden';
-                 document.body.appendChild(link);
-                 link.click();
-                 document.body.removeChild(link);
-               }}
-            />
+               onExportCSV={handleExportCSV}
+             />
 
             <GramPanchayatFilters
                districtFilter={districtFilter}

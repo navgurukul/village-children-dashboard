@@ -1,13 +1,13 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Download } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 interface SearchAndExportBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  onExportCSV: () => void;
+  onExportCSV: (type: 'current' | 'all') => void;
   isMobile?: boolean;
 }
 
@@ -30,14 +30,24 @@ const SearchAndExportBar = ({
       </div>
       
       <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
-        <Button 
-          onClick={onExportCSV} 
-          variant="outline" 
-          className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}
-        >
-          <Download className="h-4 w-4" />
-          Export CSV
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}>
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onExportCSV('current')}>
+              <Download className="mr-2 h-4 w-4" />
+              Export Current Page
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onExportCSV('all')}>
+              <Download className="mr-2 h-4 w-4" />
+              Export All Data
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
