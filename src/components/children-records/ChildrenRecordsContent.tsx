@@ -42,7 +42,7 @@ interface ChildrenRecordsContentProps {
   onChildClick: (childId: string) => void;
   onEditChild?: (childId: string) => void;
   onDeleteChild: (childId: string) => void;
-  handleExportCSV: () => void;
+  handleExportCSV: (type: 'current' | 'all') => void;
   handleFilterChange: (filterId: string, value: string) => void;
   filterOptions: Array<{
     label: string;
