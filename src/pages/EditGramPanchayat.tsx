@@ -14,8 +14,9 @@ interface EditGramPanchayatProps {
 }
 
 interface GramPanchayatVillageData {
+  id?: string;
   name: string;
-  paras: { name: string }[];
+  paras: { id?: string; name: string }[];
 }
 
 const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanchayatProps) => {
@@ -57,8 +58,9 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
         gramPanchayatName: gramPanchayat.name || '',
         block: gramPanchayat.block || '',
         villages: (gramPanchayat.villages || []).map((v: any) => ({
+          id: v.id,
           name: v.name || '',
-          paras: (v.paras || []).map((p: any) => ({ name: p.name || '' }))
+          paras: (v.paras || []).map((p: any) => ({ id: p.id, name: p.name || '' }))
         }))
       });
     }
@@ -123,8 +125,9 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
       name: formData.gramPanchayatName,
       block: formData.block,
       villages: formData.villages.map(v => ({
+        ...(v.id ? { id: v.id } : {}),
         name: v.name,
-        paras: v.paras.map(p => ({ name: p.name }))
+        paras: v.paras.map(p => ({ ...(p.id ? { id: p.id } : {}), name: p.name }))
       }))
     };
     try {
@@ -220,14 +223,16 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
-                <Input
-                  type="text"
-                  value={village.name}
-                  onChange={e => handleVillageChange(vIdx, e.target.value)}
-                  placeholder="Village name"
-                  className={`bg-white${errors[`villageName_${vIdx}`] ? ' border-2 border-red-500' : ''}`}
-                />
-                {errors[`villageName_${vIdx}`] && <p className="text-red-500 text-xs mt-1">{errors[`villageName_${vIdx}`]}</p>}
+                <div>
+                  <Input
+                    type="text"
+                    value={village.name}
+                    onChange={e => handleVillageChange(vIdx, e.target.value)}
+                    placeholder="Village name"
+                    className={`bg-white${errors[`villageName_${vIdx}`] ? ' border-2 border-red-500' : ''}`}
+                  />
+                  {errors[`villageName_${vIdx}`] && <p className="text-red-500 text-xs mt-1">{errors[`villageName_${vIdx}`]}</p>}
+                </div>
                 {/* Paras Section */}
                 <div className="space-y-2 mt-2">
                   <div className="flex items-center justify-between">
@@ -243,7 +248,7 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
                         value={para.name}
                         onChange={e => handleParaChange(vIdx, pIdx, e.target.value)}
                         placeholder="Enter para name"
-                        className={`bg-white${errors[`paraName_${vIdx}_${pIdx}`] ? ' border-2 border-red-500' : ''}`}
+                        className={`bg-white flex-1${errors[`paraName_${vIdx}_${pIdx}`] ? ' border-2 border-red-500' : ''}`}
                       />
                       <Button type="button" variant="ghost" size="sm" onClick={() => removePara(vIdx, pIdx)} title="Remove Para">
                         <Trash2 className="h-4 w-4 text-destructive" />
