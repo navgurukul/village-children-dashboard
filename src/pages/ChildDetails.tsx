@@ -73,19 +73,19 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     currentClass: propChildData.surveyData?.['section-4']?.q4_2 || propChildData.educationInfo?.currentClass || 'N/A', // Now maps to q4_2
     school: propChildData.surveyData?.['section-4']?.q4_3 || propChildData.educationInfo?.schoolName || 'N/A', // Now maps to q4_3
     schoolCommuteType: propChildData.surveyData?.['section-4']?.q4_4 || 'N/A', // New field for commute type
-    lastStudiedClass: propChildData.surveyData?.['section-4']?.q4_7 || 'N/A',
-    dropoutReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_8) ? 
-                     propChildData.surveyData?.['section-4']?.q4_8.join(', ') : 
-                     propChildData.surveyData?.['section-4']?.q4_8 || 'N/A',
-    dropoutReasonOther: propChildData.surveyData?.['section-4']?.q4_9 || '',
-    neverEnrolledReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_10) ? 
-                          propChildData.surveyData?.['section-4']?.q4_10.join(', ') : 
-                          propChildData.surveyData?.['section-4']?.q4_10 || 'N/A',
-    neverEnrolledReasonOther: propChildData.surveyData?.['section-4']?.q4_11 || '',
-    schoolStatus: propChildData.surveyData?.['section-4']?.q4_6 === 'शाला त्यागी' ? 'Dropout' :
-                  propChildData.surveyData?.['section-4']?.q4_6 === 'अप्रवेशी' ? 'Never Enrolled' :
-                  (propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' || propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled' :
-                  propChildData.educationInfo?.educationStatus || propChildData.derivedFields?.educationStatus || 'N/A',
+    lastStudiedClass: propChildData.surveyData?.['section-4']?.q4_8 || 'N/A',
+    dropoutReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_9) ? 
+                     propChildData.surveyData?.['section-4']?.q4_9.join(', ') : 
+                     propChildData.surveyData?.['section-4']?.q4_9 || 'N/A',
+    dropoutReasonOther: propChildData.surveyData?.['section-4']?.q4_10 || '',
+    neverEnrolledReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_11) ? 
+                          propChildData.surveyData?.['section-4']?.q4_11.join(', ') : 
+                          propChildData.surveyData?.['section-4']?.q4_11 || 'N/A',
+    neverEnrolledReasonOther: propChildData.surveyData?.['section-4']?.q4_12 || 'NA',
+    schoolStatus: (propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' && propChildData.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
+      : (propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' && propChildData.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
+      : (propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' || propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
+      : propChildData.educationInfo?.educationStatus || propChildData.derivedFields?.educationStatus || 'N/A',
     hasDisability: propChildData.surveyData?.['section-6']?.q6_1 === 'हाँ' ? 'Yes' :
                    propChildData.surveyData?.['section-6']?.q6_1 === 'नहीं' ? 'No' : 
                    propChildData.healthInfo?.hasDisability ? 'Yes' : 'No',
@@ -401,12 +401,12 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
               School Status
             </CardTitle>
           </CardHeader>
-          <CardContent>              <div className="space-y-4">
+          <CardContent>
+            <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <label className="text-sm font-medium text-muted-foreground">Current Status:</label>
                 {getStatusBadge(transformedData.schoolStatus)}
               </div>
-              
               {/* Goes to School field shown for all status types */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
@@ -414,7 +414,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                   <p className="text-lg font-medium">{transformedData.goesToSchool}</p>
                 </div>
               </div>
-              
+              {/* Enrolled fields */}
               {transformedData.schoolStatus === 'Enrolled' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div>
@@ -435,8 +435,8 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                   </div>
                 </div>
               )}
-
-              {transformedData.schoolStatus === 'Dropout' && (
+              {/* Dropout fields: Only if schoolStatus is Dropout AND goesToSchool is No */}
+              {transformedData.schoolStatus === 'Dropout' && transformedData.goesToSchool === 'No' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Last Class Studied</label>
@@ -446,21 +446,21 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                     <label className="text-sm font-medium text-muted-foreground">Dropout Reasons</label>
                     <p className="text-lg font-medium">
                       {transformedData.dropoutReasons.includes('अन्य') && transformedData.dropoutReasonOther ? 
-                       `${transformedData.dropoutReasons} (${transformedData.dropoutReasonOther})` : 
-                       transformedData.dropoutReasons}
+                        `${transformedData.dropoutReasons} (${transformedData.dropoutReasonOther})` : 
+                        transformedData.dropoutReasons}
                     </p>
                   </div>
                 </div>
               )}
-
-              {transformedData.schoolStatus === 'Never Enrolled' && (
+              {/* Never Enrolled fields: Only if schoolStatus is Never Enrolled AND goesToSchool is No */}
+              {transformedData.schoolStatus === 'Never Enrolled' && transformedData.goesToSchool === 'No' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div className="col-span-2">
                     <label className="text-sm font-medium text-muted-foreground">Reasons for Never Enrolling</label>
                     <p className="text-lg font-medium">
                       {transformedData.neverEnrolledReasons.includes('अन्य') && transformedData.neverEnrolledReasonOther ? 
-                       `${transformedData.neverEnrolledReasons} (${transformedData.neverEnrolledReasonOther})` : 
-                       transformedData.neverEnrolledReasons}
+                        `${transformedData.neverEnrolledReasons} (${transformedData.neverEnrolledReasonOther})` : 
+                        transformedData.neverEnrolledReasons}
                     </p>
                   </div>
                 </div>

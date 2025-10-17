@@ -39,12 +39,12 @@ interface ChildData {
   attendanceStatus?: string;
   currentClass?: string;
   educationCategory?: string;
-  lastClassStudied?: string;
+  lastClassStudied?: string | string[];
   schoolCommuteType?: string; 
   dropoutReasons?: string | string[];
-  otherDropoutReason?: string;
+  otherDropoutReason?: string | string[];
   neverEnrolledReasons?: string | string[];
-  otherNeverEnrolledReason?: string;
+  otherNeverEnrolledReason?: string | string[];
   hasCasteCertificate?: string;
   hasResidenceCertificate?: string;
   hasAadhaar?: string;
@@ -55,15 +55,15 @@ interface ChildData {
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const headers = [
-    'ID', 'Name', 'Age', 'Gender', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 'Para',
+    'ID', 'Name', 'Age', 'Gender', 'Has Aadhaar', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 'Para',
     'DOB', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
     'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with', 
-    'Other Lives With', 'Economic Status', 'Mother Tongue', 'Other Mother Tongue', 
+    'Other Lives With', 'Mother Tongue', 'Other Mother Tongue', 
     'Goes To School', 
-    'School Status', 'School Name', 'Attendance Status', 'Current Class', 'Commute Type', 'Education Category', 
-    'Last Class Studied', 'Dropout Reasons', 'Other Dropout Reason', 'Never Enrolled Reasons', 
-    'Other Never Enrolled Reason', 'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
-    'Has Residence Certificate', 'Has Aadhaar', 'Disability', 'Disability Types', 'Other Disability'
+    'School Status', 'School Name', 'Attendance Status', 'Current Class', 'Commute Type', 
+    'Last Class Studied', 'Dropout Reasons', 'Never Enrolled Reasons', 
+    'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
+    'Has Residence Certificate', 'Disability', 'Disability Types', 'Other Disability'
   ];
   const csvContent = [
     headers.join(','),
@@ -94,6 +94,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.name}"`,
         child.age,
         `"${child.gender}"`,
+        child.hasAadhaar || '-', 
         child.aadhaarNumber || '-',
         `"${child.block || '-'}"`,
         `"${child.gramPanchayat || '-'}"`,
@@ -112,7 +113,6 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.parentsStatus || '-'}"`,
         `"${child.livesWithWhom || '-'}"`,
         `"${child.otherLivesWith || '-'}"`,
-        `"${child.economicStatus || '-'}"`,
         `"${motherTongueFormatted || '-'}"`,
         `"${child.otherMotherTongue || '-'}"`,
         `"${child.goesToSchool || '-'}"`,
@@ -121,17 +121,13 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.attendanceStatus || '-'}"`,
         `"${child.currentClass || '-'}"`,
         `"${child.schoolCommuteType || '-'}"`,
-        `"${child.educationCategory || '-'}"`,
         `"${child.lastClassStudied || '-'}"`,
         `"${Array.isArray(child.dropoutReasons) ? child.dropoutReasons.join('; ') : (child.dropoutReasons || '-')}"`,
-        `"${child.otherDropoutReason || '-'}"`,
         `"${Array.isArray(child.neverEnrolledReasons) ? child.neverEnrolledReasons.join('; ') : (child.neverEnrolledReasons || '-')}"`,
-        `"${child.otherNeverEnrolledReason || '-'}"`,
         `"${child.rationCardType || '-'}"`,
         `"${child.rationCardNumber || '-'}"`,
         `"${child.hasCasteCertificate || '-'}"`,
         `"${child.hasResidenceCertificate || '-'}"`,
-        `"${child.hasAadhaar || '-'}"`,
         `"${child.disability || '-'}"`,
         `"${Array.isArray(child.disabilityTypes) ? child.disabilityTypes.join('; ') : (child.disabilityTypes || '-')}"`,
         `"${child.otherDisability || '-'}"`,

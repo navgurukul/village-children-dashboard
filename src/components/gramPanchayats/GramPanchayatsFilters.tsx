@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Filter } from 'lucide-react';
 
-interface VillagesFiltersProps {
+interface GramPanchayatFiltersProps {
   districtFilter: string;
   blockFilter: string;
   districts: string[];
@@ -12,15 +11,14 @@ interface VillagesFiltersProps {
   onBlockFilterChange: (value: string) => void;
 }
 
-const VillagesFilters = ({ 
+const GramPanchayatFilters = ({ 
   districtFilter, 
   blockFilter, 
   districts, 
   blocks, 
   onDistrictFilterChange, 
   onBlockFilterChange 
-}: VillagesFiltersProps) => {
-  console.log('VillagesFilters received blocks:', blocks);
+}: GramPanchayatFiltersProps) => {
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
@@ -56,4 +54,4 @@ const VillagesFilters = ({
   );
 };
 
-export default VillagesFilters;
+export default GramPanchayatFilters;
