@@ -5,6 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
+import mixpanel from '../lib/mixpanel';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -198,10 +199,29 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
 
   // Unified export handler for children records: 'current' page or 'all' data
   const handleExportCSV = async (type: 'current' | 'all') => {
+    const filtersApplied = {
+      block: blockFilter,
+      gramPanchayat: gramPanchayatFilter,
+      status: statusFilter,
+      search: debouncedSearchTerm
+    };
+    const userId = localStorage.getItem('user_id') || 'unknown';
+
     if (type === 'current') {
-      const timestamp = new Date().toISOString().split('T')[0];
-      downloadChildrenCSV(filteredData, `children_records_${timestamp}`);
+      const fileName = `children_records_${new Date().toISOString().split('T')[0]}.csv`;
+      downloadChildrenCSV(filteredData, fileName);
       toast({ title: 'Success', description: 'Children records exported successfully' });
+
+      // Mixpanel track with enhanced user information
+      mixpanel.track('Export CSV', {
+        user_id: userId,
+        user_name: localStorage.getItem('user_name') || 'unknown',
+        user_role: localStorage.getItem('user_role') || 'unknown',
+        export_page: 'Children',
+        filters_applied: filtersApplied,
+        export_time: new Date().toISOString(),
+        file_size: `${new Blob([JSON.stringify(filteredData)]).size} bytes`
+      });
       return;
     }
 
@@ -282,9 +302,20 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         page += 1;
       } while (page <= totalPagesResp);
 
-      const timestamp = new Date().toISOString().split('T')[0];
-      downloadChildrenCSV(allChildren, `children_records_all_${timestamp}`);
+      const fileName = `children_records_all_${new Date().toISOString().split('T')[0]}.csv`;
+      downloadChildrenCSV(allChildren, fileName);
       toast({ title: 'Export ready', description: 'All children records exported.' });
+      
+      // Mixpanel track with enhanced user information
+      mixpanel.track('Export CSV', {
+        user_id: userId,
+        user_name: localStorage.getItem('user_name') || 'unknown',
+        user_role: localStorage.getItem('user_role') || 'unknown',
+        export_page: 'Children (All)',
+        filters_applied: filtersApplied,
+        export_time: new Date().toISOString(),
+        file_size: `${new Blob([JSON.stringify(allChildren)]).size} bytes`
+      });
     } catch (err) {
       console.error(err);
       toast({ title: 'Export failed', description: 'Could not export all children records', variant: 'destructive' });
