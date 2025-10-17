@@ -9,6 +9,7 @@ import SurveyAnalyticsDisplay from '../components/survey-analytics/SurveyAnalyti
 import { useIsMobile } from "@/hooks/use-mobile";
 import { apiClient, DashboardSummary } from '../lib/api';
 import { Survey } from '@/types/survey';
+import mixpanel from '../lib/mixpanel';
 
 const Dashboard = () => {
   const [analyticsFilters, setAnalyticsFilters] = useState({
@@ -167,6 +168,15 @@ const Dashboard = () => {
     fetchDashboardData(true); // Only show loading spinner on initial load
     fetchDashboardOverview();
     setInitialLoad(false);
+    
+    // Track page view when component mounts with enhanced user information
+    mixpanel.track('Page View', {
+      page_name: 'Dashboard Page View',
+      user_id: localStorage.getItem('user_id') || 'unknown',
+      user_name: localStorage.getItem('user_name') || 'unknown',
+      user_role: localStorage.getItem('user_role') || 'unknown',
+      view_time: new Date().toISOString()
+    });
     // eslint-disable-next-line
   }, []);
 
