@@ -294,8 +294,7 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
           block: blockFilter,
           search: searchTerm
         },
-        export_time: new Date().toISOString(),
-        file_size: `${new Blob([JSON.stringify(filteredData)]).size} bytes`
+        export_time: new Date().toISOString()
       });
       return;
     }
@@ -346,8 +345,7 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
           block: blockFilter,
           search: searchTerm
         },
-        export_time: new Date().toISOString(),
-        file_size: `${new Blob([JSON.stringify(all)]).size} bytes`
+        export_time: new Date().toISOString()
       });
     } catch (err) {
       console.error(err);
