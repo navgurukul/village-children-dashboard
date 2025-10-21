@@ -8,7 +8,6 @@ import GramPanchayatTable from '../components/gramPanchayats/GramPanchayatsTable
 import GramPanchayatCardList from '../components/gramPanchayats/GramPanchayatsCardList';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { apiClient, GramPanchayat as ApiGramPanchayat, GramPanchayatResponse } from '../lib/api';
-import mixpanel from '../lib/mixpanel';
 import { useToast } from '@/hooks/use-toast';
 
 interface GramPanchayatDisplayData {
@@ -280,22 +279,7 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
   // Unified export handler passed to child component
   const handleExportCSV = async (type: 'current' | 'all') => {
     if (type === 'current') {
-      const fileName = `gram_panchayats_page_${new Date().toISOString().split('T')[0]}.csv`;
-      exportGramPanchayatsCSV(filteredData, fileName);
-      
-      // Mixpanel track with enhanced user information
-      mixpanel.track('Export CSV', {
-        user_id: localStorage.getItem('user_id') || 'unknown',
-        user_name: localStorage.getItem('user_name') || 'unknown',
-        user_role: localStorage.getItem('user_role') || 'unknown',
-        export_page: 'Gram Panchayats',
-        filters_applied: {
-          district: districtFilter,
-          block: blockFilter,
-          search: searchTerm
-        },
-        export_time: new Date().toISOString()
-      });
+      exportGramPanchayatsCSV(filteredData, 'gram_panchayats_page.csv');
       return;
     }
 
@@ -330,23 +314,8 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
         page += 1;
       }
 
-      const fileName = `gram_panchayats_all_${new Date().toISOString().split('T')[0]}.csv`;
-      exportGramPanchayatsCSV(all, fileName);
+      exportGramPanchayatsCSV(all, 'gram_panchayats_all.csv');
       toast({ title: 'Export ready', description: 'All Gram Panchayats exported.' });
-      
-      // Mixpanel track with enhanced user information
-      mixpanel.track('Export CSV', {
-        user_id: localStorage.getItem('user_id') || 'unknown',
-        user_name: localStorage.getItem('user_name') || 'unknown',
-        user_role: localStorage.getItem('user_role') || 'unknown',
-        export_page: 'Gram Panchayats (All)',
-        filters_applied: {
-          district: districtFilter,
-          block: blockFilter,
-          search: searchTerm
-        },
-        export_time: new Date().toISOString()
-      });
     } catch (err) {
       console.error(err);
       toast({ title: 'Export failed', description: 'Could not export all Gram Panchayats', variant: 'destructive' });

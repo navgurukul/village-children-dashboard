@@ -202,56 +202,10 @@ const Dashboard = () => {
         newFilters.gramPanchayat = 'all';
       }
       
-      // Track filter change with Mixpanel
-      mixpanel.track('Page View', {
-        page_name: 'Dashboard Filter Change',
-        user_id: localStorage.getItem('user_id') || 'unknown',
-        user_name: localStorage.getItem('user_name') || 'unknown',
-        user_role: localStorage.getItem('user_role') || 'unknown',
-        filter_changed: filterId,
-        current_filters: {
-          block: filterId === 'block' ? value : prev.block,
-          gramPanchayat: filterId === 'gramPanchayat' ? value : 
-                        (filterId === 'block' ? 'all' : prev.gramPanchayat),
-          dateRange: prev.dateRange
-        },
-        view_time: new Date().toISOString()
-      });
-      
       return newFilters;
     });
   };
 
-  // Wrapper for setAnalyticsFilters to track all filter changes
-  const handleAnalyticsFiltersChange = (newFilters: any) => {
-    // Track filter changes with Mixpanel
-    const changedFilters = Object.keys(newFilters).filter(key => {
-      if (key === 'dateRange') {
-        return JSON.stringify(analyticsFilters.dateRange) !== JSON.stringify(newFilters.dateRange);
-      }
-      return analyticsFilters[key] !== newFilters[key];
-    });
-
-    if (changedFilters.length > 0) {
-      mixpanel.track('Page View', {
-        page_name: 'Dashboard Filter Change',
-        user_id: localStorage.getItem('user_id') || 'unknown',
-        user_name: localStorage.getItem('user_name') || 'unknown',
-        user_role: localStorage.getItem('user_role') || 'unknown',
-        filter_changed: changedFilters.join(','),
-        current_filters: {
-          block: newFilters.block,
-          gramPanchayat: newFilters.gramPanchayat,
-          dateRange: newFilters.dateRange
-        },
-        view_time: new Date().toISOString()
-      });
-    }
-
-    // Update filters state
-    setAnalyticsFilters(newFilters);
-  };
-  
   // Process and use analytics data directly from overview API
   const totalSurveys = overviewData?.summary?.totalSurveys || 0;
   
@@ -345,7 +299,7 @@ const Dashboard = () => {
           ) : (
             <SurveyAnalyticsFilters
               filters={analyticsFilters}
-              onFiltersChange={handleAnalyticsFiltersChange}
+              onFiltersChange={setAnalyticsFilters}
               blocksData={blocksData}
             />
           )}
