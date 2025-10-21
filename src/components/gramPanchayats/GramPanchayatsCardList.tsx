@@ -1,11 +1,10 @@
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 
-interface Village {
+interface GramPanchayat {
   id: string;
   name: string;
   district: string;
@@ -21,38 +20,38 @@ interface Village {
   assignedBalMitra?: string;
 }
 
-interface VillagesCardListProps {
-  villages: Village[];
-  onVillageClick: (villageId: string) => void;
-  onEditVillage: (villageId: string) => void;
-  onDeleteVillage: (villageId: string) => void;
+interface GramPanchayatCardListProps {
+  gramPanchayats: GramPanchayat[];
+  onGramPanchayatClick: (gramPanchayatId: string) => void;
+  onEditGramPanchayat: (gramPanchayatId: string) => void;
+  onDeleteGramPanchayat: (gramPanchayatId: string) => void;
 }
 
-const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVillage }: VillagesCardListProps) => {
-  const [activeSheet, setActiveSheet] = useState<string | null>(null);
+const GramPanchayatCardList = ({ gramPanchayats, onGramPanchayatClick, onEditGramPanchayat, onDeleteGramPanchayat }: GramPanchayatCardListProps) => {
+  const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
 
   return (
     <div className="md:hidden space-y-3">
-      {villages.map((village, index) => (
-        <div key={village.id}>
-          <div className="flex items-start justify-between py-3" onClick={() => onVillageClick(village.id)}>
+      {gramPanchayats.map((gp, index) => (
+        <div key={gp.id}>
+          <div className="flex items-start justify-between py-3" onClick={() => onGramPanchayatClick(gp.id)}>
             <div className="flex-1 cursor-pointer">
-              <h3 className="font-medium text-base mb-2">{village.name}</h3>
+              <h3 className="font-medium text-base mb-2">{gp.name}</h3>
               
               <div className="text-sm text-muted-foreground mb-2">
-                Total: {village.totalChildren} • Enrolled: {village.enrolled} • Dropout: {village.dropout}
+                Total: {gp.totalChildren} • Enrolled: {gp.enrolled} • Dropout: {gp.dropout}
               </div>
               
               <div className="text-sm text-muted-foreground">
-                <div>Block: {village.blocks || (village.blocks ? village.blocks.join(', ') : 'Not Assigned')}</div>
-                <div>Total Paras: {village.totalParas || 0}</div>
-                <div>Assigned Bal Mitra: {village.assignedBalMitra || 'Not Assigned'}</div>
+                <div>Block: {gp.blocks && gp.blocks.length ? gp.blocks.join(', ') : 'Not Assigned'}</div>
+                <div>Total Paras: {gp.totalParas || 0}</div>
+                <div>Assigned Bal Mitra: {gp.assignedBalMitra || 'Not Assigned'}</div>
               </div>
             </div>
             
             <Sheet 
-              open={activeSheet === village.id} 
-              onOpenChange={(open) => setActiveSheet(open ? village.id : null)}
+              open={activeSheetId === gp.id} 
+              onOpenChange={(open) => setActiveSheetId(open ? gp.id : null)}
             >
               <SheetTrigger asChild>
                 <Button 
@@ -66,15 +65,15 @@ const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVil
               </SheetTrigger>
               <SheetContent side="bottom" className="h-auto">
                 <SheetHeader>
-                  <SheetTitle>Actions for {village.name}</SheetTitle>
+                  <SheetTitle>Actions for {gp.name}</SheetTitle>
                 </SheetHeader>
                 <div className="grid gap-2 mt-4">
                   <Button
                     variant="ghost"
                     className="justify-start gap-2 h-12"
                     onClick={() => {
-                      onEditVillage(village.id);
-                      setActiveSheet(null);
+                      onEditGramPanchayat(gp.id);
+                      setActiveSheetId(null);
                     }}
                   >
                     <Edit className="h-4 w-4" />
@@ -84,8 +83,8 @@ const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVil
                     variant="ghost"
                     className="justify-start gap-2 h-12 text-destructive"
                     onClick={() => {
-                      onDeleteVillage(village.id);
-                      setActiveSheet(null);
+                      onDeleteGramPanchayat(gp.id);
+                      setActiveSheetId(null);
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -95,11 +94,11 @@ const VillagesCardList = ({ villages, onVillageClick, onEditVillage, onDeleteVil
               </SheetContent>
             </Sheet>
           </div>
-          {index < villages.length - 1 && <Separator />}
+          {index < gramPanchayats.length - 1 && <Separator />}
         </div>
       ))}
     </div>
   );
 };
 
-export default VillagesCardList;
+export default GramPanchayatCardList;

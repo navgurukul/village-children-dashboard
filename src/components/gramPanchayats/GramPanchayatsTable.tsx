@@ -15,45 +15,44 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2 } from 'lucide-react';
 
-interface Village {
+interface GramPanchayat {
   id: string;
   name: string;
   district: string;
-  block?: string; // Added single block property
-  blocks?: string[]; // For backward compatibility
+  block?: string;
+  blocks?: string[];
   totalChildren: number;
   enrolled: number;
   dropout: number;
   neverEnrolled: number;
   totalParas?: number;
-  // For backward compatibility
   gramPanchayat?: string;
   gramPanchayats?: string[];
   assignedBalMitra?: string;
 }
 
-interface VillagesTableProps {
-  villages: Village[];
-  onVillageClick: (villageId: string) => void;
-  onEditVillage: (villageId: string) => void;
-  onDeleteVillage: (villageId: string) => void;
+interface GramPanchayatTableProps {
+  gramPanchayats: GramPanchayat[];
+  onGramPanchayatClick: (gramPanchayatId: string) => void;
+  onEditGramPanchayat: (gramPanchayatId: string) => void;
+  onDeleteGramPanchayat: (gramPanchayatId: string) => void;
 }
 
-const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillage }: VillagesTableProps) => {
+const GramPanchayatTable = ({ gramPanchayats, onGramPanchayatClick, onEditGramPanchayat, onDeleteGramPanchayat }: GramPanchayatTableProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [villageToDelete, setVillageToDelete] = useState<string | null>(null);
+  const [gramPanchayatToDelete, setGramPanchayatToDelete] = useState<string | null>(null);
 
-  const handleDeleteClick = (villageId: string) => {
-    setVillageToDelete(villageId);
+  const handleDeleteClick = (gramPanchayatId: string) => {
+    setGramPanchayatToDelete(gramPanchayatId);
     setDeleteDialogOpen(true);
   };
 
-  const confirmDeleteVillage = () => {
-    if (villageToDelete) {
-      onDeleteVillage(villageToDelete);
+  const confirmDeleteGramPanchayat = () => {
+    if (gramPanchayatToDelete) {
+      onDeleteGramPanchayat(gramPanchayatToDelete);
     }
     setDeleteDialogOpen(false);
-    setVillageToDelete(null);
+    setGramPanchayatToDelete(null);
   };
 
   return (
@@ -71,47 +70,47 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
                   <TableHead className="font-bold">Enrolled Children</TableHead>
                   <TableHead className="font-bold">Dropout Children</TableHead>
                   <TableHead className="font-bold">Never Enrolled</TableHead>
-                  <TableHead className="font-bold">Assigned Bal Mitra</TableHead> {/* New column */}
+                  <TableHead className="font-bold">Assigned Bal Mitra</TableHead>
                   <TableHead className="font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {villages.map((village, index) => (
+                {gramPanchayats.map((gp, index) => (
                   <TableRow 
-                    key={village.id} 
+                    key={gp.id} 
                     className={`${index % 2 === 0 ? "bg-muted/30" : ""} cursor-pointer hover:bg-muted/50`}
-                    onClick={() => onVillageClick(village.id)}
+                    onClick={() => onGramPanchayatClick(gp.id)}
                   >
-                    <TableCell className="font-medium">{village.name}</TableCell>
-                    <TableCell>{village.district}</TableCell>
-                    <TableCell>{village.block || (village.blocks && village.blocks.length > 0 ? village.blocks[0] : '')}</TableCell>
+                    <TableCell className="font-medium">{gp.name}</TableCell>
+                    <TableCell>{gp.district}</TableCell>
+                    <TableCell>{gp.block || (gp.blocks && gp.blocks.length > 0 ? gp.blocks[0] : '')}</TableCell>
                     <TableCell>
                       <Badge className="bg-primary/10 text-primary border-primary/20">
-                        {village.totalChildren}
+                        {gp.totalChildren}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className="bg-success/10 text-success border-success/20">
-                        {village.enrolled}
+                        {gp.enrolled}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className="bg-destructive/10 text-destructive border-destructive/20">
-                        {village.dropout}
+                        {gp.dropout}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className="bg-warning/10 text-warning border-warning/20">
-                        {village.neverEnrolled}
+                        {gp.neverEnrolled}
                       </Badge>
                     </TableCell>
-                    <TableCell>{village.assignedBalMitra || village.name || 'Not Assigned'}</TableCell>
+                    <TableCell>{gp.assignedBalMitra || gp.name || 'Not Assigned'}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="sm" onClick={() => onEditVillage(village.id)}>
+                        <Button variant="ghost" size="sm" onClick={() => onEditGramPanchayat(gp.id)}>
                           <Edit className="h-4 w-4 text-foreground" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(village.id)}>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(gp.id)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
@@ -136,7 +135,7 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={confirmDeleteVillage}
+              onClick={confirmDeleteGramPanchayat}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete Gram Panchayat
@@ -148,4 +147,4 @@ const VillagesTable = ({ villages, onVillageClick, onEditVillage, onDeleteVillag
   );
 };
 
-export default VillagesTable;
+export default GramPanchayatTable;

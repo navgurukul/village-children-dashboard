@@ -5,6 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiClient, Child } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
+import mixpanel from '../lib/mixpanel';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -69,7 +70,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       };
 
       if (blockFilter !== 'all') params.block = blockFilter;
-      if (gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
+       if (gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
       if (statusFilter !== 'all') params.educationStatus = statusFilter;
       if (debouncedSearchTerm) params.search = debouncedSearchTerm;
 
@@ -138,7 +139,10 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
       schoolName: child.educationInfo.schoolName || '',
       school: child.educationInfo.schoolName || '',
-      schoolStatus: child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', // Use educationStatus like ChildDetails page
+      schoolStatus: (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
+        : (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
+        : (child.surveyData?.['section-4']?.q4_1 === 'हाँ' || child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
+        : child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', 
       // Map from surveyData question ids for block, gram panchayat, village, para
       block: child.surveyData?.['section-1']?.q1_5 || '', // Development block
       gramPanchayat: child.surveyData?.['section-1']?.q1_6 || '', // Gram Panchayat name
@@ -169,17 +173,19 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
       // Add schoolCommuteType for reference if needed in future
       schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
-      lastClassStudied: child.surveyData?.['section-4']?.q4_7 || '',
-      dropoutReasons: child.surveyData?.['section-4']?.q4_8 || '',
-      otherDropoutReason: child.surveyData?.['section-4']?.q4_9 || '',
-      neverEnrolledReasons: child.surveyData?.['section-4']?.q4_10 || '',
-      otherNeverEnrolledReason: child.surveyData?.['section-4']?.q4_11 || '',
+      lastClassStudied: child.surveyData?.['section-4']?.q4_8 || '',
+      dropoutReasons: child.surveyData?.['section-4']?.q4_9 || '',
+      otherDropoutReason: child.surveyData?.['section-4']?.q4_10 || '',
+      neverEnrolledReasons: child.surveyData?.['section-4']?.q4_11 || '',
+      otherNeverEnrolledReason: child.surveyData?.['section-4']?.q4_12 || '',
       hasCasteCertificate: child.documentsInfo?.hasCasteCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_1 === 'yes' ? 'Yes' : 'No',
       hasResidenceCertificate: child.documentsInfo?.hasResidenceCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_2 === 'yes' ? 'Yes' : 'No',
       hasAadhaar: child.documentsInfo?.hasAadhaar ? 'Yes' : child.surveyData?.['section-5']?.q5_3 === 'yes' ? 'Yes' : 'No',
       disabilityTypes: child.surveyData?.['section-6']?.q6_2 || '',
       otherDisability: child.surveyData?.['section-6']?.q6_3 || '',
       goesToSchool: child.surveyData?.['section-4']?.q4_1 || '',
+      rationCardType: child.surveyData?.['section-3']?.q3_1 || child.economicInfo?.rationCardType || '',
+      rationCardNumber: child.surveyData?.['section-3']?.q3_2 || child.economicInfo?.rationCardNumber || '',
     }));
   }, [apiChildren]);
 
@@ -191,19 +197,129 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
   // Use filtered data for pagination
   const paginatedData = filteredData;
 
-  const handleExportCSV = () => {
-    const timestamp = new Date().toISOString().split('T')[0];
-    const filename = `children_records_${timestamp}`;
-    downloadChildrenCSV(filteredData, filename);
-    
-    toast({
-      title: "Success",
-      description: "Children records exported successfully",
-    });
-  };
+  // Unified export handler for children records: 'current' page or 'all' data
+  const handleExportCSV = async (type: 'current' | 'all') => {
+    const filtersApplied = {
+      block: blockFilter,
+      gramPanchayat: gramPanchayatFilter,
+      status: statusFilter,
+      search: debouncedSearchTerm
+    };
+    const userId = localStorage.getItem('user_id') || 'unknown';
 
-  const handleExportPDF = () => {
-    console.log('Exporting PDF...');
+    if (type === 'current') {
+      const fileName = `children_records_${new Date().toISOString().split('T')[0]}.csv`;
+      downloadChildrenCSV(filteredData, fileName);
+      toast({ title: 'Success', description: 'Children records exported successfully' });
+
+      // Mixpanel track with enhanced user information
+      mixpanel.track('Export CSV', {
+        user_id: userId,
+        user_name: localStorage.getItem('user_name') || 'unknown',
+        user_role: localStorage.getItem('user_role') || 'unknown',
+        export_page: 'Children',
+        filters_applied: filtersApplied,
+        export_time: new Date().toISOString(),
+        file_size: `${new Blob([JSON.stringify(filteredData)]).size} bytes`
+      });
+      return;
+    }
+
+    // Export all children matching current filters/search by fetching pages
+    toast({ title: 'Exporting', description: 'Preparing full export. This may take a while.' });
+    try {
+      const allChildren: any[] = [];
+      const limit = 1000;
+      let page = 1;
+      let totalPagesResp = 1;
+
+      do {
+        const params: any = { page, limit };
+        if (blockFilter !== 'all') params.block = blockFilter;
+        if (gramPanchayatFilter !== 'all') params.gramPanchayat = gramPanchayatFilter;
+        if (statusFilter !== 'all') params.educationStatus = statusFilter;
+        if (debouncedSearchTerm) params.search = debouncedSearchTerm;
+
+        const resp = await apiClient.getChildren(params);
+        if (!resp || !resp.data) throw new Error('Failed to fetch');
+        const items = resp.data.children || [];
+        const activeItems = items.filter((child: any) => !child.auditInfo?.isDeleted);
+
+        activeItems.forEach((child: any) => {
+          allChildren.push({
+            id: child.id,
+            name: child.basicInfo.fullName,
+            age: child.basicInfo.age,
+            gender: child.basicInfo.gender,
+            aadhaar: child.documentsInfo.aadhaarNumber,
+            aadhaarNumber: child.documentsInfo.aadhaarNumber,
+            schoolName: child.educationInfo.schoolName || '',
+            school: child.educationInfo.schoolName || '',
+            schoolStatus: (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
+              : (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
+              : (child.surveyData?.['section-4']?.q4_1 === 'हाँ' || child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
+              : child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A',
+            block: child.surveyData?.['section-1']?.q1_5 || '',
+            gramPanchayat: child.surveyData?.['section-1']?.q1_6 || '',
+            para: child.surveyData?.['section-1']?.q1_8 || '',
+            dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',
+            fatherName: child.familyInfo.fatherName || '',
+            motherName: child.familyInfo.motherName || '',
+            motherEducated: child.surveyData?.['section-1']?.q1_12 || (child.familyInfo?.motherEducated ? 'Yes' : 'No') || 'N/A',
+            fatherEducated: child.surveyData?.['section-1']?.q1_13 || (child.familyInfo?.fatherEducated ? 'Yes' : 'No') || 'N/A',
+            familyOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_1 || child.familyInfo.familyOccupation || '',
+            otherOccupation: child.surveyData?.['section-2']?.q2_2 || '',
+            caste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_3 || child.familyInfo.caste || '',
+            otherCaste: child.surveyData?.['section-2']?.q2_4 || '',
+            parentsStatus: child.familyInfo.parentsStatus || '',
+            livesWithWhom: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_6 || child.familyInfo.livesWithWhom || '',
+            otherLivesWith: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? child.surveyData?.['section-2']?.q2_7 || '' : '',
+            economicStatus: child.economicInfo?.economicStatus || '',
+            houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '',
+            motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_8 || '',
+            otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '',
+            attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '',
+            currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? '' : child.surveyData?.['section-4']?.q4_2 || child.educationInfo?.currentClass || '',
+            schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
+            educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
+            lastClassStudied: child.surveyData?.['section-4']?.q4_8 || '',
+            dropoutReasons: child.surveyData?.['section-4']?.q4_9 || '',
+            otherDropoutReason: child.surveyData?.['section-4']?.q4_10 || '',
+            neverEnrolledReasons: child.surveyData?.['section-4']?.q4_11 || '',
+            otherNeverEnrolledReason: child.surveyData?.['section-4']?.q4_12 || '',
+            hasCasteCertificate: child.documentsInfo?.hasCasteCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_1 === 'yes' ? 'Yes' : 'No',
+            hasResidenceCertificate: child.documentsInfo?.hasResidenceCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_2 === 'yes' ? 'Yes' : 'No',
+            hasAadhaar: child.documentsInfo?.hasAadhaar ? 'Yes' : child.surveyData?.['section-5']?.q5_3 === 'yes' ? 'Yes' : 'No',
+            disabilityTypes: child.surveyData?.['section-6']?.q6_2 || '',
+            otherDisability: child.surveyData?.['section-6']?.q6_3 || '',
+            goesToSchool: child.surveyData?.['section-4']?.q4_1 || '',
+            rationCardType: child.surveyData?.['section-3']?.q3_1 || child.economicInfo?.rationCardType || '',
+            rationCardNumber: child.surveyData?.['section-3']?.q3_2 || child.economicInfo?.rationCardNumber || '',
+          });
+        });
+
+        totalPagesResp = resp.data.pagination?.totalPages || 1;
+        page += 1;
+      } while (page <= totalPagesResp);
+
+      const fileName = `children_records_all_${new Date().toISOString().split('T')[0]}.csv`;
+      downloadChildrenCSV(allChildren, fileName);
+      toast({ title: 'Export ready', description: 'All children records exported.' });
+      
+      // Mixpanel track with enhanced user information
+      mixpanel.track('Export CSV', {
+        user_id: userId,
+        user_name: localStorage.getItem('user_name') || 'unknown',
+        user_role: localStorage.getItem('user_role') || 'unknown',
+        export_page: 'Children (All)',
+        filters_applied: filtersApplied,
+        export_time: new Date().toISOString(),
+        file_size: `${new Blob([JSON.stringify(allChildren)]).size} bytes`
+      });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Export failed', description: 'Could not export all children records', variant: 'destructive' });
+    }
   };
 
   const handleDeleteChild = (childId: string) => {
@@ -351,6 +467,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
           handleExportCSV={handleExportCSV}
           handleFilterChange={handleFilterChange}
           filterOptions={filterOptions}
+          totalCount={totalCount}
         />
       </div>
 

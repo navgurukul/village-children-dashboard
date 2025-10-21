@@ -1,28 +1,32 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Download } from 'lucide-react';
+import { Search, Plus, Upload, Download } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
-interface SearchAndExportBarProps {
+interface GramPanchayatSearchAndActionsProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  onExportCSV: (type: 'current' | 'all') => void;
+  onAddGramPanchayat: () => void;
+  onBulkUpload: () => void;
+  onExportCSV: (type: 'current' | 'all') => void; // will be called with 'current' or 'all'
   isMobile?: boolean;
 }
 
-const SearchAndExportBar = ({ 
+const GramPanchayatSearchAndActions = ({ 
   searchTerm, 
   onSearchChange, 
-  onExportCSV,
+  onAddGramPanchayat, 
+  onBulkUpload,
+  onExportCSV, // will be called with 'current' | 'all'
   isMobile = false 
-}: SearchAndExportBarProps) => {
+}: GramPanchayatSearchAndActionsProps) => {
   return (
     <div className={`${isMobile ? 'space-y-3' : 'flex items-center justify-between gap-4'}`}>
       <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-md'}`}>
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name, ID, village, or block..."
+          placeholder="Search Gram Panchayats..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10 bg-white"
@@ -30,6 +34,21 @@ const SearchAndExportBar = ({
       </div>
       
       <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
+        <Button 
+          onClick={onAddGramPanchayat} 
+          className={`gap-2 ${isMobile ? 'flex-1' : ''}`}
+        >
+          <Plus className="h-4 w-4" />
+          Add New Gram Panchayat
+        </Button>
+        <Button 
+          onClick={onBulkUpload} 
+          variant="outline" 
+          className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}
+        >
+          <Upload className="h-4 w-4" />
+          Bulk Upload
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}>
@@ -53,4 +72,4 @@ const SearchAndExportBar = ({
   );
 };
 
-export default SearchAndExportBar;
+export default GramPanchayatSearchAndActions;
