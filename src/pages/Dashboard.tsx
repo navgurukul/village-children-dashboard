@@ -350,7 +350,7 @@ const Dashboard = () => {
             />
           )}
 
-          {/* KPI Cards */}
+          {/*  KPI Cards */}
           {initialLoad && loadingSummary && !dashboardData ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="p-4 rounded bg-muted/20 h-24 animate-pulse" />
