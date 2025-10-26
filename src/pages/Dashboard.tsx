@@ -9,6 +9,7 @@ import SurveyAnalyticsDisplay from '../components/survey-analytics/SurveyAnalyti
 import { useIsMobile } from "@/hooks/use-mobile";
 import { apiClient, DashboardSummary } from '../lib/api';
 import { Survey } from '@/types/survey';
+import mixpanel from '../lib/mixpanel';
 
 const Dashboard = () => {
   const [analyticsFilters, setAnalyticsFilters] = useState({
@@ -20,7 +21,7 @@ const Dashboard = () => {
   const [trendsDateRange, setTrendsDateRange] = useState('6months');
   const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
   const [blocksData, setBlocksData] = useState<any[]>([]);
-  const [initialLoad, setInitialLoad] = useState(true); // NEW
+  const [initialLoad, setInitialLoad] = useState(true); 
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [loadingOverview, setLoadingOverview] = useState(true);
   const [surveyData, setSurveyData] = useState<Survey | null>(null);
@@ -167,6 +168,15 @@ const Dashboard = () => {
     fetchDashboardData(true); // Only show loading spinner on initial load
     fetchDashboardOverview();
     setInitialLoad(false);
+    
+    // Track page view when component mounts with enhanced user information
+    mixpanel.track('Page View', {
+      page_name: 'Dashboard Page View',
+      user_id: localStorage.getItem('user_id') || 'unknown',
+      user_name: localStorage.getItem('user_name') || 'unknown',
+      user_role: localStorage.getItem('user_role') || 'unknown',
+      view_time: new Date().toISOString()
+    });
     // eslint-disable-next-line
   }, []);
 
@@ -192,10 +202,54 @@ const Dashboard = () => {
         newFilters.gramPanchayat = 'all';
       }
       
+      // Track filter change with Mixpanel
+      mixpanel.track('Page View', {
+        page_name: 'Dashboard Filter Change',
+        user_id: localStorage.getItem('user_id') || 'unknown',
+        user_name: localStorage.getItem('user_name') || 'unknown',
+        user_role: localStorage.getItem('user_role') || 'unknown',
+        filter_changed: filterId,
+        current_filters: {
+          block: filterId === 'block' ? value : prev.block,
+          gramPanchayat: filterId === 'gramPanchayat' ? value : 
+                        (filterId === 'block' ? 'all' : prev.gramPanchayat)
+        },
+        view_time: new Date().toISOString()
+      });
+      
       return newFilters;
     });
   };
 
+  // Wrapper for setAnalyticsFilters to track all filter changes
+  const handleAnalyticsFiltersChange = (newFilters: any) => {
+    // Track filter changes with Mixpanel (only block and gramPanchayat, not dateRange)
+    const changedFilters = Object.keys(newFilters).filter(key => {
+      if (key === 'dateRange') {
+        return false;
+      }
+      return analyticsFilters[key] !== newFilters[key];
+    });
+
+    if (changedFilters.length > 0) {
+      mixpanel.track('Page View', {
+        page_name: 'Dashboard Filter Change',
+        user_id: localStorage.getItem('user_id') || 'unknown',
+        user_name: localStorage.getItem('user_name') || 'unknown',
+        user_role: localStorage.getItem('user_role') || 'unknown',
+        filter_changed: changedFilters.join(','),
+        current_filters: {
+          block: newFilters.block,
+          gramPanchayat: newFilters.gramPanchayat
+        },
+        view_time: new Date().toISOString()
+      });
+    }
+
+    // Update filters state
+    setAnalyticsFilters(newFilters);
+  };
+  
   // Process and use analytics data directly from overview API
   const totalSurveys = overviewData?.summary?.totalSurveys || 0;
   
@@ -289,7 +343,7 @@ const Dashboard = () => {
           ) : (
             <SurveyAnalyticsFilters
               filters={analyticsFilters}
-              onFiltersChange={setAnalyticsFilters}
+              onFiltersChange={handleAnalyticsFiltersChange}
               blocksData={blocksData}
             />
           )}
