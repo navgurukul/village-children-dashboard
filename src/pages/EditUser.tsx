@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft } from 'lucide-react';
 import { apiClient, User } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
-import mixpanel from '../lib/mixpanel';
 
 interface EditUserProps {
   userData: User | null;
@@ -58,23 +57,6 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
           title: "Success",
           description: "User updated successfully",
         });
-
-        // Track user edit event in Mixpanel with enhanced user information
-        mixpanel.track('User Edited', {
-          editor_id: localStorage.getItem('user_id') || 'unknown',
-          editor_name: localStorage.getItem('user_name') || 'unknown',
-          editor_role: localStorage.getItem('user_role') || 'unknown',
-          edited_user_id: userData.id,
-          edited_user_name: formData.fullName,
-          edited_user_role: formData.role,
-          edit_time: new Date().toISOString(),
-          fields_changed: {
-            name: formData.fullName !== userData.name,
-            email: formData.email !== userData.email,
-            mobile: formData.mobile !== userData.mobile
-          }
-        });
-
         onSuccess();
       }
     } catch (error) {
