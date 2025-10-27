@@ -219,8 +219,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         user_role: localStorage.getItem('user_role') || 'unknown',
         export_page: 'Children',
         filters_applied: filtersApplied,
-        export_time: new Date().toISOString(),
-        file_size: `${new Blob([JSON.stringify(filteredData)]).size} bytes`
+        export_time: new Date().toISOString()
       });
       return;
     }
@@ -313,8 +312,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild }: ChildrenRecordsProps) =>
         user_role: localStorage.getItem('user_role') || 'unknown',
         export_page: 'Children (All)',
         filters_applied: filtersApplied,
-        export_time: new Date().toISOString(),
-        file_size: `${new Blob([JSON.stringify(allChildren)]).size} bytes`
+        export_time: new Date().toISOString()
       });
     } catch (err) {
       console.error(err);
