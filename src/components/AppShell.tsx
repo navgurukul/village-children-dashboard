@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Home, Users, FileText, LogOut, MapPin, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileHeader from './MobileHeader';
+import NotificationCenter, { ExportJob } from './NotificationCenter';
+import { apiClient } from '../lib/api';
 import Dashboard from '../pages/Dashboard';
 import ChildrenRecords from '../pages/ChildrenRecords';
 import UserManagement from '../pages/UserManagement';
@@ -35,7 +37,154 @@ const AppShell = ({ onLogout }: AppShellProps) => {
   const [selectedBalMitra, setSelectedBalMitra] = useState<any | null>(null);
   const [selectedGramPanchayat, setSelectedGramPanchayat] = useState<any | null>(null);
   const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
+  const [exportJobs, setExportJobs] = useState<ExportJob[]>([]);
   const isMobile = useIsMobile();
+
+  // Polling intervals for each job
+  const pollingIntervals = useRef<Record<string, NodeJS.Timeout>>({});
+
+  // Initialize jobs from localStorage on component mount
+  useEffect(() => {
+    const storedJobs = localStorage.getItem('export_jobs');
+    if (storedJobs) {
+      try {
+        const jobs = JSON.parse(storedJobs).map((job: any) => ({
+          ...job,
+          createdAt: new Date(job.createdAt),
+        }));
+        
+        // Filter out expired jobs (older than 7 days)
+        const now = new Date();
+        const filteredJobs = jobs.filter((job: ExportJob) => {
+          const jobDate = new Date(job.createdAt);
+          const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+          return (now.getTime() - jobDate.getTime()) < sevenDaysInMs;
+        });
+        
+        // Update localStorage with filtered jobs
+        if (filteredJobs.length !== jobs.length) {
+          localStorage.setItem('export_jobs', JSON.stringify(filteredJobs));
+        }
+        
+        setExportJobs(filteredJobs);
+        
+        // Start polling for incomplete jobs
+        filteredJobs.forEach((job: ExportJob) => {
+          if (job.status === 'processing' || job.status === 'pending') {
+            startPolling(job.id);
+          }
+        });
+      } catch (error) {
+        console.error('Error loading jobs from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // Poll job progress
+  const pollJobProgress = async (jobId: string) => {
+    try {
+      const response = await apiClient.get(`/export/jobs/${jobId}`);
+      if (response.success && response.data) {
+        const jobData = response.data as any;
+        const newProgress = jobData.progress?.percentage || 0;
+        
+        updateExportJob(jobId, {
+          status: jobData.status.toLowerCase() as 'pending' | 'processing' | 'completed' | 'failed',
+          progress: newProgress,
+          downloadUrl: jobData.downloadUrl,
+          createdAt: new Date(jobData.createdAt),
+        });
+
+        // Stop polling if job is completed or failed
+        if (jobData.status === 'COMPLETED' || jobData.status === 'FAILED') {
+          if (pollingIntervals.current[jobId]) {
+            clearInterval(pollingIntervals.current[jobId]);
+            delete pollingIntervals.current[jobId];
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error polling job progress:', error);
+    }
+  };
+
+  // Start polling for a job
+  const startPolling = (jobId: string) => {
+    // Poll every 5 seconds
+    const interval = setInterval(() => {
+      pollJobProgress(jobId);
+    }, 5000);
+    pollingIntervals.current[jobId] = interval;
+  };
+
+  // Stop polling for a job
+  const stopPolling = (jobId: string) => {
+    if (pollingIntervals.current[jobId]) {
+      clearInterval(pollingIntervals.current[jobId]);
+      delete pollingIntervals.current[jobId];
+    }
+  };
+
+  // Export job management functions
+  const addExportJob = (job: ExportJob) => {
+    setExportJobs(prev => {
+      const updated = [job, ...prev];
+      // Persist to localStorage
+      localStorage.setItem('export_jobs', JSON.stringify(updated));
+      return updated;
+    });
+    // Start polling for this job
+    startPolling(job.id);
+  };
+
+  const updateExportJob = (jobId: string, updates: Partial<ExportJob>) => {
+    setExportJobs(prev => {
+      const updated = prev.map(job => job.id === jobId ? { ...job, ...updates } : job);
+      // Persist to localStorage
+      localStorage.setItem('export_jobs', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const clearExportJob = async (jobId: string) => {
+    try {
+      // Find the job to check its status
+      const job = exportJobs.find(j => j.id === jobId);
+      
+      // Only call DELETE API if job is NOT completed (pending, processing, or failed)
+      if (job && job.status !== 'completed') {
+        await apiClient.delete(`/export/jobs/${jobId}`);
+      }
+      
+      // Stop polling
+      stopPolling(jobId);
+      // Remove from state and localStorage
+      setExportJobs(prev => {
+        const updated = prev.filter(job => job.id !== jobId);
+        localStorage.setItem('export_jobs', JSON.stringify(updated));
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error deleting job:', error);
+    }
+  };
+
+  const clearAllExportJobs = () => {
+    // Stop all polling intervals
+    Object.keys(pollingIntervals.current).forEach(jobId => {
+      stopPolling(jobId);
+    });
+    setExportJobs([]);
+    localStorage.removeItem('export_jobs');
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Clear all intervals on component unmount
+      Object.values(pollingIntervals.current).forEach(interval => clearInterval(interval));
+    };
+  }, []);
 
   const navigationItems = [
     {
@@ -92,9 +241,10 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         return <Dashboard />;
       case 'children':
         return <ChildrenRecords 
-          key={`children-${Date.now()}`}
+          key="children-records"
           onChildClick={(childId, childData) => handleNavigation('child-details', { childId, childData })}
           onEditChild={(childId, childData) => handleNavigation('edit-child-details', { childId, childData, fromDetails: false })}
+          onAddExportJob={addExportJob}
         />;
       case 'villages':
         return <GramPanchayats 
@@ -165,6 +315,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           currentPage={currentPage}
           onNavigate={handleNavigation}
           onProfileClick={() => handleNavigation('profile')}
+          exportJobs={exportJobs}
+          onClearJob={clearExportJob}
+          onClearAll={clearAllExportJobs}
         />
       )}
 
@@ -211,15 +364,21 @@ const AppShell = ({ onLogout }: AppShellProps) => {
               </div>
 
               {/* Right side - Profile Avatar */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer">
-                    <AvatarImage src="" alt="Profile" />
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
+              <div className="flex items-center gap-4">
+                <NotificationCenter 
+                  exportJobs={exportJobs}
+                  onClearJob={clearExportJob}
+                  onClearAll={clearAllExportJobs}
+                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="cursor-pointer">
+                      <AvatarImage src="" alt="Profile" />
+                      <AvatarFallback>
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleNavigation('profile')}>
                     <User className="mr-2 h-4 w-4" />
@@ -231,6 +390,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </div>
             </div>
           </div>
         </header>
