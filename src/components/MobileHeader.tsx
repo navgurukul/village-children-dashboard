@@ -4,14 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ChevronDown, Home, FileText, MapPin, Users, User } from 'lucide-react';
+import NotificationCenter, { ExportJob } from './NotificationCenter';
 
 interface MobileHeaderProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   onProfileClick: () => void;
+  exportJobs?: ExportJob[];
+  onClearJob?: (jobId: string) => void;
+  onClearAll?: () => void;
 }
 
-const MobileHeader = ({ currentPage, onNavigate, onProfileClick }: MobileHeaderProps) => {
+const MobileHeader = ({ currentPage, onNavigate, onProfileClick, exportJobs = [], onClearJob, onClearAll }: MobileHeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const getPageTitle = (page: string) => {
@@ -80,13 +84,22 @@ const MobileHeader = ({ currentPage, onNavigate, onProfileClick }: MobileHeaderP
           </Sheet>
         </div>
 
-        {/* Right side - Avatar */}
-        <Avatar className="h-8 w-8 cursor-pointer" onClick={onProfileClick}>
-          <AvatarImage src="" alt="Profile" />
-          <AvatarFallback>
-            <User className="h-4 w-4" />
-          </AvatarFallback>
-        </Avatar>
+        {/* Right side - Notifications and Avatar */}
+        <div className="flex items-center gap-2">
+          {exportJobs && exportJobs.length > 0 && (
+            <NotificationCenter 
+              exportJobs={exportJobs}
+              onClearJob={onClearJob || (() => {})}
+              onClearAll={onClearAll || (() => {})}
+            />
+          )}
+          <Avatar className="h-8 w-8 cursor-pointer" onClick={onProfileClick}>
+            <AvatarImage src="" alt="Profile" />
+            <AvatarFallback>
+              <User className="h-4 w-4" />
+            </AvatarFallback>
+          </Avatar>
+        </div>
       </div>
     </header>
   );
