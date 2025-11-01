@@ -236,7 +236,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onChildClick={(childId, childData) => handleNavigation('child-details', { childId, childData })}
           onEditChild={(childId, childData) => handleNavigation('edit-child-details', { childId, childData, fromDetails: false })}
           onAddExportJob={addExportJob}
-          onUpdateExportJob={updateExportJob}
         />;
       case 'villages':
         return <GramPanchayats 
