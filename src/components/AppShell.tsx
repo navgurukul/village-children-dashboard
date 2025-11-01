@@ -88,8 +88,16 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         const jobData = response.data as any;
         const newProgress = jobData.progress?.percentage || 0;
         
+        // Map backend status to frontend status
+        const statusMap: Record<string, 'pending' | 'processing' | 'completed' | 'failed'> = {
+          'PENDING': 'pending',
+          'IN_PROGRESS': 'processing',
+          'COMPLETED': 'completed',
+          'FAILED': 'failed'
+        };
+        
         updateExportJob(jobId, {
-          status: jobData.status.toLowerCase() as 'pending' | 'processing' | 'completed' | 'failed',
+          status: statusMap[jobData.status] || 'failed',
           progress: newProgress,
           downloadUrl: jobData.downloadUrl,
           createdAt: new Date(jobData.createdAt),
