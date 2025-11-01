@@ -23,10 +23,9 @@ export interface ExportJob {
 interface NotificationCenterProps {
   exportJobs: ExportJob[];
   onClearJob: (jobId: string) => void;
-  onClearAll: () => void;
 }
 
-const NotificationCenter = ({ exportJobs, onClearJob, onClearAll }: NotificationCenterProps) => {
+const NotificationCenter = ({ exportJobs, onClearJob }: NotificationCenterProps) => {
   const activeJobs = exportJobs.filter(job => job.status === 'processing' || job.status === 'pending');
   const hasNotifications = exportJobs.length > 0;
 
@@ -118,22 +117,12 @@ const NotificationCenter = ({ exportJobs, onClearJob, onClearAll }: Notification
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto max-w-sm p-0" align="end">
+      <PopoverContent className="w-[380px] p-0" align="end" side="bottom">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
             <h3 className="font-semibold">Export Notifications</h3>
           </div>
-          {hasNotifications && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClearAll}
-              className="text-xs"
-            >
-              Clear All
-            </Button>
-          )}
         </div>
 
         {!hasNotifications ? (
@@ -142,7 +131,7 @@ const NotificationCenter = ({ exportJobs, onClearJob, onClearAll }: Notification
             <p className="text-sm">No export notifications</p>
           </div>
         ) : (
-          <ScrollArea className="max-h-[600px] w-full">
+          <ScrollArea className="h-[400px]">
             <div className="divide-y">
               {exportJobs.map((job) => (
                 <div key={job.id} className="p-4 hover:bg-accent/50 transition-colors">
