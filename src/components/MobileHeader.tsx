@@ -12,10 +12,9 @@ interface MobileHeaderProps {
   onProfileClick: () => void;
   exportJobs?: ExportJob[];
   onClearJob?: (jobId: string) => void;
-  onClearAll?: () => void;
 }
 
-const MobileHeader = ({ currentPage, onNavigate, onProfileClick, exportJobs = [], onClearJob, onClearAll }: MobileHeaderProps) => {
+const MobileHeader = ({ currentPage, onNavigate, onProfileClick, exportJobs = [], onClearJob }: MobileHeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const getPageTitle = (page: string) => {
@@ -90,7 +89,6 @@ const MobileHeader = ({ currentPage, onNavigate, onProfileClick, exportJobs = []
             <NotificationCenter 
               exportJobs={exportJobs}
               onClearJob={onClearJob || (() => {})}
-              onClearAll={onClearAll || (() => {})}
             />
           )}
           <Avatar className="h-8 w-8 cursor-pointer" onClick={onProfileClick}>

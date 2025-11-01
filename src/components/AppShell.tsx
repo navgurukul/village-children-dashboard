@@ -169,15 +169,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
     }
   };
 
-  const clearAllExportJobs = () => {
-    // Stop all polling intervals
-    Object.keys(pollingIntervals.current).forEach(jobId => {
-      stopPolling(jobId);
-    });
-    setExportJobs([]);
-    localStorage.removeItem('export_jobs');
-  };
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -318,7 +309,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           onProfileClick={() => handleNavigation('profile')}
           exportJobs={exportJobs}
           onClearJob={clearExportJob}
-          onClearAll={clearAllExportJobs}
         />
       )}
 
@@ -369,7 +359,6 @@ const AppShell = ({ onLogout }: AppShellProps) => {
                 <NotificationCenter 
                   exportJobs={exportJobs}
                   onClearJob={clearExportJob}
-                  onClearAll={clearAllExportJobs}
                 />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
