@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { FileText } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import KPICards from '../components/dashboard/KPICards';
@@ -111,23 +112,9 @@ const Dashboard = () => {
   const fetchDashboardData = async (isInitial = false) => {
     try {
       setLoadingSummary(true);
-
-      // Include date range parameters in the API call
-      const params: any = {
-        block: analyticsFilters.block !== 'all' ? analyticsFilters.block : undefined,
-        gramPanchayat: analyticsFilters.gramPanchayat !== 'all' ? analyticsFilters.gramPanchayat : undefined,
-      };
       
-      // Add date range parameters if they exist
-      if (analyticsFilters.dateRange.from) {
-        params.startDate = analyticsFilters.dateRange.from.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-      }
-      
-      if (analyticsFilters.dateRange.to) {
-        params.endDate = analyticsFilters.dateRange.to.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-      }
-      
-      const response = await apiClient.getDashboardSummary(params);
+      // Fetch summary data without any filters as it shows all-time data
+      const response = await apiClient.getDashboardSummary({});
 
       if (response.success) {
         setDashboardData(response.data);
@@ -186,12 +173,6 @@ const Dashboard = () => {
       setInitialLoad(false);
     }
   }, [loadingSummary, loadingOverview]);
-
-  // Filter change effect (no loading spinner)
-  useEffect(() => {
-    if (!initialLoad) fetchDashboardData(false);
-    // eslint-disable-next-line
-  }, [analyticsFilters]);
 
   const handleFilterChange = (filterId: string, value: string) => {
     setAnalyticsFilters(prev => {
@@ -336,20 +317,6 @@ const Dashboard = () => {
         </div>
         {/* Dashboard Content for PDF Export */}
         <div className="dashboard-content space-y-6">
-          {/* Analytics Filters */}
-          {isMobile ? (
-            <FilterChips
-              filters={filterOptions}
-              onFilterChange={handleFilterChange}
-            />
-          ) : (
-            <SurveyAnalyticsFilters
-              filters={analyticsFilters}
-              onFiltersChange={handleAnalyticsFiltersChange}
-              blocksData={blocksData}
-            />
-          )}
-
           {/*  KPI Cards */}
           {initialLoad && loadingSummary && !dashboardData ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -361,6 +328,24 @@ const Dashboard = () => {
           ) : (
             <KPICards data={kpiData} />
           )}
+
+          {/* Analytics Filters */}
+          <Card className="bg-white shadow-sm border-border/40">
+            <div className="p-6">
+              {isMobile ? (
+                <FilterChips
+                  filters={filterOptions}
+                  onFilterChange={handleFilterChange}
+                />
+              ) : (
+                <SurveyAnalyticsFilters
+                  filters={analyticsFilters}
+                  onFiltersChange={handleAnalyticsFiltersChange}
+                  blocksData={blocksData}
+                />
+              )}
+            </div>
+          </Card>
 
           {/* Survey Analytics */}
           {surveyData && (
