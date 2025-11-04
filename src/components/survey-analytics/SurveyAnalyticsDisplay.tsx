@@ -3,7 +3,7 @@ import { Survey } from '@/types/survey';
 import QuestionAnalytics from './QuestionAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, BarChart3, TrendingUp } from 'lucide-react';
+import { BarChart3, Info } from 'lucide-react';
 
 interface SurveyAnalyticsDisplayProps {
   survey: Survey;
@@ -16,8 +16,7 @@ const SurveyAnalyticsDisplay = ({ survey, analyticsData, totalSurveys }: SurveyA
     <div className="space-y-6">
       {/* Analytics Header */}
       <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader>              <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <BarChart3 className="h-6 w-6 text-primary" />
@@ -32,8 +31,8 @@ const SurveyAnalyticsDisplay = ({ survey, analyticsData, totalSurveys }: SurveyA
               </div>
             </div>
             <Badge variant="outline" className="bg-background">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              Live Data
+              <Info className="h-3 w-3 mr-1" />
+              Last updated daily at 3 AM
             </Badge>
           </div>
         </CardHeader>
