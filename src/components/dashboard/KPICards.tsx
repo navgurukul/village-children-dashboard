@@ -83,7 +83,7 @@ const KPICards = ({ data }: KPICardsProps) => {
       <div className="flex items-center gap-2 mb-4 text-sm">
         <div className="flex items-center gap-2 text-muted-foreground">
           <div className="w-2 h-2 rounded-full bg-success animate-pulse"/>
-          <span className="font-medium">Live Data — updates instantly as new records as added.</span>
+          <span className="font-medium">Live Data — updates instantly as new records are added.</span>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
