@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Upload, Download } from 'lucide-react';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import CSVExportModal from '@/components/ui/CSVExportModal';
 
 interface GramPanchayatSearchAndActionsProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onAddGramPanchayat: () => void;
   onBulkUpload: () => void;
-  onExportCSV: (type: 'current' | 'all') => void; // will be called with 'current' or 'all'
+  onExportCSV: (type: 'current' | 'all') => void;
+  currentPageCount?: number;
+  totalCount?: number;
   isMobile?: boolean;
 }
 
@@ -18,9 +20,21 @@ const GramPanchayatSearchAndActions = ({
   onSearchChange, 
   onAddGramPanchayat, 
   onBulkUpload,
-  onExportCSV, // will be called with 'current' | 'all'
+  onExportCSV,
+  currentPageCount,
+  totalCount,
   isMobile = false 
 }: GramPanchayatSearchAndActionsProps) => {
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const handleExportCurrentPage = () => {
+    onExportCSV('current');
+  };
+
+  const handleExportAllData = async () => {
+    await onExportCSV('all');
+  };
+
   return (
     <div className={`${isMobile ? 'space-y-3' : 'flex items-center justify-between gap-4'}`}>
       <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-md'}`}>
@@ -49,25 +63,24 @@ const GramPanchayatSearchAndActions = ({
           <Upload className="h-4 w-4" />
           Bulk Upload
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}>
-              <Download className="h-4 w-4" />
-              Export CSV
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onExportCSV('current')}>
-              <Download className="mr-2 h-4 w-4" />
-              Export Current Page
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onExportCSV('all')}>
-              <Download className="mr-2 h-4 w-4" />
-              Export All Data
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          variant="outline"
+          className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}
+          onClick={() => setIsExportModalOpen(true)}
+        >
+          <Download className="h-4 w-4" />
+          Export CSV
+        </Button>
       </div>
+
+      <CSVExportModal
+        open={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExportCurrentPage={handleExportCurrentPage}
+        onExportAllData={handleExportAllData}
+        currentPageCount={currentPageCount}
+        totalCount={totalCount}
+      />
     </div>
   );
 };

@@ -88,8 +88,16 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         const jobData = response.data as any;
         const newProgress = jobData.progress?.percentage || 0;
         
+        // Map backend status to frontend status
+        const statusMap: Record<string, 'pending' | 'processing' | 'completed' | 'failed'> = {
+          'PENDING': 'pending',
+          'IN_PROGRESS': 'processing',
+          'COMPLETED': 'completed',
+          'FAILED': 'failed'
+        };
+        
         updateExportJob(jobId, {
-          status: jobData.status.toLowerCase() as 'pending' | 'processing' | 'completed' | 'failed',
+          status: statusMap[jobData.status] || 'failed',
           progress: newProgress,
           downloadUrl: jobData.downloadUrl,
           createdAt: new Date(jobData.createdAt),
@@ -239,12 +247,13 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         />;
       case 'villages':
         return <GramPanchayats 
-          key={`villages-${Date.now()}`}
+          key="villages"
           onAddGramPanchayat={() => handleNavigation('add-gram-panchayat')}
           onBulkUpload={() => handleNavigation('bulk-upload-villages')}
           onGramPanchayatClick={(gramPanchayatData) => handleNavigation('gram-panchayat-profile', { gramPanchayatData })}
           onEditGramPanchayat={(gramPanchayat) => handleNavigation('edit-gram-panchayat', { gramPanchayat })}
           onDeleteGramPanchayat={(gramPanchayatId) => console.log('Delete gram panchayat:', gramPanchayatId)}
+          onAddExportJob={addExportJob}
         />;
       case 'users':
         return <UserManagement 

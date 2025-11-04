@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { apiClient, GramPanchayat as ApiGramPanchayat, GramPanchayatResponse } from '../lib/api';
 import mixpanel from '../lib/mixpanel';
 import { useToast } from '@/hooks/use-toast';
+import { ExportJob } from '../components/NotificationCenter';
 
 interface GramPanchayatDisplayData {
   id: string;
@@ -31,9 +32,19 @@ interface GramPanchayatsProps {
   onGramPanchayatClick: (gramPanchayatData: any) => void;
   onEditGramPanchayat: (gramPanchayat: any) => void;
   onDeleteGramPanchayat: (gramPanchayatId: string) => void;
+  onAddExportJob?: (job: ExportJob) => void;
+  onUpdateExportJob?: (jobId: string, updates: Partial<ExportJob>) => void;
 }
 
-const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick, onEditGramPanchayat, onDeleteGramPanchayat }: GramPanchayatsProps) => {
+const GramPanchayats = ({ 
+  onAddGramPanchayat, 
+  onBulkUpload, 
+  onGramPanchayatClick, 
+  onEditGramPanchayat, 
+  onDeleteGramPanchayat,
+  onAddExportJob,
+  onUpdateExportJob 
+}: GramPanchayatsProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [districtFilter, setDistrictFilter] = useState('all');
@@ -279,77 +290,71 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
 
   // Unified export handler passed to child component
   const handleExportCSV = async (type: 'current' | 'all') => {
+    const userId = localStorage.getItem('user_id') || 'unknown';
+
     if (type === 'current') {
-      const fileName = `gram_panchayats_page_${new Date().toISOString().split('T')[0]}.csv`;
+      // frontend CSV export (current page)
+      const fileName = `gram_panchayats_${new Date().toISOString().split('T')[0]}.csv`;
       exportGramPanchayatsCSV(filteredData, fileName);
-      
-      // Mixpanel track with enhanced user information
+      toast({ title: 'Success', description: 'Gram Panchayat records exported successfully.' });
+
+      // Mixpanel tracking for current page export
       mixpanel.track('Export CSV', {
-        user_id: localStorage.getItem('user_id') || 'unknown',
-        user_name: localStorage.getItem('user_name') || 'unknown',
-        user_role: localStorage.getItem('user_role') || 'unknown',
+        user_id: userId,
+        export_type: 'current_page',
         export_page: 'Gram Panchayats',
         filters_applied: {
           district: districtFilter,
           block: blockFilter,
           search: searchTerm
-        },
-        export_time: new Date().toISOString()
+        }
       });
       return;
     }
 
-    // export all
+    // backend export for ALL data
     toast({ title: 'Exporting', description: 'Preparing full export. This may take a while.' });
     try {
-      const all: any[] = [];
-      const limit = 500;
-      let page = 1;
-      while (true) {
-        const resp = await apiClient.getGramPanchayats({
-          page,
-          limit,
-          district: districtFilter !== 'all' ? districtFilter : undefined,
-          block: blockFilter !== 'all' ? blockFilter : undefined,
-          search: debouncedSearchTerm || undefined
-        });
-        if (!resp || !resp.success) throw new Error('Failed to fetch');
-        const items = resp.data.items || [];
-        all.push(...items.map((gp: any) => ({
-          id: gp.id,
-          name: gp.name,
-          district: gp.district,
-          block: gp.block || (gp.blocks && gp.blocks.length ? gp.blocks[0] : ''),
-          totalChildren: gp.totalChildren || 0,
-          enrolled: gp.enrolledChildren || 0,
-          dropout: gp.dropoutChildren || 0,
-          neverEnrolled: gp.neverEnrolledChildren || 0,
-          assignedBalMitra: gp.assignedBalMitra || ''
-        })));
-        if (items.length < limit) break;
-        page += 1;
-      }
+      const response = await apiClient.exportGramPanchayats();
 
-      const fileName = `gram_panchayats_all_${new Date().toISOString().split('T')[0]}.csv`;
-      exportGramPanchayatsCSV(all, fileName);
-      toast({ title: 'Export ready', description: 'All Gram Panchayats exported.' });
-      
-      // Mixpanel track with enhanced user information
-      mixpanel.track('Export CSV', {
-        user_id: localStorage.getItem('user_id') || 'unknown',
-        user_name: localStorage.getItem('user_name') || 'unknown',
-        user_role: localStorage.getItem('user_role') || 'unknown',
-        export_page: 'Gram Panchayats (All)',
-        filters_applied: {
-          district: districtFilter,
-          block: blockFilter,
-          search: searchTerm
-        },
-        export_time: new Date().toISOString()
+      if (response.success && response.data && response.data.jobId) {
+        const jobId = response.data.jobId;
+
+        if (onAddExportJob) {
+          onAddExportJob({
+            id: jobId,
+            status: 'processing',
+            createdAt: new Date(),
+            title: 'Gram Panchayat CSV Export - All Data',
+            fileName: `gram_panchayats_all_${new Date().toISOString().split('T')[0]}.csv`,
+            type: 'gram-panchayat-export'
+          });
+        }
+
+        // Mixpanel tracking for full export
+        mixpanel.track('Export CSV', {
+          user_id: userId,
+          export_type: 'all',
+          export_page: 'Gram Panchayats',
+          job_id: jobId,
+          filters_applied: {
+            district: districtFilter,
+            block: blockFilter,
+            search: searchTerm
+          }
+        });
+
+        toast({ title: 'Export Started', description: 'Your export is being processed. Check notifications for updates.' });
+      } else {
+        throw new Error('Failed to start export');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({ 
+        title: 'Export failed', 
+        description: 'Failed to start export. Please try again.',
+        variant: 'destructive' 
       });
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Export failed', description: 'Could not export all Gram Panchayats', variant: 'destructive' });
     }
   };
 
@@ -357,18 +362,6 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
   useEffect(() => {
     fetchBlocksData();
   }, []);
-
-  if (loading && gramPanchayatsList.length === 0) {
-    return (
-      <div className="p-6 bg-background min-h-screen">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading gram panchayats...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -386,6 +379,8 @@ const GramPanchayats = ({ onAddGramPanchayat, onBulkUpload, onGramPanchayatClick
                onAddGramPanchayat={onAddGramPanchayat}
                onBulkUpload={onBulkUpload}
                onExportCSV={handleExportCSV}
+               currentPageCount={filteredData.length}
+               totalCount={totalCount}
                isMobile={true}
              />
 
