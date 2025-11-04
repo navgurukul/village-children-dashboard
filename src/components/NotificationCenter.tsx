@@ -13,6 +13,8 @@ import { Progress } from '@/components/ui/progress';
 export interface ExportJob {
   id: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
+  type: 'children-export' | 'gram-panchayat-export';
+  title?: string;
   fileName?: string;
   downloadUrl?: string;
   createdAt: Date;
@@ -93,10 +95,10 @@ const NotificationCenter = ({ exportJobs, onClearJob }: NotificationCenterProps)
     return `${formattedDate} at ${formattedTime}`;
   };
 
-  const handleDownload = (downloadUrl: string) => {
+  const handleDownload = (downloadUrl: string, job: ExportJob) => {
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.download = `children_records_all_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = job.fileName || `${job.type === 'children-export' ? 'children_records' : 'gram_panchayats'}_all_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -140,7 +142,7 @@ const NotificationCenter = ({ exportJobs, onClearJob }: NotificationCenterProps)
                       {getStatusIcon(job.status)}
                       <div className="flex-1 min-w-0">
                         <div className="mb-1">
-                          <p className="text-sm font-medium">CSV Export - All Data</p>
+                          <p className="text-sm font-medium">{job.title || `${job.type === 'children-export' ? 'Children Records' : 'Gram Panchayat'} CSV Export - All Data`}</p>
                         </div>
                         
                         <div className="flex items-center gap-2 mb-2">
@@ -198,7 +200,7 @@ const NotificationCenter = ({ exportJobs, onClearJob }: NotificationCenterProps)
                           size="sm" 
                           variant="outline" 
                           className="gap-1 text-xs h-8"
-                          onClick={() => handleDownload(job.downloadUrl!)}
+                          onClick={() => handleDownload(job.downloadUrl!, job)}
                         >
                           <Download className="h-3 w-3" />
                           Download
