@@ -247,12 +247,13 @@ const AppShell = ({ onLogout }: AppShellProps) => {
         />;
       case 'villages':
         return <GramPanchayats 
-          key={`villages-${Date.now()}`}
+          key="villages"
           onAddGramPanchayat={() => handleNavigation('add-gram-panchayat')}
           onBulkUpload={() => handleNavigation('bulk-upload-villages')}
           onGramPanchayatClick={(gramPanchayatData) => handleNavigation('gram-panchayat-profile', { gramPanchayatData })}
           onEditGramPanchayat={(gramPanchayat) => handleNavigation('edit-gram-panchayat', { gramPanchayat })}
           onDeleteGramPanchayat={(gramPanchayatId) => console.log('Delete gram panchayat:', gramPanchayatId)}
+          onAddExportJob={addExportJob}
         />;
       case 'users':
         return <UserManagement 
