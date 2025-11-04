@@ -239,6 +239,8 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
           onAddExportJob({
             id: jobId,
             status: 'processing',
+            title: 'Children Records CSV Export - All Data',
+            type: 'children-export',
             createdAt: createdAt,
             fileName: `children_records_all_${new Date().toISOString().split('T')[0]}.csv`,
           });
