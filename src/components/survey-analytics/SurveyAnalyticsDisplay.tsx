@@ -3,7 +3,7 @@ import { Survey } from '@/types/survey';
 import QuestionAnalytics from './QuestionAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, BarChart3, TrendingUp, Info } from 'lucide-react';
+import { BarChart3, Info } from 'lucide-react';
 
 interface SurveyAnalyticsDisplayProps {
   survey: Survey;
