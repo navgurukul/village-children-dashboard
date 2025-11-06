@@ -24,6 +24,7 @@ interface GramPanchayatDisplayData {
   neverEnrolled: number;
   totalParas?: number;
   assignedBalMitra?: string; // Added assignedBalMitra field
+  createdAt: string; 
 }
 
 interface GramPanchayatsProps {
@@ -172,7 +173,8 @@ const GramPanchayats = ({
         dropout: gp.dropoutChildren || 0,
         neverEnrolled: gp.neverEnrolledChildren || 0,
         totalParas: gp.totalParas || 0,
-        assignedBalMitra: gp.assignedBalMitra || ''
+        assignedBalMitra: gp.assignedBalMitra || '',
+        createdAt: gp.createdAt // Map createdAt field
       };
     });
   }, [gramPanchayatsList]);
@@ -257,7 +259,8 @@ const GramPanchayats = ({
       'Enrolled Children',
       'Dropout Children',
       'Never Enrolled Children',
-      'Assigned Bal Mitra'
+      'Assigned Bal Mitra',
+      'Created At'
     ];
 
     const csv = [
@@ -272,7 +275,8 @@ const GramPanchayats = ({
           csvEscape(r.enrolled ?? 0),
           csvEscape(r.dropout ?? 0),
           csvEscape(r.neverEnrolled ?? 0),
-          csvEscape(r.assignedBalMitra ?? 'Not Assigned')
+          csvEscape(r.assignedBalMitra || r.name || 'Not Assigned'),
+          csvEscape(new Date(r.createdAt).toLocaleDateString())
         ].join(',')
       )
     ].join('\n');

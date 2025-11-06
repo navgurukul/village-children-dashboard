@@ -14,16 +14,25 @@ interface SurveyAnalyticsDisplayProps {
 
 const SurveyAnalyticsDisplay = ({ survey, analyticsData, totalSurveys, calculatedAt }: SurveyAnalyticsDisplayProps) => {
   const formatLastUpdated = (dateString?: string) => {
-    if (!dateString) return 'Last updated daily at 3 AM';
+    if (!dateString) return 'Last updated at midnight';
     
     const date = new Date(dateString);
+    
     const formattedDate = date.toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'Asia/Kolkata'
     });
     
-    return `Last updated on ${formattedDate} at 3 AM`;
+    const formattedTime = date.toLocaleTimeString('en-IN', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    });
+    
+    return `Last updated on ${formattedDate} at ${formattedTime}`;
   };
 
   return (
