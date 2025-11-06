@@ -271,6 +271,7 @@ interface Child {
   educationInfo: {
     goesToSchool: boolean;
     schoolName: string;
+    schoolType: string;
     currentClass: string;
     attendanceStatus: string;
     educationStatus: string;

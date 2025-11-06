@@ -87,6 +87,8 @@ const ChildrenRecordsContent = ({
               searchTerm={searchTerm}
               onSearchChange={onSearchChange}
               onExportCSV={handleExportCSV}
+              currentPageCount={paginatedData.length}
+              totalCount={totalCount}
               isMobile={true}
             />
           </div>

@@ -13,6 +13,7 @@ interface ChildData {
   schoolName: string;
   school: string;
   schoolStatus: string;
+  schoolType?: string; 
   block: string;
   gramPanchayat: string;
   disability: string;
@@ -51,21 +52,22 @@ interface ChildData {
   disabilityTypes?: string | string[];
   otherDisability?: string;
   goesToSchool?: string;
+  surveyedAt?: string;  // Adding field for survey timestamp
 }
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const headers = [
     'ID', 'Name', 'Age', 'Gender', 'Has Aadhaar', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 'Para',
-    'DOB', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
-    'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with', 
-    'Other Lives With', 'Mother Tongue', 'Other Mother Tongue', 
+    'Date of Birth', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
+    'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with whom', 
+    'Other Lives With Whom', 'Mother Tongue',
     'Goes To School', 
-    'School Status', 'School Name', 'Attendance Status', 'Current Class', 'Commute Type', 
-    'Last Class Studied', 'Dropout Reasons', 'Never Enrolled Reasons', 
+    'Education Status', 'School Name', 'School Type', 'Attendance Status', 'Current Class', 'Living Arrangement', 
+    'Last  Studied Class', 'Dropout Reasons', 'Never Enrolled Reasons', 
     'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
-    'Has Residence Certificate', 'Disability', 'Disability Types', 'Other Disability'
+    'Has Residence Certificate', 'Disability', 'Disability Types', 'Surveyed At'
   ];
-  const csvContent = [
+  const csvContent = [  
     headers.join(','),
 
     ...data.map(child => {
@@ -114,10 +116,10 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.livesWithWhom || '-'}"`,
         `"${child.otherLivesWith || '-'}"`,
         `"${motherTongueFormatted || '-'}"`,
-        `"${child.otherMotherTongue || '-'}"`,
         `"${child.goesToSchool || '-'}"`,
         `"${child.schoolStatus || '-'}"`,
         `"${child.schoolName || '-'}"`,
+        `"${child.schoolType || '-'}"`,
         `"${child.attendanceStatus || '-'}"`,
         `"${child.currentClass || '-'}"`,
         `"${child.schoolCommuteType || '-'}"`,
@@ -130,7 +132,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.hasResidenceCertificate || '-'}"`,
         `"${child.disability || '-'}"`,
         `"${Array.isArray(child.disabilityTypes) ? child.disabilityTypes.join('; ') : (child.disabilityTypes || '-')}"`,
-        `"${child.otherDisability || '-'}"`,
+        `"${child.surveyedAt || '-'}"`,
       ].join(',');
     })
   ].join('\n');

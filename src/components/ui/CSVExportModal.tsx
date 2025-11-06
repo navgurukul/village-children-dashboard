@@ -20,6 +20,7 @@ interface CSVExportModalProps {
   onExportAllData: () => Promise<void>;
   currentPageCount?: number;
   totalCount?: number;
+  jobType: 'children-export' | 'gram-panchayat-export';
 }
 
 const CSVExportModal = ({
@@ -28,7 +29,8 @@ const CSVExportModal = ({
   onExportCurrentPage,
   onExportAllData,
   currentPageCount,
-  totalCount
+  totalCount,
+  jobType,
 }: CSVExportModalProps) => {
   const [exportType, setExportType] = useState<'current' | 'all'>('current');
   const [isExporting, setIsExporting] = useState(false);
@@ -50,6 +52,11 @@ const CSVExportModal = ({
       setIsExporting(false);
     }
   };
+
+  const alertMessage =
+    jobType === 'children-export'
+      ? "The exported data includes survey responses recorded until the previous day. Real-time updates will appear in tomorrow's export."
+      : "The exported data reflects the most recent records in real time.";
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -95,7 +102,7 @@ const CSVExportModal = ({
           <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-900">
             <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <AlertDescription className="text-blue-800 dark:text-blue-300">
-              The exported data includes survey responses recorded until the previous day. Real-time updates will appear in tomorrow's export.
+              {alertMessage}
             </AlertDescription>
           </Alert>
         </div>

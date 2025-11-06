@@ -8,6 +8,8 @@ interface SearchAndExportBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onExportCSV: (type: 'current' | 'all') => void;
+  currentPageCount?: number;
+  totalCount?: number;
   isMobile?: boolean;
 }
 
@@ -15,6 +17,8 @@ const SearchAndExportBar = ({
   searchTerm, 
   onSearchChange, 
   onExportCSV,
+  currentPageCount,
+  totalCount,
   isMobile = false 
 }: SearchAndExportBarProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,6 +59,9 @@ const SearchAndExportBar = ({
         onClose={() => setIsModalOpen(false)}
         onExportCurrentPage={handleExportCurrentPage}
         onExportAllData={handleExportAllData}
+        currentPageCount={currentPageCount}
+        totalCount={totalCount}
+        jobType="children-export"
       />
     </div>
   );
