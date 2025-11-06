@@ -142,6 +142,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
       schoolName: child.educationInfo.schoolName || '',
       school: child.educationInfo.schoolName || '',
+      schoolType: child.educationInfo.schoolType || '',
       schoolStatus: (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
         : (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
         : (child.surveyData?.['section-4']?.q4_1 === 'हाँ' || child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
@@ -189,6 +190,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       goesToSchool: child.surveyData?.['section-4']?.q4_1 || '',
       rationCardType: child.surveyData?.['section-3']?.q3_1 || child.economicInfo?.rationCardType || '',
       rationCardNumber: child.surveyData?.['section-3']?.q3_2 || child.economicInfo?.rationCardNumber || '',
+      surveyedAt: formatDate(child.surveyMeta?.surveyedAt),
     }));
   }, [apiChildren]);
 
@@ -353,6 +355,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
         livesWithWhom: childData.familyInfo.livesWithWhom,
         goesToSchool: childData.surveyData?.['section-4']?.q4_1 || '',
         schoolName: childData.educationInfo.schoolName || '',
+        schoolType: childData.educationInfo.schoolType || '',
         currentClass: childData.educationInfo.currentClass,
         attendanceStatus: childData.educationInfo.attendanceStatus,
         educationStatus: childData.educationInfo.educationStatus,
