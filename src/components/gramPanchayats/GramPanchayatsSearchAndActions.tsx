@@ -80,6 +80,7 @@ const GramPanchayatSearchAndActions = ({
         onExportAllData={handleExportAllData}
         currentPageCount={currentPageCount}
         totalCount={totalCount}
+        jobType="gram-panchayat-export"
       />
     </div>
   );
