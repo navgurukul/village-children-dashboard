@@ -204,6 +204,12 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
 
   // Unified export handler for children records: 'current' page or 'all' data
   const handleExportCSV = async (type: 'current' | 'all') => {
+    // Get all user info from localStorage
+    const userId = localStorage.getItem('user_id') || 'unknown';
+    const userName = localStorage.getItem('user_name') || 'unknown';
+    const userEmail = localStorage.getItem('user_email') || 'unknown';
+    const userRole = localStorage.getItem('user_role') || 'unknown';
+
     const filtersApplied = {
       block: blockFilter,
       gramPanchayat: gramPanchayatFilter,
@@ -215,6 +221,17 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       const fileName = `children_records_${new Date().toISOString().split('T')[0]}.csv`;
       downloadChildrenCSV(childrenData, fileName);
       toast({ title: 'Success', description: 'Children records exported successfully' });
+
+      // Mixpanel tracking with all user properties for current page export
+      mixpanel.track('Export CSV', {
+        user_id: userId,
+        user_name: userName,
+        user_email: userEmail,
+        user_role: userRole,
+        export_type: 'current_page',
+        export_page: 'Children Records',
+        filters_applied: filtersApplied,
+      });
       return;
     }
 
@@ -247,6 +264,18 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
             fileName: `children_records_all_${new Date().toISOString().split('T')[0]}.csv`,
           });
         }
+
+        // Mixpanel tracking with all user properties for full export
+        mixpanel.track('Export CSV', {
+          user_id: userId,
+          user_name: userName,
+          user_email: userEmail,
+          user_role: userRole,
+          export_type: 'all',
+          export_page: 'Children Records',
+          job_id: jobId,
+          filters_applied: filtersApplied,
+        });
         
         toast({ title: 'Export Started', description: 'Your export is being processed. Check notifications for updates.' });
       } else {
