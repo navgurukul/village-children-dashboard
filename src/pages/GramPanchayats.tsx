@@ -295,6 +295,9 @@ const GramPanchayats = ({
   // Unified export handler passed to child component
   const handleExportCSV = async (type: 'current' | 'all') => {
     const userId = localStorage.getItem('user_id') || 'unknown';
+    const userName = localStorage.getItem('user_name') || 'unknown';
+    const userEmail = localStorage.getItem('user_email') || 'unknown';
+    const userRole = localStorage.getItem('user_role') || 'unknown';
 
     if (type === 'current') {
       // frontend CSV export (current page)
@@ -305,6 +308,9 @@ const GramPanchayats = ({
       // Mixpanel tracking for current page export
       mixpanel.track('Export CSV', {
         user_id: userId,
+        user_name: userName,
+        user_email: userEmail,
+        user_role: userRole,
         export_type: 'current_page',
         export_page: 'Gram Panchayats',
         filters_applied: {
@@ -338,6 +344,9 @@ const GramPanchayats = ({
         // Mixpanel tracking for full export
         mixpanel.track('Export CSV', {
           user_id: userId,
+          user_name: userName,
+          user_email: userEmail,
+          user_role: userRole,
           export_type: 'all',
           export_page: 'Gram Panchayats',
           job_id: jobId,
