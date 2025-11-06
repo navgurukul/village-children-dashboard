@@ -354,6 +354,7 @@ const Dashboard = () => {
                 survey={surveyData}
                 analyticsData={analyticsData}
                 totalSurveys={totalSurveys}
+                calculatedAt={overviewData.meta?.calculatedAt}
               />
             ) : (
               <div className="text-muted-foreground">No analytics available</div>
