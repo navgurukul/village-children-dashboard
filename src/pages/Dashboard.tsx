@@ -153,6 +153,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Call both APIs in parallel so each section can render as soon as it arrives
     fetchDashboardData(true); // Only show loading spinner on initial load
+    fetchDashboardOverview();
     setInitialLoad(false);
     
     // Track page view when component mounts with enhanced user information
