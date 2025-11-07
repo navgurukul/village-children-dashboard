@@ -68,10 +68,10 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                   propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' ? 'No' :
                   propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी' ? 'Aanganwadi' :
                   propChildData.educationInfo?.goesToSchool ? 'Yes' : 'No',
-    attendanceStatus: propChildData.surveyData?.['section-4']?.q4_5 || propChildData.educationInfo?.attendanceStatus || 'N/A',
+    attendanceStatus: propChildData.surveyData?.['section-4']?.q4_5 || 'N/A',
     educationCategory: propChildData.surveyData?.['section-4']?.q4_6 || 'N/A',
-    currentClass: propChildData.surveyData?.['section-4']?.q4_2 || propChildData.educationInfo?.currentClass || 'N/A', // Now maps to q4_2
-    school: propChildData.surveyData?.['section-4']?.q4_3 || propChildData.educationInfo?.schoolName || 'N/A', // Now maps to q4_3
+    currentClass: propChildData.surveyData?.['section-4']?.q4_2 || 'N/A', // Now maps to q4_2
+    school: propChildData.surveyData?.['section-4']?.q4_3 || 'N/A', // Now maps to q4_3
     schoolCommuteType: propChildData.surveyData?.['section-4']?.q4_4 || 'N/A', // New field for commute type
     lastStudiedClass: propChildData.surveyData?.['section-4']?.q4_8 || 'N/A',
     dropoutReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_9) ? 
