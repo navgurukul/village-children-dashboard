@@ -7,7 +7,7 @@ import FilterChips from '../components/FilterChips';
 import GramPanchayatTable from '../components/gramPanchayats/GramPanchayatsTable';
 import GramPanchayatCardList from '../components/gramPanchayats/GramPanchayatsCardList';
 import { useIsMobile } from "@/hooks/use-mobile";
-import { apiClient, GramPanchayat as ApiGramPanchayat, GramPanchayatResponse } from '../lib/api';
+import { apiClient, GramPanchayat as ApiGramPanchayat } from '../lib/api';
 import mixpanel from '../lib/mixpanel';
 import { useToast } from '@/hooks/use-toast';
 import { ExportJob } from '../components/NotificationCenter';
