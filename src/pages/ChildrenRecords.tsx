@@ -140,8 +140,8 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       gender: child.basicInfo.gender,
       aadhaar: child.documentsInfo.aadhaarNumber,
       aadhaarNumber: child.documentsInfo.aadhaarNumber,
-      schoolName: child.educationInfo.schoolName || '',
-      school: child.educationInfo.schoolName || '',
+      schoolName: child.surveyData?.['section-4']?.q4_3 || '',
+      school: child.surveyData?.['section-4']?.q4_3 || '',
       schoolType: child.educationInfo.schoolType || '',
       schoolStatus: (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
         : (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
@@ -170,7 +170,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', // Updated to use correct q1_2 field
       motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_8 || '', // Updated to use correct q1_8 field
       otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', // Updated to use correct q1_8_other field
-      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Updated to use correct q4_5 field
+      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Using q4_5 for attendance status from survey
       currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी')
         ? ''
         : child.surveyData?.['section-4']?.q4_2 || child.educationInfo?.currentClass || '',
