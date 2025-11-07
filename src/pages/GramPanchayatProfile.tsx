@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { apiClient } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
-interface VillageProfileProps {
-  villageId: string | null;
-  villageData: any;
+interface GramPanchayatProfileProps {
+  gramPanchayatId: string | null;
+  gramPanchayatData: any;
   onBack: () => void;
 }
 
@@ -29,6 +29,8 @@ interface Para {
   gramPanchayat?: string;
   totalPopulation?: number;
   state?: string;
+  villageId?: string;
+  villageName?: string;
 }
 
 // Interface for a Gram Panchayat
@@ -45,55 +47,64 @@ interface GramPanchayat {
   totalParas?: number;
 }
 
-const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps) => {
+const GramPanchayatProfile = ({ gramPanchayatId, gramPanchayatData, onBack }: GramPanchayatProfileProps) => {
   const isMobile = useIsMobile();
   const [relatedParas, setRelatedParas] = useState<Para[]>([]);
   const { toast } = useToast();
 
-  // Set related paras directly from villageData
+  // Set related paras directly from gramPanchayatData
   useEffect(() => {
-    if (villageData?.paras) {
-      setRelatedParas(villageData.paras);
+    if (gramPanchayatData?.villages && Array.isArray(gramPanchayatData.villages)) {
+      const parasFromVillages: Para[] = gramPanchayatData.villages.flatMap((v: any) =>
+        (v.paras || []).map((p: any) => ({
+          ...p,
+          villageId: v.id,
+          villageName: v.name
+        }))
+      );
+      setRelatedParas(parasFromVillages);
+    } else if (gramPanchayatData?.paras) {
+      setRelatedParas(gramPanchayatData.paras);
     } else {
       setRelatedParas([]);
     }
-  }, [villageData]);
+  }, [gramPanchayatData]);
 
 
   
   // Use actual para data or fallback to defaults
   const displayData = {
-    id: villageData?.id || villageId,
-    name: villageData?.name || 'Unknown Para',
-    blocks: villageData?.blocks || [villageData?.block || 'Unknown Block'],
-    gramPanchayats: villageData?.gramPanchayats || [villageData?.gramPanchayat || 'Unknown Gram Panchayat'],
-    assignedBalMitra: villageData?.name || villageData?.balMitraName || villageData?.assignedBalMitra || 'Not Assigned',
-    totalChildren: villageData?.totalChildren || 0,
+    id: gramPanchayatData?.id || gramPanchayatId,
+    name: gramPanchayatData?.name || 'Unknown Gram Panchayat',
+    blocks: gramPanchayatData?.blocks || [gramPanchayatData?.block || 'Unknown Block'],
+    gramPanchayats: gramPanchayatData?.gramPanchayats || [gramPanchayatData?.gramPanchayat || 'Unknown Gram Panchayat'],
+    assignedBalMitra: gramPanchayatData?.name || gramPanchayatData?.balMitraName || gramPanchayatData?.assignedBalMitra || 'Not Assigned',
+    totalChildren: gramPanchayatData?.totalChildren || 0,
     enrolled: { 
-      count: villageData?.enrolledChildren || 0, 
-      percentage: villageData?.totalChildren ? 
-        ((villageData?.enrolledChildren || 0) / villageData?.totalChildren * 100).toFixed(1) : 0 
+      count: gramPanchayatData?.enrolledChildren || 0, 
+      percentage: gramPanchayatData?.totalChildren ? 
+        ((gramPanchayatData?.enrolledChildren || 0) / gramPanchayatData?.totalChildren * 100).toFixed(1) : 0 
     },
     dropout: { 
-      count: villageData?.dropoutChildren || 0, 
-      percentage: villageData?.totalChildren ? 
-        ((villageData?.dropoutChildren || 0) / villageData?.totalChildren * 100).toFixed(1) : 0 
+      count: gramPanchayatData?.dropoutChildren || 0, 
+      percentage: gramPanchayatData?.totalChildren ? 
+        ((gramPanchayatData?.dropoutChildren || 0) / gramPanchayatData?.totalChildren * 100).toFixed(1) : 0 
     },
     neverEnrolled: { 
-      count: villageData?.neverEnrolledChildren || 0, 
-      percentage: villageData?.totalChildren ? 
-        ((villageData?.neverEnrolledChildren || 0) / villageData?.totalChildren * 100).toFixed(1) : 0 
+      count: gramPanchayatData?.neverEnrolledChildren || 0, 
+      percentage: gramPanchayatData?.totalChildren ? 
+        ((gramPanchayatData?.neverEnrolledChildren || 0) / gramPanchayatData?.totalChildren * 100).toFixed(1) : 0 
     }
   };
 
   // Additional para information from API
   const additionalInfo = {
-    population: villageData?.totalPopulation || villageData?.population || null,
-    district: villageData?.district || 'Unknown District',
-    state: villageData?.state || 'Unknown State',
-    cluster: villageData?.cluster || null,
-    createdAt: villageData?.createdAt || null,
-    updatedAt: villageData?.updatedAt || null
+    population: gramPanchayatData?.totalPopulation || gramPanchayatData?.population || null,
+    district: gramPanchayatData?.district || 'Unknown District',
+    state: gramPanchayatData?.state || 'Unknown State',
+    cluster: gramPanchayatData?.cluster || null,
+    createdAt: gramPanchayatData?.createdAt || null,
+    updatedAt: gramPanchayatData?.updatedAt || null
   };
 
   return (
@@ -249,7 +260,7 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">Paras in {villageData.name}</h3>
+                <h3 className="text-lg font-semibold">Paras in {gramPanchayatData?.name || displayData.name}</h3>
               </div>
             </div>
 
@@ -261,6 +272,7 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-bold">Para Name</TableHead>
+                        <TableHead className="font-bold">Village</TableHead>
                         <TableHead className="font-bold">Block</TableHead>
                         <TableHead className="font-bold">Total Children</TableHead>
                         <TableHead className="font-bold">Enrolled</TableHead>
@@ -277,7 +289,8 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
                           <TableCell className="font-medium">
                             {para.name}
                           </TableCell>
-                          <TableCell>{villageData.block || ''}</TableCell>
+                          <TableCell>{para.villageName || '-'}</TableCell>
+                          <TableCell>{gramPanchayatData?.block || ''}</TableCell>
                           <TableCell>
                             <Badge className="bg-primary/10 text-primary border-primary/20">
                               {para.totalChildren || 0}
@@ -311,4 +324,4 @@ const VillageProfile = ({ villageId, villageData, onBack }: VillageProfileProps)
   );
 };
 
-export default VillageProfile;
+export default GramPanchayatProfile;

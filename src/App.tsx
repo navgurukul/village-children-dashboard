@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -19,18 +18,16 @@ const App = () => {
   useEffect(() => {
     // Check if user is already authenticated on app load
     const token = localStorage.getItem('auth_token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    if (token) setIsAuthenticated(true);
   }, []);
 
   const handleLogin = async (credentials: { username: string; password: string }) => {
     setIsLoading(true);
     setLoginError('');
-    
+
     try {
       const response = await apiClient.login(credentials.username, credentials.password);
-      
+
       if (response.success) {
         apiClient.setToken(response.data.token);
         setIsAuthenticated(true);
@@ -40,7 +37,7 @@ const App = () => {
         localStorage.setItem('user_id', id);
         localStorage.setItem('user_email', email);
         localStorage.setItem('user_role', role);
-        localStorage.setItem('user_name', name); 
+        localStorage.setItem('user_name', name); // Store user's name
 
         // Identify the user in Mixpanel for user profile tracking
         mixpanel.identify(id);
@@ -63,9 +60,10 @@ const App = () => {
           login_time: new Date().toISOString(),
           status: 'Success'
         });
+
       } else {
         setLoginError(response.message || 'Login failed');
-        
+
         // Track failed login
         mixpanel.track('User Login', {
           user_id: credentials.username,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
     panchayat: ''
   });
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
 
   // Pre-populate form with user data when component mounts
@@ -45,10 +45,35 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
     e.preventDefault();
     if (!userData) return;
 
+    // Validation: if role is admin then email and mobile are required
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    }
+    if (formData.role === 'admin') {
+      if (!formData.email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+        newErrors.email = 'Enter a valid email address';
+      }
+      if (!formData.mobile.trim() || !/^\d{10}$/.test(formData.mobile)) {
+        newErrors.mobile = 'Valid 10-digit mobile number is required';
+      }
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fix the errors in the form.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await apiClient.updateUser(userData.id, {
         name: formData.fullName,
+        // send fields even if empty; server will handle if optional
         email: formData.email,
         mobile: formData.mobile
       });
@@ -132,28 +157,36 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">Email {formData.role === 'admin' ? '*' : ''}</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, email: e.target.value }));
+                  if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
+                }}
                 placeholder="Enter email address"
-                required
+                required={formData.role === 'admin'}
               />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="mobile">Mobile Number *</Label>
+            <Label htmlFor="mobile">Mobile Number {formData.role === 'admin' ? '*' : ''}</Label>
             <Input
               id="mobile"
               type="tel"
               value={formData.mobile}
-              onChange={(e) => setFormData(prev => ({ ...prev, mobile: e.target.value }))}
+              onChange={(e) => {
+                setFormData(prev => ({ ...prev, mobile: e.target.value }));
+                if (errors.mobile) setErrors(prev => ({ ...prev, mobile: '' }));
+              }}
               placeholder="Enter mobile number"
-              required
+              required={formData.role === 'admin'}
             />
+            {errors.mobile && <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>}
           </div>
 
           {/* Role Selection */}
@@ -209,10 +242,10 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="panchayat">Panchayat</Label>
+                  <Label htmlFor="panchayat">Gram Panchayat</Label>
                   <Select value={formData.panchayat} onValueChange={(value) => setFormData(prev => ({ ...prev, panchayat: value }))} disabled>
                     <SelectTrigger className="cursor-not-allowed">
-                      <SelectValue placeholder="Select Panchayat" />
+                      <SelectValue placeholder="Select Gram Panchayat" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Sijua">Sijua</SelectItem>

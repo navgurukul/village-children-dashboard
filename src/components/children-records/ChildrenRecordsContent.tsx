@@ -42,13 +42,14 @@ interface ChildrenRecordsContentProps {
   onChildClick: (childId: string) => void;
   onEditChild?: (childId: string) => void;
   onDeleteChild: (childId: string) => void;
-  handleExportCSV: () => void;
+  handleExportCSV: (type: 'current' | 'all') => void;
   handleFilterChange: (filterId: string, value: string) => void;
   filterOptions: Array<{
     label: string;
     value: string;
     options: Array<{ label: string; value: string }>;
   }>;
+  totalCount: number;
 }
 
 const ChildrenRecordsContent = ({
@@ -72,7 +73,8 @@ const ChildrenRecordsContent = ({
   onDeleteChild,
   handleExportCSV,
   handleFilterChange,
-  filterOptions
+  filterOptions,
+  totalCount
 }: ChildrenRecordsContentProps) => {
   const isMobile = useIsMobile();
 
@@ -85,6 +87,8 @@ const ChildrenRecordsContent = ({
               searchTerm={searchTerm}
               onSearchChange={onSearchChange}
               onExportCSV={handleExportCSV}
+              currentPageCount={paginatedData.length}
+              totalCount={totalCount}
               isMobile={true}
             />
           </div>
@@ -95,7 +99,7 @@ const ChildrenRecordsContent = ({
           />
 
           <div className="text-muted-foreground text-xs">
-            Showing {paginatedData.length} of {filteredData.length} children
+            Showing {paginatedData.length} of {totalCount} children
           </div>
 
           <ChildrenCardList
@@ -125,7 +129,7 @@ const ChildrenRecordsContent = ({
           />
 
           <div className="text-muted-foreground text-xs">
-            Showing {paginatedData.length} of {filteredData.length} children
+            Showing {paginatedData.length} of {totalCount} children
           </div>
 
           <ChildrenTable

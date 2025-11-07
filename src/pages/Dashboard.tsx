@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { FileText } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import KPICards from '../components/dashboard/KPICards';
@@ -21,7 +22,7 @@ const Dashboard = () => {
   const [trendsDateRange, setTrendsDateRange] = useState('6months');
   const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
   const [blocksData, setBlocksData] = useState<any[]>([]);
-  const [initialLoad, setInitialLoad] = useState(true); 
+  const [initialLoad, setInitialLoad] = useState(true); // NEW
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [loadingOverview, setLoadingOverview] = useState(true);
   const [surveyData, setSurveyData] = useState<Survey | null>(null);
@@ -111,23 +112,9 @@ const Dashboard = () => {
   const fetchDashboardData = async (isInitial = false) => {
     try {
       setLoadingSummary(true);
-
-      // Include date range parameters in the API call
-      const params: any = {
-        block: analyticsFilters.block !== 'all' ? analyticsFilters.block : undefined,
-        gramPanchayat: analyticsFilters.gramPanchayat !== 'all' ? analyticsFilters.gramPanchayat : undefined,
-      };
       
-      // Add date range parameters if they exist
-      if (analyticsFilters.dateRange.from) {
-        params.startDate = analyticsFilters.dateRange.from.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-      }
-      
-      if (analyticsFilters.dateRange.to) {
-        params.endDate = analyticsFilters.dateRange.to.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-      }
-      
-      const response = await apiClient.getDashboardSummary(params);
+      // Fetch summary data without any filters as it shows all-time data
+      const response = await apiClient.getDashboardSummary({});
 
       if (response.success) {
         setDashboardData(response.data);
@@ -187,12 +174,6 @@ const Dashboard = () => {
     }
   }, [loadingSummary, loadingOverview]);
 
-  // Filter change effect (no loading spinner)
-  useEffect(() => {
-    if (!initialLoad) fetchDashboardData(false);
-    // eslint-disable-next-line
-  }, [analyticsFilters]);
-
   const handleFilterChange = (filterId: string, value: string) => {
     setAnalyticsFilters(prev => {
       const newFilters = { ...prev, [filterId]: value };
@@ -212,7 +193,8 @@ const Dashboard = () => {
         current_filters: {
           block: filterId === 'block' ? value : prev.block,
           gramPanchayat: filterId === 'gramPanchayat' ? value : 
-                        (filterId === 'block' ? 'all' : prev.gramPanchayat)
+                        (filterId === 'block' ? 'all' : prev.gramPanchayat),
+          dateRange: prev.dateRange
         },
         view_time: new Date().toISOString()
       });
@@ -223,10 +205,10 @@ const Dashboard = () => {
 
   // Wrapper for setAnalyticsFilters to track all filter changes
   const handleAnalyticsFiltersChange = (newFilters: any) => {
-    // Track filter changes with Mixpanel (only block and gramPanchayat, not dateRange)
+    // Track filter changes with Mixpanel
     const changedFilters = Object.keys(newFilters).filter(key => {
       if (key === 'dateRange') {
-        return false;
+        return JSON.stringify(analyticsFilters.dateRange) !== JSON.stringify(newFilters.dateRange);
       }
       return analyticsFilters[key] !== newFilters[key];
     });
@@ -240,7 +222,8 @@ const Dashboard = () => {
         filter_changed: changedFilters.join(','),
         current_filters: {
           block: newFilters.block,
-          gramPanchayat: newFilters.gramPanchayat
+          gramPanchayat: newFilters.gramPanchayat,
+          dateRange: newFilters.dateRange
         },
         view_time: new Date().toISOString()
       });
@@ -334,21 +317,7 @@ const Dashboard = () => {
         </div>
         {/* Dashboard Content for PDF Export */}
         <div className="dashboard-content space-y-6">
-          {/* Analytics Filters */}
-          {isMobile ? (
-            <FilterChips
-              filters={filterOptions}
-              onFilterChange={handleFilterChange}
-            />
-          ) : (
-            <SurveyAnalyticsFilters
-              filters={analyticsFilters}
-              onFiltersChange={handleAnalyticsFiltersChange}
-              blocksData={blocksData}
-            />
-          )}
-
-          {/* KPI Cards */}
+          {/*  KPI Cards */}
           {initialLoad && loadingSummary && !dashboardData ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="p-4 rounded bg-muted/20 h-24 animate-pulse" />
@@ -360,6 +329,24 @@ const Dashboard = () => {
             <KPICards data={kpiData} />
           )}
 
+          {/* Analytics Filters */}
+          <Card className="bg-white shadow-sm border-border/40">
+            <div className="p-6">
+              {isMobile ? (
+                <FilterChips
+                  filters={filterOptions}
+                  onFilterChange={handleFilterChange}
+                />
+              ) : (
+                <SurveyAnalyticsFilters
+                  filters={analyticsFilters}
+                  onFiltersChange={handleAnalyticsFiltersChange}
+                  blocksData={blocksData}
+                />
+              )}
+            </div>
+          </Card>
+
           {/* Survey Analytics */}
           {surveyData && (
             overviewData ? (
@@ -367,6 +354,7 @@ const Dashboard = () => {
                 survey={surveyData}
                 analyticsData={analyticsData}
                 totalSurveys={totalSurveys}
+                calculatedAt={overviewData.meta?.calculatedAt}
               />
             ) : (
               <div className="text-muted-foreground">No analytics available</div>

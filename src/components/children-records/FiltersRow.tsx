@@ -30,7 +30,10 @@ const FiltersRow = ({
         <span className="font-medium">Filters</span>
       </div>
       
-      <Select value={blockFilter} onValueChange={onBlockFilterChange}>
+      <Select value={blockFilter} onValueChange={value => {
+        onBlockFilterChange(value);
+        onGramPanchayatFilterChange('all'); // Reset Gram Panchayat when block changes
+      }}>
         <SelectTrigger className="w-[150px] bg-white">
           <SelectValue placeholder="All Blocks" />
         </SelectTrigger>
@@ -42,7 +45,7 @@ const FiltersRow = ({
         </SelectContent>
       </Select>
 
-      <Select value={gramPanchayatFilter} onValueChange={onGramPanchayatFilterChange} disabled={blockFilter === 'all'}>
+      <Select value={gramPanchayatFilter} onValueChange={onGramPanchayatFilterChange} disabled={blockFilter === 'all' || gramPanchayats.length === 0}>
         <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="All Gram Panchayats" />
         </SelectTrigger>

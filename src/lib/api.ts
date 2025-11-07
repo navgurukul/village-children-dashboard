@@ -228,6 +228,7 @@ interface Child {
       q4_9?: string; // Please specify the reason for dropout
       q4_10?: string | string[]; // If the child has never enrolled, what is the reason for not enrolling in school?
       q4_11?: string; // Other reason for never enrolling
+      q4_12?: string; 
     };
     "section-5"?: {
       q5_1?: string; // Does the child have a caste certificate?
@@ -270,6 +271,7 @@ interface Child {
   educationInfo: {
     goesToSchool: boolean;
     schoolName: string;
+    schoolType: string;
     currentClass: string;
     attendanceStatus: string;
     educationStatus: string;
@@ -472,6 +474,18 @@ class ApiClient {
     return response.json();
   }
 
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'GET',
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'DELETE',
+    });
+  }
+
   async login(username: string, password: string): Promise<ApiResponse<LoginResponse>> {
     return this.request<LoginResponse>('/auth/login', {
       method: 'POST',
@@ -628,18 +642,8 @@ class ApiClient {
     });
   }
 
-  async bulkUploadVillages(formData: FormData): Promise<ApiResponse<any>> {
-    return this.request<any>('/villages/bulk-upload', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        // Don't set Content-Type header, let browser set it with boundary
-      },
-    });
-  }
-
-  async bulkUploadUsers(formData: FormData): Promise<ApiResponse<any>> {
-    return this.request<any>('/users/bulk-upload/balmitra', {
+  async bulkUploadGramPanchayats(formData: FormData): Promise<ApiResponse<any>> {
+    return this.request<any>('/gramPanchayats/bulk-upload', {
       method: 'POST',
       body: formData,
       headers: {
@@ -696,13 +700,9 @@ class ApiClient {
 
     try {
       const endpoint = `/paras/gramPanchayat${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-      console.log('Making API request to:', BASE_URL + endpoint);
       const response = await this.request<{items: GramPanchayat[], pagination: {page: number, limit: number, totalCount: number, hasMore: boolean}}>(endpoint);
-      console.log('API response received:', response);
-      
       // Ensure data is in expected format
       if (response.success && (!response.data.items || !Array.isArray(response.data.items))) {
-        console.error('API returned unexpected format:', response);
         return {
           ...response,
           data: {
@@ -776,6 +776,27 @@ class ApiClient {
       method: 'GET',
     });
   }
+
+  async createGramPanchayat(payload: { name: string; block: string; villages: { name: string; paras: { name: string }[] }[] }): Promise<ApiResponse<any>> {
+    return this.request<any>('/gramPanchayats', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateGramPanchayat(gpId: string, payload: { name: string; block: string; villages: { name: string; paras: { name: string }[] }[] }): Promise<ApiResponse<any>> {
+    return this.request<any>(`/gramPanchayats/${gpId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async exportGramPanchayats(): Promise<ApiResponse<{jobId: string}>> {
+    return this.request<{jobId: string}>('/export/gramPanchayat', {
+      method: 'GET'
+    });
+  }
+
 }
 
 export const apiClient = new ApiClient();

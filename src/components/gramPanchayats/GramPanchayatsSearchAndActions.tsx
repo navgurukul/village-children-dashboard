@@ -1,25 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Upload } from 'lucide-react';
+import { Search, Plus, Upload, Download } from 'lucide-react';
+import CSVExportModal from '@/components/ui/CSVExportModal';
 
-interface VillagesSearchAndActionsProps {
+interface GramPanchayatSearchAndActionsProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  onAddVillage: () => void;
+  onAddGramPanchayat: () => void;
   onBulkUpload: () => void;
-  onExportCSV: () => void; // Added prop for export
+  onExportCSV: (type: 'current' | 'all') => void;
+  currentPageCount?: number;
+  totalCount?: number;
   isMobile?: boolean;
 }
 
-const VillagesSearchAndActions = ({ 
+const GramPanchayatSearchAndActions = ({ 
   searchTerm, 
   onSearchChange, 
-  onAddVillage, 
+  onAddGramPanchayat, 
   onBulkUpload,
-  onExportCSV, // Added prop for export
+  onExportCSV,
+  currentPageCount,
+  totalCount,
   isMobile = false 
-}: VillagesSearchAndActionsProps) => {
+}: GramPanchayatSearchAndActionsProps) => {
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const handleExportCurrentPage = () => {
+    onExportCSV('current');
+  };
+
+  const handleExportAllData = async () => {
+    await onExportCSV('all');
+  };
+
   return (
     <div className={`${isMobile ? 'space-y-3' : 'flex items-center justify-between gap-4'}`}>
       <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-md'}`}>
@@ -34,7 +49,7 @@ const VillagesSearchAndActions = ({
       
       <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
         <Button 
-          onClick={onAddVillage} 
+          onClick={onAddGramPanchayat} 
           className={`gap-2 ${isMobile ? 'flex-1' : ''}`}
         >
           <Plus className="h-4 w-4" />
@@ -49,16 +64,26 @@ const VillagesSearchAndActions = ({
           Bulk Upload
         </Button>
         <Button
-          onClick={onExportCSV}
           variant="outline"
           className={`gap-2 bg-white ${isMobile ? 'flex-1' : ''}`}
+          onClick={() => setIsExportModalOpen(true)}
         >
-          {/* You can use a download icon if available, else just text */}
+          <Download className="h-4 w-4" />
           Export CSV
         </Button>
       </div>
+
+      <CSVExportModal
+        open={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExportCurrentPage={handleExportCurrentPage}
+        onExportAllData={handleExportAllData}
+        currentPageCount={currentPageCount}
+        totalCount={totalCount}
+        jobType="gram-panchayat-export"
+      />
     </div>
   );
 };
 
-export default VillagesSearchAndActions;
+export default GramPanchayatSearchAndActions;
