@@ -10,7 +10,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface Child {
   id: string;
   name: string;
-  age: number;
   gender: string;
   village: string;
   aadhaar: string;
