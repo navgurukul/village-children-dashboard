@@ -4,7 +4,6 @@ import { StudentData } from '@/data/mockData';
 interface ChildData {
   id: string;
   name: string;
-  age: number;
   gender: string;
   village: string;
   para: string; 
@@ -57,7 +56,7 @@ interface ChildData {
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
   const headers = [
-    'ID', 'Name', 'Age', 'Gender', 'Has Aadhaar', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 'Para',
+    'ID', 'Name', 'Gender', 'Has Aadhaar', 'Aadhaar Number', 'Block', 'Gram Panchayat', 'Village', 'Para',
     'Date of Birth', 'Father Name', 'Mother Name','Mother Educated', 'Father Educated', 'House Number', 
     'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with whom', 
     'Other Lives With Whom', 'Mother Tongue',
@@ -94,7 +93,6 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
       return [
         child.id,
         `"${child.name}"`,
-        child.age,
         `"${child.gender}"`,
         child.hasAadhaar || '-', 
         child.aadhaarNumber || '-',
