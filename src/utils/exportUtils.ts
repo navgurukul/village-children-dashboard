@@ -12,7 +12,6 @@ interface ChildData {
   schoolName: string;
   school: string;
   schoolStatus: string;
-  schoolType?: string; 
   block: string;
   gramPanchayat: string;
   disability: string;
@@ -27,8 +26,6 @@ interface ChildData {
   livesWithWhom: string;
   houseNumber?: string;
   economicStatus?: string;
-  
-  // Additional survey fields
   motherTongue?: string;
   otherMotherTongue?: string;
   otherOccupation?: string;
@@ -51,7 +48,7 @@ interface ChildData {
   disabilityTypes?: string | string[];
   otherDisability?: string;
   goesToSchool?: string;
-  surveyedAt?: string;  // Adding field for survey timestamp
+  surveyedAt?: string;  
 }
 
 export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
@@ -61,7 +58,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
     'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with whom', 
     'Other Lives With Whom', 'Mother Tongue',
     'Goes To School', 
-    'Education Status', 'School Name', 'School Type', 'Attendance Status', 'Current Class', 'Living Arrangement', 
+    'Education Status', 'School Name', 'Attendance Status', 'Current Class', 'Living Arrangement', 
     'Last  Studied Class', 'Dropout Reasons', 'Never Enrolled Reasons', 
     'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
     'Has Residence Certificate', 'Disability', 'Disability Types', 'Surveyed At'
@@ -117,7 +114,6 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.goesToSchool || '-'}"`,
         `"${child.schoolStatus || '-'}"`,
         `"${child.schoolName || '-'}"`,
-        `"${child.schoolType || '-'}"`,
         `"${child.attendanceStatus || '-'}"`,
         `"${child.currentClass || '-'}"`,
         `"${child.schoolCommuteType || '-'}"`,

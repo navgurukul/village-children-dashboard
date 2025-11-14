@@ -48,7 +48,6 @@ const GramPanchayats = ({
 }: GramPanchayatsProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [districtFilter, setDistrictFilter] = useState('all');
   const [blockFilter, setBlockFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [gramPanchayatsList, setGramPanchayatsList] = useState<ApiGramPanchayat[]>([]);
@@ -60,9 +59,9 @@ const GramPanchayats = ({
   const { toast } = useToast();
 
   // Fetch blocks data from API
-  const fetchBlocksData = async (district?: string) => {
+  const fetchBlocksData = async () => {
     try {
-      const response = await apiClient.getDistrictGramPanchayats(district);
+      const response = await apiClient.getDistrictGramPanchayats();
 
       if (response.success && response.data) {
         // Check if the response is an array
@@ -103,7 +102,6 @@ const GramPanchayats = ({
       const response = await apiClient.getGramPanchayats({
         page: currentPage,
         limit: itemsPerPage,
-        district: districtFilter !== 'all' ? districtFilter : undefined,
         block: blockFilter !== 'all' ? blockFilter : undefined,
         search: debouncedSearchTerm || undefined
       });
@@ -129,15 +127,15 @@ const GramPanchayats = ({
     }
   };
 
-  // Load blocks data on mount and when district changes
+  // Load blocks data on mount
   useEffect(() => {
-    fetchBlocksData(districtFilter !== 'all' ? districtFilter : undefined);
-  }, [districtFilter]);
+    fetchBlocksData();
+  }, []);
 
   // Load gram panchayats from API
   useEffect(() => {
     loadGramPanchayats();
-  }, [currentPage, districtFilter, blockFilter, debouncedSearchTerm]);
+  }, [currentPage, blockFilter, debouncedSearchTerm]);
 
   // Debounce search term
   useEffect(() => {
@@ -179,11 +177,6 @@ const GramPanchayats = ({
     });
   }, [gramPanchayatsList]);
 
-  // Get districts from gram panchayat data
-  const districts = useMemo(() => {
-    return [...new Set(gramPanchayatDisplayData.map(gp => gp.district))];
-  }, [gramPanchayatDisplayData]);
-
   // Use data directly from API response since filtering is done server-side
   const filteredData = useMemo(() => {
     return gramPanchayatDisplayData;
@@ -192,11 +185,7 @@ const GramPanchayats = ({
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleFilterChange = (filterId: string, value: string) => {
-    if (filterId === 'district') {
-      setDistrictFilter(value);
-      // Reset block filter when district changes
-      setBlockFilter('all');
-    } else if (filterId === 'block') {
+    if (filterId === 'block') {
       setBlockFilter(value);
     }
     setCurrentPage(1);
@@ -314,7 +303,6 @@ const GramPanchayats = ({
         export_type: 'current_page',
         export_page: 'Gram Panchayats',
         filters_applied: {
-          district: districtFilter,
           block: blockFilter,
           search: searchTerm
         }
@@ -351,7 +339,6 @@ const GramPanchayats = ({
           export_page: 'Gram Panchayats',
           job_id: jobId,
           filters_applied: {
-            district: districtFilter,
             block: blockFilter,
             search: searchTerm
           }
@@ -370,11 +357,6 @@ const GramPanchayats = ({
       });
     }
   };
-
-  // Load blocks data on initial mount
-  useEffect(() => {
-    fetchBlocksData();
-  }, []);
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -432,11 +414,8 @@ const GramPanchayats = ({
              />
 
             <GramPanchayatFilters
-               districtFilter={districtFilter}
                blockFilter={blockFilter}
-               districts={districts}
                blocks={availableBlocks}
-               onDistrictFilterChange={setDistrictFilter}
                onBlockFilterChange={setBlockFilter}
              />
 
