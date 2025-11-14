@@ -3,20 +3,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Filter } from 'lucide-react';
 
 interface GramPanchayatFiltersProps {
-  districtFilter: string;
   blockFilter: string;
-  districts: string[];
   blocks: string[];
-  onDistrictFilterChange: (value: string) => void;
   onBlockFilterChange: (value: string) => void;
 }
 
 const GramPanchayatFilters = ({ 
-  districtFilter, 
   blockFilter, 
-  districts, 
   blocks, 
-  onDistrictFilterChange, 
   onBlockFilterChange 
 }: GramPanchayatFiltersProps) => {
   return (
@@ -25,20 +19,6 @@ const GramPanchayatFilters = ({
         <Filter className="h-4 w-4" />
         <span className="font-medium">Filters</span>
       </div>
-      
-      {/* District filter hidden since there's only one district (Dantewada) */}
-      {/* <Select value={districtFilter} onValueChange={onDistrictFilterChange}>
-        <SelectTrigger className="w-[150px] bg-white">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Districts</SelectItem>
-          {districts.map(district => (
-            <SelectItem key={district} value={district}>{district}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select> */}
-
       <Select value={blockFilter} onValueChange={onBlockFilterChange}>
         <SelectTrigger className="w-[180px] bg-white">
           <SelectValue />
