@@ -44,7 +44,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     gramPanchayat: propChildData.surveyData?.['section-1']?.q1_6 || 'N/A',
     village: propChildData.surveyData?.['section-1']?.q1_7 || 'N/A',
     para: propChildData.surveyData?.['section-1']?.q1_8 || 'N/A',
-    motherTongue: propChildData.surveyData?.['section-1']?.q1_9 ||'N/A',
+    motherTongue: propChildData.surveyData?.['section-1']?.q1_9 || 'N/A',
     motherTongueOther: propChildData.surveyData?.['section-1']?.q1_8_other || '',
     motherName: propChildData.surveyData?.['section-1']?.q1_10 || 'N/A',
     fatherName: propChildData.surveyData?.['section-1']?.q1_11 || 'N/A',
@@ -52,7 +52,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     fatherEducated: propChildData.surveyData?.['section-1']?.q1_13 || 'N/A',
     caste: propChildData.surveyData?.['section-2']?.q2_3 || 'N/A',
     familyOccupation: propChildData.surveyData?.['section-2']?.q2_1 || 'N/A',
-    otherOccupation: propChildData.surveyData?.['section-2']?.q2_2 || 'N/A', // Fixed other occupation to q2_2
+    otherOccupation: propChildData.surveyData?.['section-2']?.q2_2 || 'N/A',
     otherCaste: propChildData.surveyData?.['section-2']?.q2_4 || 'N/A',
     parentsStatus: propChildData.surveyData?.['section-2']?.q2_5 || 'N/A',
     livesWithWhom: propChildData.surveyData?.['section-2']?.q2_6 || 'N/A',

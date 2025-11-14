@@ -162,14 +162,13 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       livesWithWhom: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_6 || '',
       otherLivesWith: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? child.surveyData?.['section-2']?.q2_7 || '' : '',
       economicStatus: child.surveyData?.['section-3']?.q3_1 || '',
-      houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', // Updated to use correct q1_2 field
-      motherTongue: child.surveyData?.['section-1']?.q1_9 || '', // Updated to use correct q1_8 field
-      otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', // Updated to use correct q1_8_other field
-      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Using q4_5 for attendance status from survey
+      houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', 
+      motherTongue: child.surveyData?.['section-1']?.q1_9 || '', 
+      otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', 
+      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '',
       currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी')
         ? ''
         : child.surveyData?.['section-4']?.q4_2 || '',
-      // Add schoolCommuteType for reference if needed in future
       schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
       lastClassStudied: child.surveyData?.['section-4']?.q4_8 || '',
@@ -372,7 +371,6 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
         block: childData.surveyData?.['section-1']?.q1_5 || '',
         panchayat: childData.surveyData?.['section-1']?.q1_6 || '',
         para: childData.surveyData?.['section-1']?.q1_8 || '',
-        cluster: '', // surveyData में नहीं है
         motherTongue: childData.surveyData?.['section-1']?.q1_9 || '',
         motherName: childData.surveyData?.['section-1']?.q1_10 || '',
         fatherName: childData.surveyData?.['section-1']?.q1_11 || '',
