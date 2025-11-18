@@ -3,15 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import { useToast } from "@/hooks/use-toast";
 
-interface AddNewUserProps {
-  onCancel: () => void;
-  onSuccess: () => void;
-}
-
-const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
+const AddNewUser = () => {
+  const navigate = useNavigate();
   // Form now only creates Admin users
   const [formData, setFormData] = useState({
     fullName: '',
@@ -64,7 +61,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
           title: "Success",
           description: "User created successfully",
         });
-        onSuccess();
+        navigate('/users');
       } else {
         const errorDetails = response.message ? [response.message] : [];
         const apiErrors: { [key: string]: string } = {};
@@ -110,7 +107,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
         {/* Header */}
         <div className="space-y-4">
           <Button 
-            onClick={onCancel} 
+            onClick={() => navigate('/users')} 
             variant="link" 
             className="gap-2 p-0 h-auto"
           >
@@ -186,7 +183,7 @@ const AddNewUser = ({ onCancel, onSuccess }: AddNewUserProps) => {
 
           {/* Actions */}
           <div className="flex justify-center gap-4 max-w-md mx-auto pt-4">
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={() => navigate('/users')}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
