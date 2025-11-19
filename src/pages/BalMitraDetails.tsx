@@ -3,15 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, MapPin, Phone, Mail, Calendar, Building, Users } from 'lucide-react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BalMitraDetailsProps {
-  balMitraId: string | null;
-  balMitraData: any;
-  onBack: () => void;
+  balMitraId?: string | null;
+  balMitraData?: any;
+  onBack?: () => void;
 }
 
-const BalMitraDetails = ({ balMitraId, balMitraData, onBack }: BalMitraDetailsProps) => {
+const BalMitraDetails = ({ }: BalMitraDetailsProps) => {
+  const { id: balMitraId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const balMitraData = location.state?.balMitraData;
   const isMobile = useIsMobile();
 
   // Use actual user data or fallback to defaults
@@ -57,7 +62,7 @@ const BalMitraDetails = ({ balMitraId, balMitraData, onBack }: BalMitraDetailsPr
         {/* Header */}
         <div className="flex flex-col gap-4">
           <Button 
-            onClick={onBack} 
+            onClick={() => navigate('/users')} 
             variant="link" 
             size="sm"
             className="gap-2 self-start p-0 text-primary"

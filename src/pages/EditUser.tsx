@@ -4,17 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from 'lucide-react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { apiClient, User } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
 import mixpanel from '../lib/mixpanel';
 
-interface EditUserProps {
-  userData: User | null;
-  onCancel: () => void;
-  onSuccess: () => void;
-}
-
-const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
+const EditUser = () => {
+  const { id: userId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userData = location.state?.user;
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -100,7 +100,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
           }
         });
 
-        onSuccess();
+        navigate('/users');
       }
     } catch (error) {
       console.error('Error updating user:', error);
@@ -131,7 +131,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
         {/* Header */}
         <div className="space-y-4">
           <Button 
-            onClick={onCancel} 
+            onClick={() => navigate('/users')} 
             variant="link" 
             className="gap-2 p-0 h-auto"
           >
@@ -263,7 +263,7 @@ const EditUser = ({ userData, onCancel, onSuccess }: EditUserProps) => {
             <Button type="submit" disabled={loading}>
               {loading ? 'Updating...' : 'Update User Details'}
             </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={() => navigate('/users')}>
               Cancel
             </Button>
           </div>

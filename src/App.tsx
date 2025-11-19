@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import AppShell from './components/AppShell';
 import { apiClient } from './lib/api';
@@ -14,11 +15,15 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   useEffect(() => {
     // Check if user is already authenticated on app load
     const token = localStorage.getItem('auth_token');
-    if (token) setIsAuthenticated(true);
+    if (token) {
+      setIsAuthenticated(true);
+    }
+    setInitialCheckDone(true);
   }, []);
 
   const handleLogin = async (credentials: { username: string; password: string }) => {
@@ -115,17 +120,47 @@ const App = () => {
     localStorage.removeItem('user_name');
   };
 
+  // Show loading while checking initial authentication
+  if (!initialCheckDone) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <div className="font-poppins flex items-center justify-center min-h-screen">
+            <div className="text-muted-foreground">Loading...</div>
+          </div>
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="font-poppins">
           <Toaster />
           <Sonner />
-          {!isAuthenticated ? (
-            <Login onLogin={handleLogin} error={loginError} isLoading={isLoading} />
-          ) : (
-            <AppShell onLogout={handleLogout} />
-          )}
+          <Routes>
+            <Route 
+              path="/login" 
+              element={
+                !isAuthenticated ? (
+                  <Login onLogin={handleLogin} error={loginError} isLoading={isLoading} />
+                ) : (
+                  <Navigate to="/dashboard" replace />
+                )
+              } 
+            />
+            <Route 
+              path="/*" 
+              element={
+                isAuthenticated ? (
+                  <AppShell onLogout={handleLogout} />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              } 
+            />
+          </Routes>
         </div>
       </TooltipProvider>
     </QueryClientProvider>

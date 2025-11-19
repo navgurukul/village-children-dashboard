@@ -4,14 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { apiClient, type BlockGramPanchayatData } from '../lib/api';
 import { useToast } from '@/hooks/use-toast';
-
-interface EditGramPanchayatProps {
-  gramPanchayat: any | null;
-  onCancel: () => void;
-  onSuccess: () => void;
-}
 
 interface GramPanchayatVillageData {
   id?: string;
@@ -19,7 +14,12 @@ interface GramPanchayatVillageData {
   paras: { id?: string; name: string }[];
 }
 
-const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanchayatProps) => {
+const EditGramPanchayat = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const gramPanchayat = location.state?.gramPanchayat;
+  
   const [formData, setFormData] = useState({
     gramPanchayatName: '',
     block: '',
@@ -134,7 +134,7 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
       const response = await apiClient.updateGramPanchayat(gramPanchayat.id, payload);
       if (response.success) {
         toast({ title: "Success", description: "Gram Panchayat updated successfully" });
-        onSuccess();
+        navigate('/gram-panchayats');
       } else {
         toast({
           title: "Error",
@@ -168,7 +168,7 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="space-y-4">
-          <Button onClick={onCancel} variant="link" className="gap-2 p-0 h-auto">
+          <Button onClick={() => navigate('/gram-panchayats')} variant="link" className="gap-2 p-0 h-auto">
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
@@ -261,7 +261,7 @@ const EditGramPanchayat = ({ gramPanchayat, onCancel, onSuccess }: EditGramPanch
           </div>
           {/* Actions */}
           <div className="flex justify-center gap-4 max-w-md mx-auto pt-4">
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={() => navigate('/gram-panchayats')}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

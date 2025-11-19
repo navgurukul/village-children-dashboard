@@ -5,13 +5,14 @@ import { ArrowLeft, Users, GraduationCap, AlertTriangle, UserX, MapPin, Calendar
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { apiClient } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface GramPanchayatProfileProps {
-  gramPanchayatId: string | null;
-  gramPanchayatData: any;
-  onBack: () => void;
+  gramPanchayatId?: string | null;
+  gramPanchayatData?: any;
+  onBack?: () => void;
 }
 
 interface Para {
@@ -47,7 +48,11 @@ interface GramPanchayat {
   totalParas?: number;
 }
 
-const GramPanchayatProfile = ({ gramPanchayatId, gramPanchayatData, onBack }: GramPanchayatProfileProps) => {
+const GramPanchayatProfile = ({ }: GramPanchayatProfileProps) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const gramPanchayatData = location.state?.gramPanchayatData;
   const isMobile = useIsMobile();
   const [relatedParas, setRelatedParas] = useState<Para[]>([]);
   const { toast } = useToast();
@@ -74,7 +79,7 @@ const GramPanchayatProfile = ({ gramPanchayatId, gramPanchayatData, onBack }: Gr
   
   // Use actual para data or fallback to defaults
   const displayData = {
-    id: gramPanchayatData?.id || gramPanchayatId,
+    id: gramPanchayatData?.id || id,
     name: gramPanchayatData?.name || 'Unknown Gram Panchayat',
     blocks: gramPanchayatData?.blocks || [gramPanchayatData?.block || 'Unknown Block'],
     gramPanchayats: gramPanchayatData?.gramPanchayats || [gramPanchayatData?.gramPanchayat || 'Unknown Gram Panchayat'],
@@ -113,7 +118,7 @@ const GramPanchayatProfile = ({ gramPanchayatId, gramPanchayatData, onBack }: Gr
         {/* Header */}
         <div className="space-y-4">
           <Button 
-            onClick={onBack} 
+            onClick={() => navigate('/gram-panchayats')} 
             variant="link" 
             className="gap-2 p-0 h-auto"
           >

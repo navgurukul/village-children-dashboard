@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Home, Users, FileText, LogOut, MapPin, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileHeader from './MobileHeader';
 import NotificationCenter, { ExportJob } from './NotificationCenter';
@@ -12,7 +13,6 @@ import UserManagement from '../pages/UserManagement';
 import AddNewUser from '../pages/AddNewUser';
 import BulkUploadUsers from '../pages/BulkUploadUsers';
 import ChildDetails from '../pages/ChildDetails';
-import EditChildDetails from '../pages/EditChildDetails';
 import BalMitraDetails from '../pages/BalMitraDetails';
 import EditUser from '../pages/EditUser';
 import GramPanchayats from '../pages/GramPanchayats';
@@ -26,17 +26,9 @@ interface AppShellProps {
   onLogout: () => void;
 }
 
-type Page = 'dashboard' | 'children' | 'villages' | 'users' | 'add-user' | 'bulk-upload' | 'bulk-upload-villages' | 'child-details' | 'edit-child-details' | 'bal-mitra-details' | 'edit-user' | 'add-gram-panchayat' | 'gram-panchayat-profile' | 'edit-gram-panchayat' | 'profile';
-
 const AppShell = ({ onLogout }: AppShellProps) => {
-  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
-  const [selectedChildData, setSelectedChildData] = useState<any | null>(null);
-  const [selectedBalMitraId, setSelectedBalMitraId] = useState<string | null>(null);
-  const [selectedUser, setSelectedUser] = useState<any | null>(null);
-  const [selectedBalMitra, setSelectedBalMitra] = useState<any | null>(null);
-  const [selectedGramPanchayat, setSelectedGramPanchayat] = useState<any | null>(null);
-  const [editChildFromDetails, setEditChildFromDetails] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [exportJobs, setExportJobs] = useState<ExportJob[]>([]);
   const isMobile = useIsMobile();
 
@@ -190,121 +182,87 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       id: 'dashboard' as const,
       label: 'Dashboard',
       icon: Home,
+      path: '/dashboard'
     },
     {
       id: 'children' as const,
       label: 'Children Records',
       icon: FileText,
+      path: '/children-records'
     },
     {
       id: 'villages' as const,
       label: 'Gram Panchayats',
       icon: MapPin,
+      path: '/gram-panchayats'
     },
     {
       id: 'users' as const,
       label: 'Users',
       icon: Users,
+      path: '/users'
     },
   ];
 
-  const handleNavigation = (page: Page, data?: any) => {
-    setCurrentPage(page);
-    if (page === 'child-details' && data?.childId) {
-      setSelectedChildId(data.childId);
-      setSelectedChildData(data?.childData || null);
-    }
-    if (page === 'edit-child-details' && data?.childId) {
-      setSelectedChildId(data.childId);
-      setSelectedChildData(data?.childData || null);
-      setEditChildFromDetails(data?.fromDetails || false);
-    }
-    if (page === 'bal-mitra-details' && data?.balMitraData) {
-      setSelectedBalMitra(data.balMitraData);
-      setSelectedBalMitraId(data.balMitraData?.id || null);
-    }
-    if (page === 'edit-user' && data?.user) {
-      setSelectedUser(data.user);
-    }
-    if (page === 'gram-panchayat-profile' && data?.gramPanchayatData) {
-      setSelectedGramPanchayat(data.gramPanchayatData);
-    }
-    if (page === 'edit-gram-panchayat' && data?.gramPanchayat) {
-      setSelectedGramPanchayat(data.gramPanchayat);
-    }
-  };
-
-  const renderContent = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'children':
-        return <ChildrenRecords 
-          key="children-records"
-          onChildClick={(childId, childData) => handleNavigation('child-details', { childId, childData })}
-          onEditChild={(childId, childData) => handleNavigation('edit-child-details', { childId, childData, fromDetails: false })}
-          onAddExportJob={addExportJob}
-        />;
-      case 'villages':
-        return <GramPanchayats 
-          key="villages"
-          onAddGramPanchayat={() => handleNavigation('add-gram-panchayat')}
-          onBulkUpload={() => handleNavigation('bulk-upload-villages')}
-          onGramPanchayatClick={(gramPanchayatData) => handleNavigation('gram-panchayat-profile', { gramPanchayatData })}
-          onEditGramPanchayat={(gramPanchayat) => handleNavigation('edit-gram-panchayat', { gramPanchayat })}
-          onDeleteGramPanchayat={(gramPanchayatId) => console.log('Delete gram panchayat:', gramPanchayatId)}
-          onAddExportJob={addExportJob}
-        />;
-      case 'users':
-        return <UserManagement 
-          onAddUser={() => handleNavigation('add-user')}
-          onBalMitraClick={(balMitraData) => handleNavigation('bal-mitra-details', { balMitraData })}
-          onEditUser={(user) => handleNavigation('edit-user', { user })}
-        />;
-      case 'add-user':
-        return <AddNewUser onCancel={() => handleNavigation('users')} onSuccess={() => handleNavigation('users')} />;
-      case 'add-gram-panchayat':
-        return <AddNewGramPanchayat onCancel={() => handleNavigation('villages')} onSuccess={() => handleNavigation('villages')} />;
-      case 'bulk-upload':
-        return <BulkUploadUsers onComplete={() => handleNavigation('users')} />;
-      case 'bulk-upload-villages':
-        return <BulkUploadVillages onComplete={() => handleNavigation('villages')} />;
-      case 'child-details':
-        return <ChildDetails 
-          childId={selectedChildId} 
-          childData={selectedChildData}
-          onBack={() => handleNavigation('children')} 
-          onEdit={(childId) => handleNavigation('edit-child-details', { childId, childData: selectedChildData, fromDetails: true })}
-        />;
-      case 'edit-child-details':
-        return <EditChildDetails 
-          childId={selectedChildId} 
-          childData={selectedChildData}
-          fromChildDetails={editChildFromDetails}
-          onBack={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
-          onSuccess={() => editChildFromDetails ? handleNavigation('child-details', { childId: selectedChildId }) : handleNavigation('children')} 
-        />;
-      case 'gram-panchayat-profile':
-        return <GramPanchayatProfile 
-          gramPanchayatId={selectedGramPanchayat?.id} 
-          gramPanchayatData={selectedGramPanchayat}
-          onBack={() => handleNavigation('villages')} 
-        />;
-      case 'edit-gram-panchayat':
-        return <EditGramPanchayat gramPanchayat={selectedGramPanchayat} onCancel={() => handleNavigation('villages')} onSuccess={() => handleNavigation('villages')} />;
-      case 'bal-mitra-details':
-        return <BalMitraDetails balMitraId={selectedBalMitraId} balMitraData={selectedBalMitra} onBack={() => handleNavigation('users')} />;
-      case 'edit-user':
-        return <EditUser 
-          userData={selectedUser} 
-          onCancel={() => handleNavigation('users')} 
-          onSuccess={() => handleNavigation('users')} 
-        />;
-      case 'profile':
-        return <Profile onBack={() => handleNavigation('dashboard')} onLogout={onLogout} />;
-      default:
-        return <Dashboard />;
-    }
+  const renderRoutes = () => {
+    return (
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/children-records" element={
+          <ChildrenRecords 
+            key="children-records"
+            onChildClick={(childId, childData) => {
+              navigate(`/children-records/${childId}`, { state: { childData } });
+            }}
+            onAddExportJob={addExportJob}
+          />
+        } />
+        <Route path="/children-records/:id" element={<ChildDetails />} />
+        <Route path="/gram-panchayats" element={
+          <GramPanchayats 
+            key="villages"
+            onAddGramPanchayat={() => navigate('/gram-panchayats/add')}
+            onBulkUpload={() => navigate('/gram-panchayats/bulk-upload')}
+            onGramPanchayatClick={(gramPanchayatData) => {
+              navigate(`/gram-panchayats/${gramPanchayatData.id}`, { state: { gramPanchayatData } });
+            }}
+            onEditGramPanchayat={(gramPanchayat) => {
+              navigate(`/gram-panchayats/${gramPanchayat.id}/edit`, { state: { gramPanchayat } });
+            }}
+            onDeleteGramPanchayat={(gramPanchayatId) => console.log('Delete gram panchayat:', gramPanchayatId)}
+            onAddExportJob={addExportJob}
+          />
+        } />
+        <Route path="/gram-panchayats/:id" element={<GramPanchayatProfile />} />
+        <Route path="/gram-panchayats/:id/edit" element={<EditGramPanchayat />} />
+        <Route path="/gram-panchayats/add" element={<AddNewGramPanchayat />} />
+        <Route path="/gram-panchayats/bulk-upload" element={<BulkUploadVillages />} />
+        <Route path="/users" element={
+          <UserManagement 
+            onAddUser={() => navigate('/users/add')}
+            onBalMitraClick={(balMitraData) => {
+              navigate(`/users/${balMitraData.id}`, { state: { balMitraData } });
+            }}
+            onEditUser={(user) => {
+              navigate(`/users/${user.id}/edit`, { state: { user } });
+            }}
+          />
+        } />
+        <Route path="/users/:id" element={<BalMitraDetails />} />
+        <Route path="/users/:id/edit" element={<EditUser />} />
+        <Route path="/users/add" element={<AddNewUser />} />
+        <Route path="/users/bulk-upload" element={
+          <BulkUploadUsers onComplete={() => navigate('/users')} />
+        } />
+        <Route path="/profile" element={
+          <Profile 
+            onBack={() => navigate('/dashboard')}
+            onLogout={onLogout}
+          />
+        } />
+      </Routes>
+    );
   };
 
   return (
@@ -312,9 +270,9 @@ const AppShell = ({ onLogout }: AppShellProps) => {
       {/* Mobile Header */}
       {isMobile && (
         <MobileHeader 
-          currentPage={currentPage}
-          onNavigate={handleNavigation}
-          onProfileClick={() => handleNavigation('profile')}
+          currentPage={location.pathname}
+          onNavigate={(path: string) => navigate(path)}
+          onProfileClick={() => navigate('/profile')}
           exportJobs={exportJobs}
           onClearJob={clearExportJob}
         />
@@ -342,12 +300,12 @@ const AppShell = ({ onLogout }: AppShellProps) => {
                 <nav className="flex items-center gap-1">
                   {navigationItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = currentPage === item.id;
+                    const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
                     
                     return (
                       <button
                         key={item.id}
-                        onClick={() => handleNavigation(item.id)}
+                        onClick={() => navigate(item.path)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive
                             ? 'bg-primary/10 text-primary'
@@ -378,7 +336,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
                     </Avatar>
                   </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleNavigation('profile')}>
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
@@ -396,7 +354,7 @@ const AppShell = ({ onLogout }: AppShellProps) => {
 
       {/* Main Content */}
       <main className={isMobile ? "pt-14" : "pt-20"}>
-        {renderContent()}
+        {renderRoutes()}
       </main>
     </div>
   );

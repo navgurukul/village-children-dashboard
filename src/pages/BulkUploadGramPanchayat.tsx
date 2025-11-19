@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Upload, Download, FileText, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 
 interface BulkUploadGramPanchayatProps {
-  onComplete: () => void;
+  onComplete?: () => void;
 }
 
-const BulkUploadGramPanchayat = ({ onComplete }: BulkUploadGramPanchayatProps) => {
+const BulkUploadGramPanchayat = ({ }: BulkUploadGramPanchayatProps) => {
+  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -37,7 +39,7 @@ const BulkUploadGramPanchayat = ({ onComplete }: BulkUploadGramPanchayatProps) =
           description: `Successfully uploaded gram panchayats`,
         });
         setTimeout(() => {
-          onComplete();
+          navigate('/gram-panchayats');
         }, 2000);
       } else {
         throw new Error(response.message || 'Upload failed');
@@ -82,7 +84,7 @@ const BulkUploadGramPanchayat = ({ onComplete }: BulkUploadGramPanchayatProps) =
         {/* Header */}
         <div className="space-y-4">
           <Button 
-            onClick={onComplete} 
+            onClick={() => navigate('/gram-panchayats')} 
             variant="link" 
             className="gap-2 p-0 h-auto"
           >
@@ -152,7 +154,7 @@ const BulkUploadGramPanchayat = ({ onComplete }: BulkUploadGramPanchayatProps) =
                 </div>
                 <div className="flex justify-center gap-4">
                   <Button 
-                    onClick={onComplete} 
+                    onClick={() => navigate('/gram-panchayats')} 
                     variant="outline"
                   >
                     Cancel
