@@ -35,6 +35,7 @@ interface ChildData {
   rationCardNumber?: string;
   attendanceStatus?: string;
   currentClass?: string;
+  otherCurrentClass?: string;
   educationCategory?: string;
   lastClassStudied?: string | string[];
   schoolCommuteType?: string; 
@@ -58,7 +59,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
     'Family Occupation', 'Other Occupation', 'Caste', 'Other Caste', 'Parents Status', 'Lives with whom', 
     'Other Lives With Whom', 'Mother Tongue',
     'Goes To School', 
-    'Education Status', 'School Name', 'Attendance Status', 'Current Class', 'Living Arrangement', 
+    'Education Status', 'School Name', 'Attendance Status', 'Current Class', 'Other Current Class', 'Living Arrangement', 
     'Last  Studied Class', 'Dropout Reasons', 'Never Enrolled Reasons', 
     'Ration Card Type', 'Ration Card Number', 'Has Caste Certificate',
     'Has Residence Certificate', 'Disability', 'Disability Types', 'Surveyed At'
@@ -71,11 +72,6 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
       const motherTongueFormatted = (child.motherTongue === "अन्य" || child.motherTongue === "Other") && child.otherMotherTongue 
         ? `${child.motherTongue} (${child.otherMotherTongue})` 
         : child.motherTongue;
-
-      // Format family occupation to include "other" value if applicable
-      const familyOccupationFormatted = (child.familyOccupation === "अन्य" || child.familyOccupation === "Other") && child.otherOccupation 
-        ? `${child.familyOccupation} (${child.otherOccupation})` 
-        : child.familyOccupation;
 
       // Format caste to include "other" value if applicable
       const casteFormatted = (child.caste === "अन्य" || child.caste === "Other") && child.otherCaste 
@@ -103,7 +99,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.motherEducated || '-'}"`,
         `"${child.fatherEducated || '-'}"`,
         `"${child.houseNumber || '-'}"`,
-        `"${familyOccupationFormatted || '-'}"`,
+        `"${child.familyOccupation || '-'}"`,
         `"${child.otherOccupation || '-'}"`,
         `"${child.caste || '-'}"`,
         `"${child.otherCaste || '-'}"`,
@@ -116,6 +112,7 @@ export const downloadChildrenCSV = (data: ChildData[], filename: string) => {
         `"${child.schoolName || '-'}"`,
         `"${child.attendanceStatus || '-'}"`,
         `"${child.currentClass || '-'}"`,
+        `"${child.otherCurrentClass || '-'}"`,
         `"${child.schoolCommuteType || '-'}"`,
         `"${child.lastClassStudied || '-'}"`,
         `"${Array.isArray(child.dropoutReasons) ? child.dropoutReasons.join('; ') : (child.dropoutReasons || '-')}"`,
