@@ -70,7 +70,8 @@ const ChildDetails = ({ onEdit }: ChildDetailsProps) => {
                   childData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी' ? 'Aanganwadi' : 'N/A',
     attendanceStatus: childData.surveyData?.['section-4']?.q4_5 || 'N/A',
     educationCategory: childData.surveyData?.['section-4']?.q4_6 || 'N/A',
-    currentClass: childData.surveyData?.['section-4']?.q4_2 || 'N/A', 
+    currentClass: childData.surveyData?.['section-4']?.q4_2 || 'N/A',
+    otherCurrentClass: childData.surveyData?.['section-4']?.q4_6 || '',
     school: childData.surveyData?.['section-4']?.q4_3 || 'N/A', 
     schoolCommuteType: childData.surveyData?.['section-4']?.q4_4 || 'N/A', 
     lastStudiedClass: childData.surveyData?.['section-4']?.q4_8 || 'N/A',
@@ -395,7 +396,11 @@ const ChildDetails = ({ onEdit }: ChildDetailsProps) => {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Current Class</label>
-                    <p className="text-lg font-medium">{transformedData.currentClass}</p>
+                    <p className="text-lg font-medium">
+                      {transformedData.currentClass === "अन्य" && transformedData.otherCurrentClass ? 
+                        `${transformedData.currentClass} (${transformedData.otherCurrentClass})` : 
+                        transformedData.currentClass}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Commute Type</label>

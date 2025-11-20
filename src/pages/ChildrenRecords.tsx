@@ -169,6 +169,7 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी')
         ? ''
         : child.surveyData?.['section-4']?.q4_2 || '',
+      otherCurrentClass: child.surveyData?.['section-4']?.q4_6 || '',
       schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
       lastClassStudied: child.surveyData?.['section-4']?.q4_8 || '',
