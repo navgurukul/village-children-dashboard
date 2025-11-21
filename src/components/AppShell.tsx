@@ -45,12 +45,20 @@ const AppShell = ({ onLogout }: AppShellProps) => {
           createdAt: new Date(job.createdAt),
         }));
         
-        // Filter out expired jobs (older than 7 days)
+        // Filter out expired jobs (older than 7 days) and handle enhanced jobs
         const now = new Date();
         const filteredJobs = jobs.filter((job: ExportJob) => {
           const jobDate = new Date(job.createdAt);
           const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
-          return (now.getTime() - jobDate.getTime()) < sevenDaysInMs;
+          const isWithinSevenDays = (now.getTime() - jobDate.getTime()) < sevenDaysInMs;
+          
+          // For enhanced jobs, also check expiresAt
+          if (job.expiresAt) {
+            const expiresAt = new Date(job.expiresAt);
+            return isWithinSevenDays && expiresAt > now;
+          }
+          
+          return isWithinSevenDays;
         });
         
         // Update localStorage with filtered jobs
