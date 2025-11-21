@@ -7,6 +7,13 @@ import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
 import { ExportJob } from '../components/NotificationCenter';
 import mixpanel from '../lib/mixpanel';
+import { 
+  generateExportJobKey, 
+  findExistingJob, 
+  createEnhancedExportJob,
+  cleanupExpiredJobs,
+  ExportFilters 
+} from '../utils/exportDeduplication';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -31,6 +38,11 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
   const itemsPerPage = 20;
+
+  // Initialize cleanup on component mount
+  useEffect(() => {
+    cleanupExpiredJobs();
+  }, []);
 
   // Format date from ISO string to DD-MM-YYYY
   const formatDate = (dateString: string | undefined): string => {
@@ -197,6 +209,14 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
   // Use filtered data for pagination
   const paginatedData = filteredData;
 
+  // Get current filters for deduplication
+  const getCurrentFilters = (): ExportFilters => ({
+    blockFilter,
+    gramPanchayatFilter,
+    statusFilter,
+    searchTerm: debouncedSearchTerm
+  });
+
   // Unified export handler for children records: 'current' page or 'all' data
   const handleExportCSV = async (type: 'current' | 'all') => {
     // Get all user info from localStorage
@@ -230,7 +250,25 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       return;
     }
 
-    // Backend export for all data
+    // Backend export for all data with deduplication
+    const currentFilters = getCurrentFilters();
+    const jobKey = generateExportJobKey('children-export', 'all', currentFilters);
+    const existingJob = findExistingJob(jobKey);
+
+    // Check for existing job
+    if (existingJob) {
+      if (existingJob.status === 'completed' && existingJob.downloadUrl) {
+        // Download existing file
+        window.open(existingJob.downloadUrl, '_blank');
+        toast({ title: 'Downloaded', description: 'Using previously generated export file.' });
+        return;
+      } else if (existingJob.status === 'processing' || existingJob.status === 'pending') {
+        // Job already in progress
+        toast({ title: 'Export in Progress', description: 'A similar export is already being processed. Check notifications for updates.' });
+        return;
+      }
+    }
+
     toast({ title: 'Exporting', description: 'Preparing full export. This may take a while.' });
     try {
       // Build query parameters from filters
@@ -248,16 +286,20 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
         const jobId = (response.data as any).jobId;
         const createdAt = (response.data as any).createdAt ? new Date((response.data as any).createdAt) : new Date();
         
-        // Add job to notification center - polling will be started by AppShell
+        // Create enhanced job with deduplication data
+        const baseJob: ExportJob = {
+          id: jobId,
+          status: 'processing',
+          title: 'Children Records CSV Export - All Data',
+          type: 'children-export',
+          createdAt: createdAt,
+          fileName: `children_records_all_${new Date().toISOString().split('T')[0]}.csv`,
+        };
+
+        const enhancedJob = createEnhancedExportJob(baseJob, jobKey, 'all', currentFilters);
+        
         if (onAddExportJob) {
-          onAddExportJob({
-            id: jobId,
-            status: 'processing',
-            title: 'Children Records CSV Export - All Data',
-            type: 'children-export',
-            createdAt: createdAt,
-            fileName: `children_records_all_${new Date().toISOString().split('T')[0]}.csv`,
-          });
+          onAddExportJob(enhancedJob);
         }
 
         // Mixpanel tracking with all user properties for full export

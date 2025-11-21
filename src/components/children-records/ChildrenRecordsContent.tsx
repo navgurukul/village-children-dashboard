@@ -89,6 +89,12 @@ const ChildrenRecordsContent = ({
               currentPageCount={paginatedData.length}
               totalCount={totalCount}
               isMobile={true}
+              currentFilters={{
+                blockFilter,
+                gramPanchayatFilter,
+                statusFilter,
+                searchTerm
+              }}
             />
           </div>
 
@@ -114,6 +120,14 @@ const ChildrenRecordsContent = ({
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
             onExportCSV={handleExportCSV}
+            currentPageCount={paginatedData.length}
+            totalCount={totalCount}
+            currentFilters={{
+              blockFilter,
+              gramPanchayatFilter,
+              statusFilter,
+              searchTerm
+            }}
           />
 
           <FiltersRow
