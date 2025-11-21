@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Upload, Download } from 'lucide-react';
 import CSVExportModal from '@/components/ui/CSVExportModal';
+import { ExportFilters } from '@/utils/exportDeduplication';
 
 interface GramPanchayatSearchAndActionsProps {
   searchTerm: string;
@@ -13,6 +14,7 @@ interface GramPanchayatSearchAndActionsProps {
   currentPageCount?: number;
   totalCount?: number;
   isMobile?: boolean;
+  currentFilters?: ExportFilters; 
 }
 
 const GramPanchayatSearchAndActions = ({ 
@@ -23,7 +25,8 @@ const GramPanchayatSearchAndActions = ({
   onExportCSV,
   currentPageCount,
   totalCount,
-  isMobile = false 
+  isMobile = false,
+  currentFilters = {}
 }: GramPanchayatSearchAndActionsProps) => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
@@ -81,6 +84,7 @@ const GramPanchayatSearchAndActions = ({
         currentPageCount={currentPageCount}
         totalCount={totalCount}
         jobType="gram-panchayat-export"
+        currentFilters={currentFilters}
       />
     </div>
   );
