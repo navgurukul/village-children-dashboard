@@ -738,12 +738,6 @@ class ApiClient {
     });
   }
 
-  async exportGramPanchayats(): Promise<ApiResponse<{jobId: string}>> {
-    return this.request<{jobId: string}>('/export/gramPanchayat', {
-      method: 'GET'
-    });
-  }
-
 }
 
 export const apiClient = new ApiClient();
