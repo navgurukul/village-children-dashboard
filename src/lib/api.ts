@@ -242,59 +242,6 @@ interface Child {
       q6_3?: string; // Other disability specification
     };
   };
-  basicInfo: {
-    fullName: string;
-    age: number;
-    dateOfBirth?: string;
-    gender: string;
-    para: string;
-    gramPanchayat?: string;
-    cluster: string;
-    block: string;
-    motherTongue: string;
-  };
-  familyInfo: {
-    motherName: string;
-    fatherName: string;
-    motherEducated: boolean;
-    fatherEducated: boolean;
-    familyOccupation: string;
-    caste: string;
-    parentsStatus: string;
-    livesWithWhom: string;
-  };
-  economicInfo: {
-    rationCardType?: string;
-    rationCardNumber?: string;
-    economicStatus?: string;
-  };
-  educationInfo: {
-    goesToSchool: boolean;
-    schoolName: string;
-    schoolType: string;
-    currentClass: string;
-    attendanceStatus: string;
-    educationStatus: string;
-    educationCategory: string;
-  };
-  documentsInfo: {
-    hasCasteCertificate: boolean;
-    hasResidenceCertificate: boolean;
-    hasAadhaar: boolean;
-    aadhaarNumber: string;
-  };
-  healthInfo: {
-    hasDisability: boolean;
-  };
-  derivedFields: {
-    educationStatus: string;
-    isVulnerable: boolean;
-    ageGroup: string;
-    riskFactors?: string[];
-    priorityLevel?: string;
-    economicStatus?: string;
-    searchText: string;
-  };
   surveyMeta: {
     villageId: string;
     surveyedBy: string;
@@ -788,12 +735,6 @@ class ApiClient {
     return this.request<any>(`/gramPanchayats/${gpId}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
-    });
-  }
-
-  async exportGramPanchayats(): Promise<ApiResponse<{jobId: string}>> {
-    return this.request<{jobId: string}>('/export/gramPanchayat', {
-      method: 'GET'
     });
   }
 

@@ -3,16 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, School, Home, Heart, Edit } from 'lucide-react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Child } from '@/lib/api';
 
 interface ChildDetailsProps {
-  childId: string | null;
+  childId?: string | null;
   childData?: Child | null;
-  onBack: () => void;
+  onBack?: () => void;
   onEdit?: (childId: string) => void;
 }
 
-const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: ChildDetailsProps) => {
+const ChildDetails = ({ onEdit }: ChildDetailsProps) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const childData = location.state?.childData;
   // Format date from ISO string to DD-MM-YYYY
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
@@ -33,83 +38,70 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
   };
   
   // Transform API child data to display format
-  const transformedData = propChildData ? {
-    id: propChildData.id,
-    aadhaarNumber: (propChildData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? propChildData.surveyData?.['section-5']?.q5_4 : null) || 
-                  (propChildData.documentsInfo?.hasAadhaar ? propChildData.documentsInfo?.aadhaarNumber : null) || 
-                  'N/A',
-    name: propChildData.surveyData?.['section-1']?.q1_1 || 'N/A',
-    houseNumber: propChildData.surveyData?.['section-1']?.q1_2 || 'N/A',
-    dateOfBirth: formatDate((propChildData.surveyData?.['section-1']?.q1_3 || propChildData.basicInfo?.dateOfBirth) as string | undefined) || 'N/A',
-    age: propChildData.basicInfo?.age || '0',
-    gender: propChildData.surveyData?.['section-1']?.q1_4 || propChildData.basicInfo?.gender || 'N/A',
-    block: propChildData.surveyData?.['section-1']?.q1_5 || 'N/A',
-    gramPanchayat: propChildData.surveyData?.['section-1']?.q1_6 || propChildData.basicInfo?.gramPanchayat || 'N/A',
-    village: propChildData.surveyData?.['section-1']?.q1_7 || 'N/A',
-    para: propChildData.surveyData?.['section-1']?.q1_8 || propChildData.basicInfo?.para || 'N/A',
-    motherTongue: propChildData.surveyData?.['section-1']?.q1_9 || propChildData.basicInfo?.motherTongue || 'N/A',
-    motherTongueOther: propChildData.surveyData?.['section-1']?.q1_8_other || '',
-    motherName: propChildData.surveyData?.['section-1']?.q1_10 || propChildData.familyInfo?.motherName || 'N/A',
-    fatherName: propChildData.surveyData?.['section-1']?.q1_11 || propChildData.familyInfo?.fatherName || 'N/A',
-    motherEducated: propChildData.surveyData?.['section-1']?.q1_12 || (propChildData.familyInfo?.motherEducated ? 'Yes' : 'No') || 'N/A',
-    fatherEducated: propChildData.surveyData?.['section-1']?.q1_13 || (propChildData.familyInfo?.fatherEducated ? 'Yes' : 'No') || 'N/A',
-    caste: propChildData.surveyData?.['section-2']?.q2_3 || propChildData.familyInfo?.caste || 'N/A',
-    familyOccupation: propChildData.surveyData?.['section-2']?.q2_1 || propChildData.familyInfo?.familyOccupation || 'N/A',
-    otherOccupation: propChildData.surveyData?.['section-2']?.q2_2 || 'N/A', // Fixed other occupation to q2_2
-    otherCaste: propChildData.surveyData?.['section-2']?.q2_4 || 'N/A',
-    parentsStatus: propChildData.surveyData?.['section-2']?.q2_5 || propChildData.familyInfo?.parentsStatus || 'N/A',
-    livesWithWhom: propChildData.surveyData?.['section-2']?.q2_6 || propChildData.familyInfo?.livesWithWhom || 'N/A',
-    otherLivesWith: propChildData.surveyData?.['section-2']?.q2_7 || 'N/A',
-    // Use education values directly from the survey data or fallback to basic yes/no
-    economicStatus: propChildData.surveyData?.['section-3']?.q3_1 || propChildData.economicInfo?.economicStatus || propChildData.derivedFields?.economicStatus || 'N/A',
-    rationCardType: propChildData.surveyData?.['section-3']?.q3_1 || propChildData.economicInfo?.rationCardType || 'N/A',
-    rationCardNumber: propChildData.surveyData?.['section-3']?.q3_2 || propChildData.economicInfo?.rationCardNumber || 'N/A',
-    goesToSchool: propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' ? 'Yes' :
-                  propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' ? 'No' :
-                  propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी' ? 'Aanganwadi' :
-                  propChildData.educationInfo?.goesToSchool ? 'Yes' : 'No',
-    attendanceStatus: propChildData.surveyData?.['section-4']?.q4_5 || 'N/A',
-    educationCategory: propChildData.surveyData?.['section-4']?.q4_6 || 'N/A',
-    currentClass: propChildData.surveyData?.['section-4']?.q4_2 || 'N/A', // Now maps to q4_2
-    school: propChildData.surveyData?.['section-4']?.q4_3 || 'N/A', // Now maps to q4_3
-    schoolCommuteType: propChildData.surveyData?.['section-4']?.q4_4 || 'N/A', // New field for commute type
-    lastStudiedClass: propChildData.surveyData?.['section-4']?.q4_8 || 'N/A',
-    dropoutReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_9) ? 
-                     propChildData.surveyData?.['section-4']?.q4_9.join(', ') : 
-                     propChildData.surveyData?.['section-4']?.q4_9 || 'N/A',
-    dropoutReasonOther: propChildData.surveyData?.['section-4']?.q4_10 || '',
-    neverEnrolledReasons: Array.isArray(propChildData.surveyData?.['section-4']?.q4_11) ? 
-                          propChildData.surveyData?.['section-4']?.q4_11.join(', ') : 
-                          propChildData.surveyData?.['section-4']?.q4_11 || 'N/A',
-    neverEnrolledReasonOther: propChildData.surveyData?.['section-4']?.q4_12 || 'NA',
-    schoolStatus: (propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' && propChildData.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
-      : (propChildData.surveyData?.['section-4']?.q4_1 === 'नहीं' && propChildData.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
-      : (propChildData.surveyData?.['section-4']?.q4_1 === 'हाँ' || propChildData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
-      : propChildData.educationInfo?.educationStatus || propChildData.derivedFields?.educationStatus || 'N/A',
-    hasDisability: propChildData.surveyData?.['section-6']?.q6_1 === 'हाँ' ? 'Yes' :
-                   propChildData.surveyData?.['section-6']?.q6_1 === 'नहीं' ? 'No' : 
-                   propChildData.healthInfo?.hasDisability ? 'Yes' : 'No',
-    disabilityTypes: Array.isArray(propChildData.surveyData?.['section-6']?.q6_2) ? 
-                     propChildData.surveyData?.['section-6']?.q6_2.join(', ') :
-                     propChildData.surveyData?.['section-6']?.q6_2 || 'N/A',
-    otherDisabilitySpecification: propChildData.surveyData?.['section-6']?.q6_3 || 'N/A',
-    hasCasteCertificate: propChildData.surveyData?.['section-5']?.q5_1 === 'हाँ' ? 'Yes' :
-                         propChildData.surveyData?.['section-5']?.q5_1 === 'नहीं' ? 'No' :
-                         propChildData.documentsInfo?.hasCasteCertificate ? 'Yes' : 'No',
-    hasResidenceCertificate: propChildData.surveyData?.['section-5']?.q5_2 === 'हाँ' ? 'Yes' :
-                             propChildData.surveyData?.['section-5']?.q5_2 === 'नहीं' ? 'No' :
-                             propChildData.documentsInfo?.hasResidenceCertificate ? 'Yes' : 'No',
-    hasAadhaar: propChildData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? 'Yes' :
-                propChildData.surveyData?.['section-5']?.q5_3 === 'नहीं' ? 'No' :
-                propChildData.documentsInfo?.hasAadhaar ? 'Yes' : 'No',
-    isVulnerable: propChildData.derivedFields?.isVulnerable ? 'Yes' : 'No',
-    ageGroup: propChildData.derivedFields?.ageGroup || 'N/A',
-    priorityLevel: propChildData.derivedFields?.priorityLevel || 'N/A',
-    riskFactors: propChildData.derivedFields?.riskFactors?.join(', ') || 'None',
-    surveyedBy: propChildData.surveyMeta?.surveyedBy || 'N/A',
-    surveyedAt: propChildData.surveyMeta?.surveyedAt ? new Date(propChildData.surveyMeta.surveyedAt).toLocaleDateString() : 'N/A',
-    lastUpdatedAt: propChildData.surveyMeta?.lastUpdatedAt ? new Date(propChildData.surveyMeta.lastUpdatedAt).toLocaleDateString() : 'N/A',
-    lastUpdatedBy: propChildData.surveyMeta?.lastUpdatedBy || 'N/A'
+  const transformedData = childData ? {
+    id: childData.id,
+    aadhaarNumber: (childData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? childData.surveyData?.['section-5']?.q5_4 : null) || 'N/A',
+    name: childData.surveyData?.['section-1']?.q1_1 || 'N/A',
+    houseNumber: childData.surveyData?.['section-1']?.q1_2 || 'N/A',
+    dateOfBirth: formatDate((childData.surveyData?.['section-1']?.q1_3 || 'N/A') as string | undefined) || 'N/A',
+    gender: childData.surveyData?.['section-1']?.q1_4 ||  'N/A',
+    block: childData.surveyData?.['section-1']?.q1_5 || 'N/A',
+    gramPanchayat: childData.surveyData?.['section-1']?.q1_6 || 'N/A',
+    village: childData.surveyData?.['section-1']?.q1_7 || 'N/A',
+    para: childData.surveyData?.['section-1']?.q1_8 || 'N/A',
+    motherTongue: childData.surveyData?.['section-1']?.q1_9 || 'N/A',
+    motherTongueOther: childData.surveyData?.['section-1']?.q1_8_other || '',
+    motherName: childData.surveyData?.['section-1']?.q1_10 || 'N/A',
+    fatherName: childData.surveyData?.['section-1']?.q1_11 || 'N/A',
+    motherEducated: childData.surveyData?.['section-1']?.q1_12 || 'N/A',
+    fatherEducated: childData.surveyData?.['section-1']?.q1_13 || 'N/A',
+    caste: childData.surveyData?.['section-2']?.q2_3 || 'N/A',
+    familyOccupation: childData.surveyData?.['section-2']?.q2_1 || 'N/A',
+    otherOccupation: childData.surveyData?.['section-2']?.q2_2 || 'N/A',
+    otherCaste: childData.surveyData?.['section-2']?.q2_4 || 'N/A',
+    parentsStatus: childData.surveyData?.['section-2']?.q2_5 || 'N/A',
+    livesWithWhom: childData.surveyData?.['section-2']?.q2_6 || 'N/A',
+    otherLivesWith: childData.surveyData?.['section-2']?.q2_7 || 'N/A',
+    economicStatus: childData.surveyData?.['section-3']?.q3_1 || 'N/A',
+    rationCardType: childData.surveyData?.['section-3']?.q3_1 || 'N/A',
+    rationCardNumber: childData.surveyData?.['section-3']?.q3_2 || 'N/A',
+    goesToSchool: childData.surveyData?.['section-4']?.q4_1 === 'हाँ' ? 'Yes' :
+                  childData.surveyData?.['section-4']?.q4_1 === 'नहीं' ? 'No' :
+                  childData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी' ? 'Aanganwadi' : 'N/A',
+    attendanceStatus: childData.surveyData?.['section-4']?.q4_5 || 'N/A',
+    educationCategory: childData.surveyData?.['section-4']?.q4_6 || 'N/A',
+    currentClass: childData.surveyData?.['section-4']?.q4_2 || 'N/A',
+    otherCurrentClass: childData.surveyData?.['section-4']?.q4_6 || '',
+    school: childData.surveyData?.['section-4']?.q4_3 || 'N/A', 
+    schoolCommuteType: childData.surveyData?.['section-4']?.q4_4 || 'N/A', 
+    lastStudiedClass: childData.surveyData?.['section-4']?.q4_8 || 'N/A',
+    dropoutReasons: Array.isArray(childData.surveyData?.['section-4']?.q4_9) ? 
+                     childData.surveyData?.['section-4']?.q4_9.join(', ') : 
+                     childData.surveyData?.['section-4']?.q4_9 || 'N/A',
+    dropoutReasonOther: childData.surveyData?.['section-4']?.q4_10 || '',
+    neverEnrolledReasons: Array.isArray(childData.surveyData?.['section-4']?.q4_11) ? 
+                          childData.surveyData?.['section-4']?.q4_11.join(', ') : 
+                          childData.surveyData?.['section-4']?.q4_11 || 'N/A',
+    neverEnrolledReasonOther: childData.surveyData?.['section-4']?.q4_12 || 'NA',
+    schoolStatus: (childData.surveyData?.['section-4']?.q4_1 === 'नहीं' && childData.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
+      : (childData.surveyData?.['section-4']?.q4_1 === 'नहीं' && childData.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
+      : (childData.surveyData?.['section-4']?.q4_1 === 'हाँ' || childData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled' : 'N/A',
+    hasDisability: childData.surveyData?.['section-6']?.q6_1 === 'हाँ' ? 'Yes' :
+                   childData.surveyData?.['section-6']?.q6_1 === 'नहीं' ? 'No' : 'N/A',
+    disabilityTypes: Array.isArray(childData.surveyData?.['section-6']?.q6_2) ? 
+                     childData.surveyData?.['section-6']?.q6_2.join(', ') :
+                     childData.surveyData?.['section-6']?.q6_2 || 'N/A',
+    otherDisabilitySpecification: childData.surveyData?.['section-6']?.q6_3 || 'N/A',
+    hasCasteCertificate: childData.surveyData?.['section-5']?.q5_1 === 'हाँ' ? 'Yes' :
+                         childData.surveyData?.['section-5']?.q5_1 === 'नहीं' ? 'No' : 'N/A',
+    hasResidenceCertificate: childData.surveyData?.['section-5']?.q5_2 === 'हाँ' ? 'Yes' :
+                             childData.surveyData?.['section-5']?.q5_2 === 'नहीं' ? 'No' : 'N/A',
+    hasAadhaar: childData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? 'Yes' :
+                childData.surveyData?.['section-5']?.q5_3 === 'नहीं' ? 'No' : 'N/A',
+    surveyedBy: childData.surveyMeta?.surveyedBy || 'N/A',
+    surveyedAt: childData.surveyMeta?.surveyedAt ? new Date(childData.surveyMeta.surveyedAt).toLocaleDateString() : 'N/A',
+    lastUpdatedAt: childData.surveyMeta?.lastUpdatedAt ? new Date(childData.surveyMeta.lastUpdatedAt).toLocaleDateString() : 'N/A',
+    lastUpdatedBy: childData.surveyMeta?.lastUpdatedBy || 'N/A'
   } : null;
 
   const getStatusBadge = (status: string) => {
@@ -127,7 +119,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
     }
   };
 
-  if (!childId || !transformedData) {
+  if (!id || !transformedData) {
     return (
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-4xl mx-auto">
@@ -143,7 +135,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
         {/* Header */}
         <div className="space-y-4">
           <Button 
-            onClick={onBack} 
+            onClick={() => navigate('/children-records')} 
             variant="link" 
             className="gap-2 p-0 h-auto"
           >
@@ -176,10 +168,6 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
                 <p className="text-lg font-medium">{transformedData.dateOfBirth}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Age</label>
-                <p className="text-lg font-medium">{transformedData.age} years</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Aadhaar Number</label>
@@ -373,22 +361,7 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                   <p className="text-lg font-medium">{transformedData.otherDisabilitySpecification}</p>
                 </div>
               )}
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Is Vulnerable</label>
-                <p className="text-lg font-medium">{transformedData.isVulnerable}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Age Group</label>
-                <p className="text-lg font-medium">{transformedData.ageGroup}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Priority Level</label>
-                <p className="text-lg font-medium">{transformedData.priorityLevel}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Risk Factors</label>
-                <p className="text-lg font-medium">{transformedData.riskFactors}</p>
-              </div>
+             
             </div>
           </CardContent>
         </Card>
@@ -423,7 +396,11 @@ const ChildDetails = ({ childId, childData: propChildData, onBack, onEdit }: Chi
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Current Class</label>
-                    <p className="text-lg font-medium">{transformedData.currentClass}</p>
+                    <p className="text-lg font-medium">
+                      {transformedData.currentClass === "अन्य" && transformedData.otherCurrentClass ? 
+                        `${transformedData.currentClass} (${transformedData.otherCurrentClass})` : 
+                        transformedData.currentClass}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Commute Type</label>

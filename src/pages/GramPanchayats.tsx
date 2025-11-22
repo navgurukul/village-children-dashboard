@@ -11,6 +11,13 @@ import { apiClient, GramPanchayat as ApiGramPanchayat } from '../lib/api';
 import mixpanel from '../lib/mixpanel';
 import { useToast } from '@/hooks/use-toast';
 import { ExportJob } from '../components/NotificationCenter';
+import { 
+  generateExportJobKey, 
+  findExistingJob, 
+  createEnhancedExportJob,
+  cleanupExpiredJobs,
+  ExportFilters 
+} from '../utils/exportDeduplication';
 
 interface GramPanchayatDisplayData {
   id: string;
@@ -48,7 +55,6 @@ const GramPanchayats = ({
 }: GramPanchayatsProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [districtFilter, setDistrictFilter] = useState('all');
   const [blockFilter, setBlockFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [gramPanchayatsList, setGramPanchayatsList] = useState<ApiGramPanchayat[]>([]);
@@ -59,10 +65,15 @@ const GramPanchayats = ({
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
+  // Initialize cleanup on component mount
+  useEffect(() => {
+    cleanupExpiredJobs();
+  }, []);
+
   // Fetch blocks data from API
-  const fetchBlocksData = async (district?: string) => {
+  const fetchBlocksData = async () => {
     try {
-      const response = await apiClient.getDistrictGramPanchayats(district);
+      const response = await apiClient.getDistrictGramPanchayats();
 
       if (response.success && response.data) {
         // Check if the response is an array
@@ -103,7 +114,6 @@ const GramPanchayats = ({
       const response = await apiClient.getGramPanchayats({
         page: currentPage,
         limit: itemsPerPage,
-        district: districtFilter !== 'all' ? districtFilter : undefined,
         block: blockFilter !== 'all' ? blockFilter : undefined,
         search: debouncedSearchTerm || undefined
       });
@@ -129,15 +139,15 @@ const GramPanchayats = ({
     }
   };
 
-  // Load blocks data on mount and when district changes
+  // Load blocks data on mount
   useEffect(() => {
-    fetchBlocksData(districtFilter !== 'all' ? districtFilter : undefined);
-  }, [districtFilter]);
+    fetchBlocksData();
+  }, []);
 
   // Load gram panchayats from API
   useEffect(() => {
     loadGramPanchayats();
-  }, [currentPage, districtFilter, blockFilter, debouncedSearchTerm]);
+  }, [currentPage, blockFilter, debouncedSearchTerm]);
 
   // Debounce search term
   useEffect(() => {
@@ -179,11 +189,6 @@ const GramPanchayats = ({
     });
   }, [gramPanchayatsList]);
 
-  // Get districts from gram panchayat data
-  const districts = useMemo(() => {
-    return [...new Set(gramPanchayatDisplayData.map(gp => gp.district))];
-  }, [gramPanchayatDisplayData]);
-
   // Use data directly from API response since filtering is done server-side
   const filteredData = useMemo(() => {
     return gramPanchayatDisplayData;
@@ -192,11 +197,7 @@ const GramPanchayats = ({
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleFilterChange = (filterId: string, value: string) => {
-    if (filterId === 'district') {
-      setDistrictFilter(value);
-      // Reset block filter when district changes
-      setBlockFilter('all');
-    } else if (filterId === 'block') {
+    if (filterId === 'block') {
       setBlockFilter(value);
     }
     setCurrentPage(1);
@@ -293,6 +294,11 @@ const GramPanchayats = ({
   };
 
   // Unified export handler passed to child component
+  const getCurrentFilters = (): ExportFilters => ({
+    blockFilter,
+    searchTerm: debouncedSearchTerm
+  });
+
   const handleExportCSV = async (type: 'current' | 'all') => {
     const userId = localStorage.getItem('user_id') || 'unknown';
     const userName = localStorage.getItem('user_name') || 'unknown';
@@ -314,31 +320,61 @@ const GramPanchayats = ({
         export_type: 'current_page',
         export_page: 'Gram Panchayats',
         filters_applied: {
-          district: districtFilter,
           block: blockFilter,
-          search: searchTerm
+          search: debouncedSearchTerm
         }
       });
       return;
     }
 
-    // backend export for ALL data
+    // backend export for ALL data with deduplication
+    const currentFilters = getCurrentFilters();
+    const jobKey = generateExportJobKey('gram-panchayat-export', 'all', currentFilters);
+    const existingJob = findExistingJob(jobKey);
+
+    // Check for existing job
+    if (existingJob) {
+      if (existingJob.status === 'completed' && existingJob.downloadUrl) {
+        // Download existing file
+        window.open(existingJob.downloadUrl, '_blank');
+        toast({ title: 'Downloaded', description: 'Using previously generated export file.' });
+        return;
+      } else if (existingJob.status === 'processing' || existingJob.status === 'pending') {
+        // Job already in progress
+        toast({ title: 'Export in Progress', description: 'A similar export is already being processed. Check notifications for updates.' });
+        return;
+      }
+    }
+
     toast({ title: 'Exporting', description: 'Preparing full export. This may take a while.' });
     try {
-      const response = await apiClient.exportGramPanchayats();
+      // Build query parameters from filters 
+      const params = new URLSearchParams();
+      if (blockFilter !== 'all') params.append('block', blockFilter);
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
 
-      if (response.success && response.data && response.data.jobId) {
-        const jobId = response.data.jobId;
+      const queryString = params.toString();
+      const endpoint = `/export/gramPanchayat${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await apiClient.get(endpoint);
+
+      if (response.success && response.data && typeof response.data === 'object' && 'jobId' in response.data) {
+        const jobId = (response.data as any).jobId;
+
+        // Create enhanced job with deduplication data
+        const baseJob: ExportJob = {
+          id: jobId,
+          status: 'processing',
+          createdAt: new Date(),
+          title: 'Gram Panchayat CSV Export - All Data',
+          fileName: `gram_panchayats_all_${new Date().toISOString().split('T')[0]}.csv`,
+          type: 'gram-panchayat-export'
+        };
+
+        const enhancedJob = createEnhancedExportJob(baseJob, jobKey, 'all', currentFilters);
 
         if (onAddExportJob) {
-          onAddExportJob({
-            id: jobId,
-            status: 'processing',
-            createdAt: new Date(),
-            title: 'Gram Panchayat CSV Export - All Data',
-            fileName: `gram_panchayats_all_${new Date().toISOString().split('T')[0]}.csv`,
-            type: 'gram-panchayat-export'
-          });
+          onAddExportJob(enhancedJob);
         }
 
         // Mixpanel tracking for full export
@@ -351,9 +387,8 @@ const GramPanchayats = ({
           export_page: 'Gram Panchayats',
           job_id: jobId,
           filters_applied: {
-            district: districtFilter,
             block: blockFilter,
-            search: searchTerm
+            search: debouncedSearchTerm
           }
         });
 
@@ -370,11 +405,6 @@ const GramPanchayats = ({
       });
     }
   };
-
-  // Load blocks data on initial mount
-  useEffect(() => {
-    fetchBlocksData();
-  }, []);
 
   return (
     <div className="p-6 bg-background min-h-screen">
@@ -395,6 +425,7 @@ const GramPanchayats = ({
                currentPageCount={filteredData.length}
                totalCount={totalCount}
                isMobile={true}
+               currentFilters={getCurrentFilters()}
              />
 
             {/* Filter Chips */}
@@ -429,14 +460,14 @@ const GramPanchayats = ({
                onAddGramPanchayat={onAddGramPanchayat}
                onBulkUpload={onBulkUpload}
                onExportCSV={handleExportCSV}
+               currentPageCount={filteredData.length}
+               totalCount={totalCount}
+               currentFilters={getCurrentFilters()}
              />
 
             <GramPanchayatFilters
-               districtFilter={districtFilter}
                blockFilter={blockFilter}
-               districts={districts}
                blocks={availableBlocks}
-               onDistrictFilterChange={setDistrictFilter}
                onBlockFilterChange={setBlockFilter}
              />
 

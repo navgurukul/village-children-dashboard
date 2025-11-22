@@ -10,7 +10,6 @@ import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 interface Child {
   id: string;
   name: string;
-  age: number;
   gender: string;
   village: string;
   aadhaar: string;
@@ -56,7 +55,7 @@ const ChildrenCardList = ({ data, onChildClick, onEditChild, onDeleteChild }: Ch
                 </div>
                 
                 <div className="text-sm text-muted-foreground mb-2">
-                  Age: {child.age} • {child.gender} • {child.village}
+                  {child.gender} • {child.village}
                 </div>
                 
                 <div className="text-sm text-muted-foreground">

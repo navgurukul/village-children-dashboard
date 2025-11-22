@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Download } from 'lucide-react';
 import CSVExportModal from '@/components/ui/CSVExportModal';
+import { ExportFilters } from '@/utils/exportDeduplication';
 
 interface SearchAndExportBarProps {
   searchTerm: string;
@@ -11,6 +12,7 @@ interface SearchAndExportBarProps {
   currentPageCount?: number;
   totalCount?: number;
   isMobile?: boolean;
+  currentFilters?: ExportFilters;
 }
 
 const SearchAndExportBar = ({ 
@@ -19,7 +21,8 @@ const SearchAndExportBar = ({
   onExportCSV,
   currentPageCount,
   totalCount,
-  isMobile = false 
+  isMobile = false,
+  currentFilters = {}
 }: SearchAndExportBarProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -62,6 +65,7 @@ const SearchAndExportBar = ({
         currentPageCount={currentPageCount}
         totalCount={totalCount}
         jobType="children-export"
+        currentFilters={currentFilters}
       />
     </div>
   );

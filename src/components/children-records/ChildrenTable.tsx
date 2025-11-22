@@ -8,7 +8,6 @@ import { Edit, Trash2 } from 'lucide-react';
 interface Student {
   id: string;
   name: string;
-  age: number;
   gender: string;
   block: string;
   para: string; 
@@ -67,7 +66,6 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
               <TableRow>
                 <TableHead className="font-bold">Aadhar No.</TableHead>
                 <TableHead className="font-bold">Name</TableHead>
-                <TableHead className="font-bold">Age</TableHead>
                 <TableHead className="font-bold">Gender</TableHead>
                 <TableHead className="font-bold">Block</TableHead>
                 <TableHead className="font-bold">Gram Panchayat</TableHead>
@@ -87,7 +85,6 @@ const ChildrenTable = ({ data, onChildClick, onEditChild, onDeleteChild }: Child
                 >
                   <TableCell className="font-medium">{student.aadhaarNumber || '-'}</TableCell>
                   <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.age}</TableCell>
                   <TableCell>{student.gender}</TableCell>
                   <TableCell>{student.block}</TableCell>
                   <TableCell>{student.gramPanchayat || '-'}</TableCell>

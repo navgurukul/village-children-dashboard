@@ -7,6 +7,13 @@ import { useToast } from '../hooks/use-toast';
 import { downloadChildrenCSV } from '../utils/exportUtils';
 import { ExportJob } from '../components/NotificationCenter';
 import mixpanel from '../lib/mixpanel';
+import { 
+  generateExportJobKey, 
+  findExistingJob, 
+  createEnhancedExportJob,
+  cleanupExpiredJobs,
+  ExportFilters 
+} from '../utils/exportDeduplication';
 
 interface ChildrenRecordsProps {
   onChildClick: (childId: string, childData?: any) => void;
@@ -31,6 +38,11 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
   const itemsPerPage = 20;
+
+  // Initialize cleanup on component mount
+  useEffect(() => {
+    cleanupExpiredJobs();
+  }, []);
 
   // Format date from ISO string to DD-MM-YYYY
   const formatDate = (dateString: string | undefined): string => {
@@ -135,46 +147,41 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
   const childrenData = useMemo(() => {
     return apiChildren.map(child => ({
       id: child.id,
-      name: child.basicInfo.fullName,
-      age: child.basicInfo.age,
-      gender: child.basicInfo.gender,
-      aadhaar: child.documentsInfo.aadhaarNumber,
-      aadhaarNumber: child.documentsInfo.aadhaarNumber,
+      name: child.surveyData?.['section-1']?.q1_1 || '',
+      gender: child.surveyData?.['section-1']?.q1_4 || '',
+      aadhaar: child.surveyData?.['section-5']?.q5_3 === 'हाँ' ? child.surveyData?.['section-5']?.q5_4 : '',
+      aadhaarNumber: child.surveyData?.['section-5']?.q5_3 === 'हाँ' ? child.surveyData?.['section-5']?.q5_4 : '',
       schoolName: child.surveyData?.['section-4']?.q4_3 || '',
       school: child.surveyData?.['section-4']?.q4_3 || '',
-      schoolType: child.educationInfo.schoolType || '',
       schoolStatus: (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
         : (child.surveyData?.['section-4']?.q4_1 === 'नहीं' && child.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
-        : (child.surveyData?.['section-4']?.q4_1 === 'हाँ' || child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
-        : child.educationInfo.educationStatus || child.derivedFields?.educationStatus || 'N/A', 
-      // Map from surveyData question ids for block, gram panchayat, village, para
-      block: child.surveyData?.['section-1']?.q1_5 || '', // Development block
-      gramPanchayat: child.surveyData?.['section-1']?.q1_6 || '', // Gram Panchayat name
-      village: child.surveyData?.['section-1']?.q1_7 || '', // Village name
-      para: child.surveyData?.['section-1']?.q1_8 || '', // Para (tola/place)
-      disability: child.healthInfo.hasDisability ? 'Yes' : 'No',
-      caste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_3 || child.familyInfo.caste || '',
+        : (child.surveyData?.['section-4']?.q4_1 === 'हाँ' || child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled' : 'N/A',
+      block: child.surveyData?.['section-1']?.q1_5 || '', 
+      gramPanchayat: child.surveyData?.['section-1']?.q1_6 || '', 
+      village: child.surveyData?.['section-1']?.q1_7 || '', 
+      para: child.surveyData?.['section-1']?.q1_8 || '', 
+      disability: child.surveyData?.['section-6']?.q6_1 === 'हाँ' ? 'Yes' : 'No',
+      caste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_3 || '',
       otherCaste: child.surveyData?.['section-2']?.q2_3 === 'अन्य' ? child.surveyData?.['section-2']?.q2_4 || '' : '',
-      dob: formatDate((child.basicInfo.dateOfBirth || child.surveyData?.['section-1']?.q1_3) as string | undefined) || '',
-      fatherName: child.familyInfo.fatherName || '',
-      motherName: child.familyInfo.motherName || '',
-      // Use education values directly from the survey data or fallback to basic yes/no
-      motherEducated: child.surveyData?.['section-1']?.q1_12 || (child.familyInfo?.motherEducated ? 'Yes' : 'No') || 'N/A',
-      fatherEducated: child.surveyData?.['section-1']?.q1_13 || (child.familyInfo?.fatherEducated ? 'Yes' : 'No') || 'N/A',
-      familyOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_1 || child.familyInfo.familyOccupation || '',
+      dob: formatDate(child.surveyData?.['section-1']?.q1_3 ? String(child.surveyData?.['section-1']?.q1_3) : undefined) || '',
+      fatherName: child.surveyData?.['section-1']?.q1_11 || '',
+      motherName: child.surveyData?.['section-1']?.q1_10 || '',
+      motherEducated: child.surveyData?.['section-1']?.q1_12 || 'N/A',
+      fatherEducated: child.surveyData?.['section-1']?.q1_13 || 'N/A',
+      familyOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_1 || '',
       otherOccupation: child.surveyData?.['section-2']?.q2_1 === 'अन्य' ? child.surveyData?.['section-2']?.q2_2 || '' : '',
-      parentsStatus: child.familyInfo.parentsStatus || '',
-      livesWithWhom: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_6 || child.familyInfo.livesWithWhom || '',
+      parentsStatus: child.surveyData?.['section-2']?.q2_5 || '',
+      livesWithWhom: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? 'अन्य' : child.surveyData?.['section-2']?.q2_6 || '',
       otherLivesWith: child.surveyData?.['section-2']?.q2_6 === 'अन्य' ? child.surveyData?.['section-2']?.q2_7 || '' : '',
-      economicStatus: child.economicInfo?.economicStatus || '',
-      houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', // Updated to use correct q1_2 field
-      motherTongue: child.basicInfo?.motherTongue || child.surveyData?.['section-1']?.q1_8 || '', // Updated to use correct q1_8 field
-      otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', // Updated to use correct q1_8_other field
-      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '', // Using q4_5 for attendance status from survey
+      economicStatus: child.surveyData?.['section-3']?.q3_1 || '',
+      houseNumber: child.surveyData?.['section-1']?.q1_2 || child.surveyData?.['section-1']?.q1_new_house || '', 
+      motherTongue: child.surveyData?.['section-1']?.q1_9 || '', 
+      otherMotherTongue: child.surveyData?.['section-1']?.q1_8_other || '', 
+      attendanceStatus: child.surveyData?.['section-4']?.q4_5 || '',
       currentClass: (child.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी')
         ? ''
-        : child.surveyData?.['section-4']?.q4_2 || child.educationInfo?.currentClass || '',
-      // Add schoolCommuteType for reference if needed in future
+        : child.surveyData?.['section-4']?.q4_2 || '',
+      otherCurrentClass: child.surveyData?.['section-4']?.q4_6 || '',
       schoolCommuteType: child.surveyData?.['section-4']?.q4_4 || '',
       educationCategory: child.surveyData?.['section-4']?.q4_6 || '',
       lastClassStudied: child.surveyData?.['section-4']?.q4_8 || '',
@@ -182,14 +189,14 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       otherDropoutReason: child.surveyData?.['section-4']?.q4_10 || '',
       neverEnrolledReasons: child.surveyData?.['section-4']?.q4_11 || '',
       otherNeverEnrolledReason: child.surveyData?.['section-4']?.q4_12 || '',
-      hasCasteCertificate: child.documentsInfo?.hasCasteCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_1 === 'yes' ? 'Yes' : 'No',
-      hasResidenceCertificate: child.documentsInfo?.hasResidenceCertificate ? 'Yes' : child.surveyData?.['section-5']?.q5_2 === 'yes' ? 'Yes' : 'No',
-      hasAadhaar: child.documentsInfo?.hasAadhaar ? 'Yes' : child.surveyData?.['section-5']?.q5_3 === 'yes' ? 'Yes' : 'No',
+      hasCasteCertificate: child.surveyData?.['section-5']?.q5_1 === 'हाँ' ? 'Yes' : 'No',
+      hasResidenceCertificate: child.surveyData?.['section-5']?.q5_2 === 'हाँ' ? 'Yes' : 'No',
+      hasAadhaar: child.surveyData?.['section-5']?.q5_3 === 'हाँ' ? 'Yes' : 'No',
       disabilityTypes: child.surveyData?.['section-6']?.q6_2 || '',
       otherDisability: child.surveyData?.['section-6']?.q6_3 || '',
       goesToSchool: child.surveyData?.['section-4']?.q4_1 || '',
-      rationCardType: child.surveyData?.['section-3']?.q3_1 || child.economicInfo?.rationCardType || '',
-      rationCardNumber: child.surveyData?.['section-3']?.q3_2 || child.economicInfo?.rationCardNumber || '',
+      rationCardType: child.surveyData?.['section-3']?.q3_1 || '',
+      rationCardNumber: child.surveyData?.['section-3']?.q3_2 || '',
       surveyedAt: formatDate(child.surveyMeta?.surveyedAt),
     }));
   }, [apiChildren]);
@@ -201,6 +208,14 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
 
   // Use filtered data for pagination
   const paginatedData = filteredData;
+
+  // Get current filters for deduplication
+  const getCurrentFilters = (): ExportFilters => ({
+    blockFilter,
+    gramPanchayatFilter,
+    statusFilter,
+    searchTerm: debouncedSearchTerm
+  });
 
   // Unified export handler for children records: 'current' page or 'all' data
   const handleExportCSV = async (type: 'current' | 'all') => {
@@ -235,7 +250,25 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
       return;
     }
 
-    // Backend export for all data
+    // Backend export for all data with deduplication
+    const currentFilters = getCurrentFilters();
+    const jobKey = generateExportJobKey('children-export', 'all', currentFilters);
+    const existingJob = findExistingJob(jobKey);
+
+    // Check for existing job
+    if (existingJob) {
+      if (existingJob.status === 'completed' && existingJob.downloadUrl) {
+        // Download existing file
+        window.open(existingJob.downloadUrl, '_blank');
+        toast({ title: 'Downloaded', description: 'Using previously generated export file.' });
+        return;
+      } else if (existingJob.status === 'processing' || existingJob.status === 'pending') {
+        // Job already in progress
+        toast({ title: 'Export in Progress', description: 'A similar export is already being processed. Check notifications for updates.' });
+        return;
+      }
+    }
+
     toast({ title: 'Exporting', description: 'Preparing full export. This may take a while.' });
     try {
       // Build query parameters from filters
@@ -253,16 +286,20 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
         const jobId = (response.data as any).jobId;
         const createdAt = (response.data as any).createdAt ? new Date((response.data as any).createdAt) : new Date();
         
-        // Add job to notification center - polling will be started by AppShell
+        // Create enhanced job with deduplication data
+        const baseJob: ExportJob = {
+          id: jobId,
+          status: 'processing',
+          title: 'Children Records CSV Export - All Data',
+          type: 'children-export',
+          createdAt: createdAt,
+          fileName: `children_records_all_${new Date().toISOString().split('T')[0]}.csv`,
+        };
+
+        const enhancedJob = createEnhancedExportJob(baseJob, jobKey, 'all', currentFilters);
+        
         if (onAddExportJob) {
-          onAddExportJob({
-            id: jobId,
-            status: 'processing',
-            title: 'Children Records CSV Export - All Data',
-            type: 'children-export',
-            createdAt: createdAt,
-            fileName: `children_records_all_${new Date().toISOString().split('T')[0]}.csv`,
-          });
+          onAddExportJob(enhancedJob);
         }
 
         // Mixpanel tracking with all user properties for full export
@@ -362,37 +399,40 @@ const ChildrenRecords = ({ onChildClick, onEditChild, onAddExportJob, onUpdateEx
     // Find the child data from apiChildren (original API data)
     const childData = apiChildren.find(child => child.id === childId);
     if (onEditChild && childData) {
+      // Calculate education status from surveyData
+      const educationStatus = (childData.surveyData?.['section-4']?.q4_1 === 'नहीं' && childData.surveyData?.['section-4']?.q4_7 === 'शाला त्यागी') ? 'Dropout'
+        : (childData.surveyData?.['section-4']?.q4_1 === 'नहीं' && childData.surveyData?.['section-4']?.q4_7 === 'अप्रवेशी') ? 'Never Enrolled'
+        : (childData.surveyData?.['section-4']?.q4_1 === 'हाँ' || childData.surveyData?.['section-4']?.q4_1 === 'आंगनवाड़ी') ? 'Enrolled'
+        : 'N/A';
+
       // Transform the API data to match the expected format for EditChildDetails
       const transformedData = {
         id: childData.id,
-        villageId: childData.surveyMeta.villageId,
-        fullName: childData.basicInfo.fullName,
-        age: childData.basicInfo.age,
-        gender: childData.basicInfo.gender,
-        block: childData.basicInfo.block,
-        panchayat: childData.basicInfo.gramPanchayat,
-        para: childData.basicInfo.para,
-        cluster: childData.basicInfo.cluster,
-        motherTongue: childData.basicInfo.motherTongue,
-        motherName: childData.familyInfo.motherName,
-        fatherName: childData.familyInfo.fatherName,
-        motherEducated: childData.familyInfo.motherEducated,
-        fatherEducated: childData.familyInfo.fatherEducated,
-        familyOccupation: childData.familyInfo.familyOccupation,
-        caste: childData.familyInfo.caste,
-        parentsStatus: childData.familyInfo.parentsStatus,
-        livesWithWhom: childData.familyInfo.livesWithWhom,
+        villageId: childData.surveyMeta?.villageId || '',
+        fullName: childData.surveyData?.['section-1']?.q1_1 || '',
+        gender: childData.surveyData?.['section-1']?.q1_4 || '',
+        block: childData.surveyData?.['section-1']?.q1_5 || '',
+        panchayat: childData.surveyData?.['section-1']?.q1_6 || '',
+        para: childData.surveyData?.['section-1']?.q1_8 || '',
+        motherTongue: childData.surveyData?.['section-1']?.q1_9 || '',
+        motherName: childData.surveyData?.['section-1']?.q1_10 || '',
+        fatherName: childData.surveyData?.['section-1']?.q1_11 || '',
+        motherEducated: childData.surveyData?.['section-1']?.q1_12 || '',
+        fatherEducated: childData.surveyData?.['section-1']?.q1_13 || '',
+        familyOccupation: childData.surveyData?.['section-2']?.q2_1 || '',
+        caste: childData.surveyData?.['section-2']?.q2_3 || '',
+        parentsStatus: childData.surveyData?.['section-2']?.q2_5 || '',
+        livesWithWhom: childData.surveyData?.['section-2']?.q2_6 || '',
         goesToSchool: childData.surveyData?.['section-4']?.q4_1 || '',
-        schoolName: childData.educationInfo.schoolName || '',
-        schoolType: childData.educationInfo.schoolType || '',
-        currentClass: childData.educationInfo.currentClass,
-        attendanceStatus: childData.educationInfo.attendanceStatus,
-        educationStatus: childData.educationInfo.educationStatus,
-        hasCasteCertificate: childData.documentsInfo.hasCasteCertificate,
-        hasResidenceCertificate: childData.documentsInfo.hasResidenceCertificate,
-        hasAadhaar: childData.documentsInfo.hasAadhaar,
-        aadhaarNumber: childData.documentsInfo.aadhaarNumber || '',
-        hasDisability: childData.healthInfo.hasDisability
+        schoolName: childData.surveyData?.['section-4']?.q4_3 || '',
+        currentClass: childData.surveyData?.['section-4']?.q4_2 || '',
+        attendanceStatus: childData.surveyData?.['section-4']?.q4_5 || '',
+        educationStatus: educationStatus,
+        hasCasteCertificate: childData.surveyData?.['section-5']?.q5_1 === 'हाँ' ? true : false,
+        hasResidenceCertificate: childData.surveyData?.['section-5']?.q5_2 === 'हाँ' ? true : false,
+        hasAadhaar: childData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? true : false,
+        aadhaarNumber: childData.surveyData?.['section-5']?.q5_3 === 'हाँ' ? childData.surveyData?.['section-5']?.q5_4 : '',
+        hasDisability: childData.surveyData?.['section-6']?.q6_1 === 'हाँ' ? true : false
       };
       onEditChild(childId, transformedData);
     }

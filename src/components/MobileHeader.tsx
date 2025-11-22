@@ -17,26 +17,31 @@ interface MobileHeaderProps {
 const MobileHeader = ({ currentPage, onNavigate, onProfileClick, exportJobs = [], onClearJob }: MobileHeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const getPageTitle = (page: string) => {
-    switch (page) {
-      case 'dashboard': return 'Dashboard';
-      case 'children': return 'Children Records';
-      case 'villages': return 'Gram Panchayats';
-      case 'users': return 'Users';
-      case 'profile': return 'Profile';
-      default: return 'Dashboard';
+  const getPageTitle = (path: string) => {
+    switch (path) {
+      case '/dashboard': return 'Dashboard';
+      case '/children-records': return 'Children Records';
+      case '/gram-panchayats': return 'Gram Panchayats';
+      case '/users': return 'Users';
+      case '/profile': return 'Profile';
+      default:
+        // Handle sub-pages
+        if (path.startsWith('/children-records/')) return 'Children Records';
+        if (path.startsWith('/gram-panchayats/')) return 'Gram Panchayats';
+        if (path.startsWith('/users/')) return 'Users';
+        return 'Dashboard';
     }
   };
 
   const navigationItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'children', label: 'Children Records', icon: FileText },
-    { id: 'villages', label: 'Gram Panchayats', icon: MapPin },
-    { id: 'users', label: 'Users', icon: Users },
+    { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
+    { id: 'children', label: 'Children Records', icon: FileText, path: '/children-records' },
+    { id: 'villages', label: 'Gram Panchayats', icon: MapPin, path: '/gram-panchayats' },
+    { id: 'users', label: 'Users', icon: Users, path: '/users' },
   ];
 
-  const handleNavigate = (page: string) => {
-    onNavigate(page);
+  const handleNavigate = (path: string) => {
+    onNavigate(path);
     setIsMenuOpen(false);
   };
 
@@ -69,9 +74,9 @@ const MobileHeader = ({ currentPage, onNavigate, onProfileClick, exportJobs = []
                   return (
                     <Button
                       key={item.id}
-                      variant={currentPage === item.id ? "default" : "ghost"}
+                      variant={currentPage === item.path || currentPage.startsWith(item.path + '/') ? "default" : "ghost"}
                       className="justify-start gap-2 h-12"
-                      onClick={() => handleNavigate(item.id)}
+                      onClick={() => handleNavigate(item.path)}
                     >
                       <Icon className="h-4 w-4" />
                       {item.label}
