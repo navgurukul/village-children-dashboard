@@ -20,11 +20,6 @@ export interface ExportJob {
   createdAt: Date;
   error?: string;
   progress?: number;
-  // New fields for deduplication
-  jobKey?: string;
-  scope?: 'current' | 'all';
-  filters?: Record<string, any>;
-  expiresAt?: Date;
 }
 
 interface NotificationCenterProps {
