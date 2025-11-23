@@ -11,13 +11,6 @@ import { apiClient, GramPanchayat as ApiGramPanchayat } from '../lib/api';
 import mixpanel from '../lib/mixpanel';
 import { useToast } from '@/hooks/use-toast';
 import { ExportJob } from '../components/NotificationCenter';
-import { 
-  generateExportJobKey, 
-  findExistingJob, 
-  createEnhancedExportJob,
-  cleanupExpiredJobs,
-  ExportFilters 
-} from '../utils/exportDeduplication';
 
 interface GramPanchayatDisplayData {
   id: string;
@@ -64,11 +57,6 @@ const GramPanchayats = ({
   const itemsPerPage = 20;
   const isMobile = useIsMobile();
   const { toast } = useToast();
-
-  // Initialize cleanup on component mount
-  useEffect(() => {
-    cleanupExpiredJobs();
-  }, []);
 
   // Fetch blocks data from API
   const fetchBlocksData = async () => {
@@ -294,11 +282,6 @@ const GramPanchayats = ({
   };
 
   // Unified export handler passed to child component
-  const getCurrentFilters = (): ExportFilters => ({
-    blockFilter,
-    searchTerm: debouncedSearchTerm
-  });
-
   const handleExportCSV = async (type: 'current' | 'all') => {
     const userId = localStorage.getItem('user_id') || 'unknown';
     const userName = localStorage.getItem('user_name') || 'unknown';
@@ -321,60 +304,29 @@ const GramPanchayats = ({
         export_page: 'Gram Panchayats',
         filters_applied: {
           block: blockFilter,
-          search: debouncedSearchTerm
+          search: searchTerm
         }
       });
       return;
     }
 
-    // backend export for ALL data with deduplication
-    const currentFilters = getCurrentFilters();
-    const jobKey = generateExportJobKey('gram-panchayat-export', 'all', currentFilters);
-    const existingJob = findExistingJob(jobKey);
-
-    // Check for existing job
-    if (existingJob) {
-      if (existingJob.status === 'completed' && existingJob.downloadUrl) {
-        // Download existing file
-        window.open(existingJob.downloadUrl, '_blank');
-        toast({ title: 'Downloaded', description: 'Using previously generated export file.' });
-        return;
-      } else if (existingJob.status === 'processing' || existingJob.status === 'pending') {
-        // Job already in progress
-        toast({ title: 'Export in Progress', description: 'A similar export is already being processed. Check notifications for updates.' });
-        return;
-      }
-    }
-
+    // backend export for ALL data
     toast({ title: 'Exporting', description: 'Preparing full export. This may take a while.' });
     try {
-      // Build query parameters from filters 
-      const params = new URLSearchParams();
-      if (blockFilter !== 'all') params.append('block', blockFilter);
-      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
+      const response = await apiClient.exportGramPanchayats();
 
-      const queryString = params.toString();
-      const endpoint = `/export/gramPanchayat${queryString ? `?${queryString}` : ''}`;
-      
-      const response = await apiClient.get(endpoint);
-
-      if (response.success && response.data && typeof response.data === 'object' && 'jobId' in response.data) {
-        const jobId = (response.data as any).jobId;
-
-        // Create enhanced job with deduplication data
-        const baseJob: ExportJob = {
-          id: jobId,
-          status: 'processing',
-          createdAt: new Date(),
-          title: 'Gram Panchayat CSV Export - All Data',
-          fileName: `gram_panchayats_all_${new Date().toISOString().split('T')[0]}.csv`,
-          type: 'gram-panchayat-export'
-        };
-
-        const enhancedJob = createEnhancedExportJob(baseJob, jobKey, 'all', currentFilters);
+      if (response.success && response.data && response.data.jobId) {
+        const jobId = response.data.jobId;
 
         if (onAddExportJob) {
-          onAddExportJob(enhancedJob);
+          onAddExportJob({
+            id: jobId,
+            status: 'processing',
+            createdAt: new Date(),
+            title: 'Gram Panchayat CSV Export - All Data',
+            fileName: `gram_panchayats_all_${new Date().toISOString().split('T')[0]}.csv`,
+            type: 'gram-panchayat-export'
+          });
         }
 
         // Mixpanel tracking for full export
@@ -388,7 +340,7 @@ const GramPanchayats = ({
           job_id: jobId,
           filters_applied: {
             block: blockFilter,
-            search: debouncedSearchTerm
+            search: searchTerm
           }
         });
 
@@ -425,7 +377,6 @@ const GramPanchayats = ({
                currentPageCount={filteredData.length}
                totalCount={totalCount}
                isMobile={true}
-               currentFilters={getCurrentFilters()}
              />
 
             {/* Filter Chips */}
@@ -460,9 +411,6 @@ const GramPanchayats = ({
                onAddGramPanchayat={onAddGramPanchayat}
                onBulkUpload={onBulkUpload}
                onExportCSV={handleExportCSV}
-               currentPageCount={filteredData.length}
-               totalCount={totalCount}
-               currentFilters={getCurrentFilters()}
              />
 
             <GramPanchayatFilters
