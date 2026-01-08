@@ -18,7 +18,7 @@ const EditGramPanchayat = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const gramPanchayat = location.state?.gramPanchayat;
+  const gramPanchayatFromState = location.state?.gramPanchayat;
   
   const [formData, setFormData] = useState({
     gramPanchayatName: '',
@@ -30,6 +30,8 @@ const EditGramPanchayat = () => {
   const [loading, setLoading] = useState(false);
   const [blocksData, setBlocksData] = useState<BlockGramPanchayatData[]>([]);
   const [loadingBlocks, setLoadingBlocks] = useState(true);
+  const [gramPanchayatData, setGramPanchayatData] = useState<any>(null);
+  const [loadingGP, setLoadingGP] = useState(true);
 
   useEffect(() => {
     const fetchBlocksData = async () => {
@@ -52,19 +54,71 @@ const EditGramPanchayat = () => {
     fetchBlocksData();
   }, [toast]);
 
+  // Fetch gram panchayat details with villages and paras
   useEffect(() => {
-    if (gramPanchayat && blocksData.length > 0) {
+    const fetchGramPanchayatDetails = async () => {
+      if (!gramPanchayatFromState?.name) {
+        setLoadingGP(false);
+        return;
+      }
+
+      try {
+        setLoadingGP(true);
+        const response = await apiClient.getGramPanchayats({
+          search: gramPanchayatFromState.name,
+        });
+        
+        if (response.success && response.data.items && response.data.items.length > 0) {
+          const gpData = response.data.items[0];
+          setGramPanchayatData(gpData);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load Gram Panchayat details",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingGP(false);
+      }
+    };
+
+    fetchGramPanchayatDetails();
+  }, [gramPanchayatFromState?.name, toast]);
+
+  useEffect(() => {
+    if (gramPanchayatData && blocksData.length > 0) {
+      // Transform paras into villages structure
+      // Group paras by village name
+      const villagesMap = new Map<string, GramPanchayatVillageData>();
+      
+      if (gramPanchayatData.paras && Array.isArray(gramPanchayatData.paras)) {
+        gramPanchayatData.paras.forEach((para: any) => {
+          const villageName = para.villageName || gramPanchayatData.name;
+          
+          if (!villagesMap.has(villageName)) {
+            villagesMap.set(villageName, {
+              id: `village-${villageName}`,
+              name: villageName,
+              paras: []
+            });
+          }
+          
+          const village = villagesMap.get(villageName)!;
+          village.paras.push({
+            id: para.id,
+            name: para.name || ''
+          });
+        });
+      }
+
       setFormData({
-        gramPanchayatName: gramPanchayat.name || '',
-        block: gramPanchayat.block || '',
-        villages: (gramPanchayat.villages || []).map((v: any) => ({
-          id: v.id,
-          name: v.name || '',
-          paras: (v.paras || []).map((p: any) => ({ id: p.id, name: p.name || '' }))
-        }))
+        gramPanchayatName: gramPanchayatData.name || '',
+        block: gramPanchayatData.block || '',
+        villages: Array.from(villagesMap.values())
       });
     }
-  }, [gramPanchayat, blocksData]);
+  }, [gramPanchayatData, blocksData]);
 
   // Add/Remove Villages
   const addVillage = () => {
@@ -125,13 +179,14 @@ const EditGramPanchayat = () => {
       name: formData.gramPanchayatName,
       block: formData.block,
       villages: formData.villages.map(v => ({
-        ...(v.id ? { id: v.id } : {}),
         name: v.name,
-        paras: v.paras.map(p => ({ ...(p.id ? { id: p.id } : {}), name: p.name }))
+        paras: v.paras.map(p => ({
+          name: p.name
+        }))
       }))
     };
     try {
-      const response = await apiClient.updateGramPanchayat(gramPanchayat.id, payload);
+      const response = await apiClient.updateGramPanchayat(gramPanchayatData.id, payload);
       if (response.success) {
         toast({ title: "Success", description: "Gram Panchayat updated successfully" });
         navigate('/gram-panchayats');
@@ -153,11 +208,21 @@ const EditGramPanchayat = () => {
     }
   };
 
-  if (!gramPanchayat) {
+  if (!gramPanchayatData && loadingGP) {
     return (
       <div className="p-6 bg-background min-h-screen">
         <div className="max-w-2xl mx-auto">
-          <p className="text-muted-foreground">No Gram Panchayat selected</p>
+          <p className="text-muted-foreground">Loading Gram Panchayat details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!gramPanchayatData) {
+    return (
+      <div className="p-6 bg-background min-h-screen">
+        <div className="max-w-2xl mx-auto">
+          <p className="text-muted-foreground">No Gram Panchayat data found</p>
         </div>
       </div>
     );
@@ -177,19 +242,6 @@ const EditGramPanchayat = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="gramPanchayatName">Gram Panchayat Name *</Label>
-            <Input
-              id="gramPanchayatName"
-              type="text"
-              value={formData.gramPanchayatName}
-              onChange={e => setFormData(prev => ({ ...prev, gramPanchayatName: e.target.value }))}
-              placeholder="Enter Gram Panchayat name"
-              className={`bg-white${errors.gramPanchayatName ? ' border-2 border-red-500' : ''}`}
-              autoComplete="off"
-            />
-            {errors.gramPanchayatName && <p className="text-red-500 text-xs mt-1">{errors.gramPanchayatName}</p>}
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="block">Block *</Label>
             <Select
               value={formData.block}
@@ -206,6 +258,19 @@ const EditGramPanchayat = () => {
               </SelectContent>
             </Select>
             {errors.block && <p className="text-red-500 text-xs mt-1">{errors.block}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="gramPanchayatName">Gram Panchayat Name *</Label>
+            <Input
+              id="gramPanchayatName"
+              type="text"
+              value={formData.gramPanchayatName}
+              onChange={e => setFormData(prev => ({ ...prev, gramPanchayatName: e.target.value }))}
+              placeholder="Enter Gram Panchayat name"
+              className={`bg-white${errors.gramPanchayatName ? ' border-2 border-red-500' : ''}`}
+              autoComplete="off"
+            />
+            {errors.gramPanchayatName && <p className="text-red-500 text-xs mt-1">{errors.gramPanchayatName}</p>}
           </div>
           {/* Villages Section */}
           <div className="space-y-2">

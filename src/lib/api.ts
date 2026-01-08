@@ -725,14 +725,14 @@ class ApiClient {
   }
 
   async createGramPanchayat(payload: { name: string; block: string; villages: { name: string; paras: { name: string }[] }[] }): Promise<ApiResponse<any>> {
-    return this.request<any>('/gramPanchayats', {
+    return this.request<any>('/field-worker/grampanchayat', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   }
 
   async updateGramPanchayat(gpId: string, payload: { name: string; block: string; villages: { name: string; paras: { name: string }[] }[] }): Promise<ApiResponse<any>> {
-    return this.request<any>(`/gramPanchayats/${gpId}`, {
+    return this.request<any>(`/field-worker/gramPanchayat/${gpId}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
     });

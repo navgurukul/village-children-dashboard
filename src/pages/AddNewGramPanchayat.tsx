@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Trash2, Info } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Info, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient, type BlockGramPanchayatData } from '../lib/api';
@@ -33,6 +33,8 @@ const AddNewGramPanchayat = () => {
   const [existingVillages, setExistingVillages] = useState<{ name: string; paras: string[] }[]>([]);
   const [villageWarnings, setVillageWarnings] = useState<string[]>([]); // Array for each village input
   const [paraWarnings, setParaWarnings] = useState<string[][]>([]); // Array for each village, then for each para
+  const [showGPSuggestions, setShowGPSuggestions] = useState(false); // Show/hide GP suggestions dropdown
+  const [filteredGPs, setFilteredGPs] = useState<string[]>([]); // Filtered GPs based on input
 
   useEffect(() => {
     const fetchBlocksData = async () => {
@@ -247,20 +249,6 @@ const AddNewGramPanchayat = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="gramPanchayatName">Gram Panchayat Name *</Label>
-            <Input
-              id="gramPanchayatName"
-              type="text"
-              value={formData.gramPanchayatName}
-              onChange={e => setFormData(prev => ({ ...prev, gramPanchayatName: e.target.value }))}
-              placeholder="Enter Gram Panchayat name"
-              className={`bg-white${errors.gramPanchayatName ? ' border-2 border-red-500' : ''}`}
-              autoComplete="off"
-            />
-            {errors.gramPanchayatName && <p className="text-red-500 text-xs mt-1">{errors.gramPanchayatName}</p>}
-            {gpNameWarning && <p className="text-yellow-600 text-xs mt-1">{gpNameWarning}</p>}
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="block">Block *</Label>
             <Select
               value={formData.block}
@@ -277,6 +265,71 @@ const AddNewGramPanchayat = () => {
               </SelectContent>
             </Select>
             {errors.block && <p className="text-red-500 text-xs mt-1">{errors.block}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="gramPanchayatName">Gram Panchayat Name *</Label>
+            <div className="relative">
+              <Input
+                id="gramPanchayatName"
+                type="text"
+                value={formData.gramPanchayatName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData(prev => ({ ...prev, gramPanchayatName: value }));
+                  
+                  // Filter and show suggestions when user types
+                  if (value.trim() && existingGPs.length > 0) {
+                    const filtered = existingGPs.filter(gp => 
+                      gp.toLowerCase().includes(value.toLowerCase())
+                    );
+                    setFilteredGPs(filtered);
+                    setShowGPSuggestions(filtered.length > 0);
+                  } else {
+                    setShowGPSuggestions(false);
+                  }
+                }}
+                onFocus={() => {
+                  // Show all suggestions when input is focused
+                  if (formData.gramPanchayatName.trim() && existingGPs.length > 0) {
+                    const filtered = existingGPs.filter(gp => 
+                      gp.toLowerCase().includes(formData.gramPanchayatName.toLowerCase())
+                    );
+                    setFilteredGPs(filtered);
+                    setShowGPSuggestions(filtered.length > 0);
+                  }
+                }}
+                placeholder="Enter Gram Panchayat name"
+                className={`bg-white${errors.gramPanchayatName ? ' border-2 border-red-500' : ''}`}
+                autoComplete="off"
+              />
+              
+              {/* Suggestions Dropdown */}
+              {showGPSuggestions && filteredGPs.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
+                  {filteredGPs.map((gp, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, gramPanchayatName: gp }));
+                        setShowGPSuggestions(false);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 text-sm flex items-center justify-between group"
+                    >
+                      <span>{gp}</span>
+                      <span className="text-xs text-orange-500 font-medium opacity-0 group-hover:opacity-100">Already exists</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {errors.gramPanchayatName && <p className="text-red-500 text-xs mt-1">{errors.gramPanchayatName}</p>}
+            {gpNameWarning && (
+              <div className="flex items-center gap-2 text-yellow-600 text-xs mt-1">
+                <span>⚠️</span>
+                <span>{gpNameWarning}</span>
+              </div>
+            )}
           </div>
           {/* Villages Section */}
           <div className="space-y-2">
