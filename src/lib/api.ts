@@ -603,6 +603,12 @@ class ApiClient {
     return this.request<BlockGramPanchayatData[]>('/paras/blocks-gramPanchayats');
   }
 
+  async getAdministrativeHierarchy(): Promise<ApiResponse<any>> {
+    return this.request<any>('/paras/administrative-hierarchy', {
+      method: 'GET',
+    });
+  }
+
   async getDistrictGramPanchayats(district?: string): Promise<ApiResponse<GramPanchayatResponse | BlockGramPanchayatsItem[]>> {
     const searchParams = new URLSearchParams();
     if (district) searchParams.append('district', district);
