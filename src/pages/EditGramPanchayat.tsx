@@ -32,6 +32,9 @@ const EditGramPanchayat = () => {
   const [loadingBlocks, setLoadingBlocks] = useState(true);
   const [gramPanchayatData, setGramPanchayatData] = useState<any>(null);
   const [loadingGP, setLoadingGP] = useState(true);
+  const [existingVillages, setExistingVillages] = useState<{ name: string; paras: string[] }[]>([]);
+  const [villageWarnings, setVillageWarnings] = useState<string[]>([]);
+  const [paraWarnings, setParaWarnings] = useState<string[][]>([]);
 
   useEffect(() => {
     const fetchBlocksData = async () => {
@@ -120,6 +123,119 @@ const EditGramPanchayat = () => {
     }
   }, [gramPanchayatData, blocksData]);
 
+  // Fetch administrative hierarchy to get existing villages and paras
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const fetchAdministrativeHierarchy = async () => {
+      if (!formData.block || !formData.gramPanchayatName.trim()) {
+        setExistingVillages([]);
+        return;
+      }
+
+      try {
+        const response = await apiClient.getAdministrativeHierarchy();
+        if (response.success && response.data) {
+          // Navigate through the hierarchy to find current GP's villages and paras
+          const blockData = response.data.blocks?.[formData.block];
+          const gpData = blockData?.gramPanchayats?.[formData.gramPanchayatName];
+          
+          if (gpData?.villages) {
+            // Extract existing villages and their paras
+            const existingVillagesData: { name: string; paras: string[] }[] = [];
+            
+            Object.entries(gpData.villages).forEach(([villageName, villageData]: [string, any]) => {
+              // Skip the "(Other Areas)" virtual villages
+              if (villageName.includes('(Other Areas)')) {
+                return;
+              }
+              
+              const paraNames = villageData.paras?.map((p: any) => p.name) || [];
+              existingVillagesData.push({
+                name: villageName,
+                paras: paraNames
+              });
+            });
+            
+            setExistingVillages(existingVillagesData);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch administrative hierarchy:', error);
+      }
+    };
+
+    // Add 800ms debounce to avoid multiple API calls while typing
+    timeoutId = setTimeout(() => {
+      fetchAdministrativeHierarchy();
+    }, 800);
+
+    // Cleanup timeout if component unmounts or dependencies change
+    return () => clearTimeout(timeoutId);
+  }, [formData.block, formData.gramPanchayatName]);
+
+  // Real-time duplicate check for villages within the same GP
+  useEffect(() => {
+    const warnings: string[] = [];
+    
+    formData.villages.forEach((v, idx) => {
+      if (!v.name.trim()) {
+        warnings[idx] = '';
+        return;
+      }
+      
+      const inputName = v.name.trim().toLowerCase();
+      
+      // Find the first occurrence of this village name
+      const firstOccurrenceIdx = formData.villages.findIndex(village => 
+        village.name.trim().toLowerCase() === inputName
+      );
+      
+      // Only show warning if this is NOT the first occurrence 
+      if (firstOccurrenceIdx !== idx && firstOccurrenceIdx !== -1) {
+        warnings[idx] = `A village with the name "${v.name}" already exists in this Gram Panchayat.`;
+      } else {
+        warnings[idx] = '';
+      }
+    });
+    
+    setVillageWarnings(warnings);
+  }, [formData.villages]);
+
+  // Real-time duplicate check for paras within each village
+  useEffect(() => {
+    const warnings: string[][] = [];
+    
+    formData.villages.forEach((v, vIdx) => {
+      const paraWarn: string[] = [];
+      
+      v.paras.forEach((p, pIdx) => {
+        if (!p.name.trim()) {
+          paraWarn[pIdx] = '';
+          return;
+        }
+        
+        const inputName = p.name.trim().toLowerCase();
+        
+        // Find the first occurrence of this para name in this village
+        const firstOccurrenceIdx = v.paras.findIndex(para => 
+          para.name.trim().toLowerCase() === inputName
+        );
+        
+        // Only show warning if this is NOT the first occurrence 
+        if (firstOccurrenceIdx !== pIdx && firstOccurrenceIdx !== -1) {
+          paraWarn[pIdx] = `A para with the name "${p.name}" already exists in this village.`;
+        } else {
+          paraWarn[pIdx] = '';
+        }
+      });
+      
+      warnings[vIdx] = paraWarn;
+    });
+    
+    setParaWarnings(warnings);
+  }, [formData.villages]);
+
   // Add/Remove Villages
   const addVillage = () => {
     setFormData(prev => ({ ...prev, villages: [...prev.villages, { name: '', paras: [] }] }));
@@ -172,6 +288,16 @@ const EditGramPanchayat = () => {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       toast({ title: "Validation Error", description: "Please fix the errors in the form.", variant: "destructive" });
+      return;
+    }
+
+    // Check for duplicate warnings
+    if (villageWarnings.some(w => w) || paraWarnings.some(arr => arr.some(w => w))) {
+      toast({ 
+        title: "Duplicate Names", 
+        description: "Please fix duplicate Village or Para names within this Gram Panchayat.", 
+        variant: "destructive" 
+      });
       return;
     }
     setLoading(true);
@@ -297,6 +423,12 @@ const EditGramPanchayat = () => {
                     className={`bg-white${errors[`villageName_${vIdx}`] ? ' border-2 border-red-500' : ''}`}
                   />
                   {errors[`villageName_${vIdx}`] && <p className="text-red-500 text-xs mt-1">{errors[`villageName_${vIdx}`]}</p>}
+                  {villageWarnings[vIdx] && (
+                    <div className="flex items-center gap-2 text-yellow-600 text-xs mt-1">
+                      <span>⚠️</span>
+                      <span>{villageWarnings[vIdx]}</span>
+                    </div>
+                  )}
                 </div>
                 {/* Paras Section */}
                 <div className="space-y-2 mt-2">
@@ -308,13 +440,24 @@ const EditGramPanchayat = () => {
                   </div>
                   {village.paras.map((para, pIdx) => (
                     <div key={pIdx} className="flex items-center gap-2 mt-1">
-                      <Input
-                        type="text"
-                        value={para.name}
-                        onChange={e => handleParaChange(vIdx, pIdx, e.target.value)}
-                        placeholder="Enter para name"
-                        className={`bg-white flex-1${errors[`paraName_${vIdx}_${pIdx}`] ? ' border-2 border-red-500' : ''}`}
-                      />
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          value={para.name}
+                          onChange={e => handleParaChange(vIdx, pIdx, e.target.value)}
+                          placeholder="Enter para name"
+                          className={`bg-white${errors[`paraName_${vIdx}_${pIdx}`] ? ' border-2 border-red-500' : ''}`}
+                        />
+                        {errors[`paraName_${vIdx}_${pIdx}`] && (
+                          <p className="text-red-500 text-xs mt-1">{errors[`paraName_${vIdx}_${pIdx}`]}</p>
+                        )}
+                        {paraWarnings[vIdx] && paraWarnings[vIdx][pIdx] && (
+                          <div className="flex items-center gap-2 text-yellow-600 text-xs mt-1">
+                            <span>⚠️</span>
+                            <span>{paraWarnings[vIdx][pIdx]}</span>
+                          </div>
+                        )}
+                      </div>
                       <Button type="button" variant="ghost" size="sm" onClick={() => removePara(vIdx, pIdx)} title="Remove Para">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
